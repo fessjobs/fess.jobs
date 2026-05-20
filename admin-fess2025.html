@@ -254,6 +254,7 @@ nav{flex:1;padding:8px 6px;overflow-y:auto;}
   <div class="sb-foot">
     <div class="urow"><div class="uav">MJ</div><div><div class="uname">Maik Janke</div><div class="urole">Administrator</div></div></div>
     <a href="/" style="display:block;text-align:center;font-size:10px;color:var(--mut);margin-top:6px;text-decoration:none;">← Mitarbeiterseite</a>
+    <button onclick="showSQLHint()" style="width:100%;background:none;border:1px solid var(--bdr);border-radius:5px;font-size:10px;color:var(--mut);padding:5px;cursor:pointer;font-family:var(--font);margin-top:5px">📋 SQL Setup</button>
   </div>
 </div>
 
@@ -292,7 +293,16 @@ nav{flex:1;padding:8px 6px;overflow-y:auto;}
       <button class="fp" onclick="fAuf('bestaetigt',this)">✅ Bestätigt</button>
       <button class="fp" onclick="fAuf('angefragt',this)">❓ Angefragt</button>
       <button class="fp" onclick="fAuf('dringend',this)">🔥 Dringend</button>
+      <button class="fp" onclick="fAuf('abgeschlossen',this)">🏁 Abgeschlossen</button>
+      <button class="fp" onclick="fAuf('abgesagt',this)">❌ Abgesagt</button>
       <div class="fsep"></div>
+      <select class="si" style="width:140px" onchange="aufSort=this.value;renderAuftraege()">
+        <option value="datum">↑ Datum</option>
+        <option value="datum_desc">↓ Datum (neu→alt)</option>
+        <option value="name">A–Z Name</option>
+        <option value="besetzt">↓ Besetzt %</option>
+        <option value="pax">↓ Personenbedarf</option>
+      </select>
       <input class="si" placeholder="🔍 Suchen…" oninput="searchAuf(this.value)">
     </div>
     <div class="card">
@@ -349,11 +359,12 @@ nav{flex:1;padding:8px 6px;overflow-y:auto;}
   <!-- MITARBEITER -->
   <div class="page hidden" id="pg-mitarbeiter">
     <div class="fbar">
-      <button class="fp on">Alle</button>
-      <button class="fp">✅ Vollständig</button>
-      <button class="fp">⚠️ Unvollständig</button>
+      <button class="fp on" onclick="fMA('alle',this)">Alle <span id="ma-count-all" style="font-size:9px;opacity:.6"></span></button>
+      <button class="fp" onclick="fMA('ok',this)">✅ Vollständig</button>
+      <button class="fp" onclick="fMA('miss',this)">⚠️ Unvollständig</button>
       <div class="fsep"></div>
-      <button class="btn b-gh" onclick="openImport()">📥 Excel importieren</button>
+      <input class="si" placeholder="🔍 Suchen…" style="width:160px" oninput="searchMA(this.value)">
+      <button class="btn b-gh" onclick="openImport()">📥 Excel</button>
       <button class="btn b-or" onclick="openNeuerMA()">+ Mitarbeiter</button>
     </div>
     <div class="card">
@@ -446,7 +457,7 @@ nav{flex:1;padding:8px 6px;overflow-y:auto;}
 <script>
 // ── STATE ──
 let AUFTRAEGE=[],BEWERBUNGEN=[],MITARBEITER=[];
-let aufF='alle',bewF='alle',aufQ='';
+let aufF='alle',bewF='alle',aufQ='',aufSort='datum',maF='alle',maQ='';
 
 // ── HELPERS ──
 function fmtD(a){
@@ -482,13 +493,13 @@ async function loadAll(){
 
 async function loadAuftraege(){
   if(!sb)return;
-  const{data,error}=await sb.from('auftraege').select('*').neq('status','abgesagt').order('datum_von');
+  const{data,error}=await sb.from('auftraege').select('*').order('datum_von');
   if(!error&&data){AUFTRAEGE=data;renderAuftraege();document.getElementById('st-auf').textContent=data.length;}
 }
 
 async function loadBewerbungen(){
   if(!sb)return;
-  const{data,error}=await sb.from('bewerbungen').select('*').order('created_at',{ascending:false});
+  const{data,error}=await sb.from('bewerbungen').select('*,auftraege(name)').order('created_at',{ascending:false});
   if(!error&&data){
     BEWERBUNGEN=data;renderBewerbungen();
     const n=data.filter(b=>b.status==='eingegangen').length;
@@ -553,30 +564,73 @@ function renderDashboard(){
 }
 
 // ── AUFTRÄGE ──
+function isAbgeschlossen(a){
+  if(a.status==='abgesagt')return true;
+  if(!a.datum_von)return false;
+  const end=a.datum_bis?new Date(a.datum_bis):new Date(a.datum_von);
+  end.setDate(end.getDate()+1);
+  return end<new Date();
+}
+
 function renderAuftraege(){
   let d=AUFTRAEGE.slice();
-  if(aufF==='bestaetigt')d=d.filter(a=>a.status==='bestaetigt');
-  else if(aufF==='angefragt')d=d.filter(a=>a.status==='angefragt');
-  else if(aufF==='dringend')d=d.filter(a=>a.dringend);
-  if(aufQ)d=d.filter(a=>a.name.toLowerCase().includes(aufQ.toLowerCase()));
+  const today=new Date().toISOString().split('T')[0];
+  if(aufF==='bestaetigt')d=d.filter(a=>a.status==='bestaetigt'&&!isAbgeschlossen(a));
+  else if(aufF==='angefragt')d=d.filter(a=>a.status==='angefragt'&&!isAbgeschlossen(a));
+  else if(aufF==='dringend')d=d.filter(a=>a.dringend&&!isAbgeschlossen(a));
+  else if(aufF==='abgeschlossen')d=d.filter(a=>isAbgeschlossen(a)&&a.status!=='abgesagt');
+  else if(aufF==='abgesagt')d=d.filter(a=>a.status==='abgesagt');
+  else d=d.filter(a=>!isAbgeschlossen(a)); // default: nur aktive
+  if(aufQ)d=d.filter(a=>a.name.toLowerCase().includes(aufQ.toLowerCase())||a.location?.toLowerCase().includes(aufQ.toLowerCase()));
+  // Sort
+  if(aufSort==='datum')d.sort((a,b)=>a.datum_von.localeCompare(b.datum_von));
+  else if(aufSort==='datum_desc')d.sort((a,b)=>b.datum_von.localeCompare(a.datum_von));
+  else if(aufSort==='name')d.sort((a,b)=>a.name.localeCompare(b.name));
+  else if(aufSort==='besetzt')d.sort((a,b)=>{
+    const pa=a.pax_gesamt>0?(a.pax_besetzt||0)/a.pax_gesamt:0;
+    const pb=b.pax_gesamt>0?(b.pax_besetzt||0)/b.pax_gesamt:0;
+    return pb-pa;
+  });
+  else if(aufSort==='pax')d.sort((a,b)=>b.pax_gesamt-a.pax_gesamt);
+
   document.getElementById('aufTbody').innerHTML=d.length?d.map(a=>{
+    const abg=isAbgeschlossen(a);
+    const abgesagt=a.status==='abgesagt';
     const op=a.pax_gesamt>0?Math.round((a.pax_besetzt||0)/a.pax_gesamt*100):0;
     const bc=op>=80?'var(--gr)':op>=40?'var(--ye)':'var(--re)';
-    return`<tr>
-      <td><div class="tn">${a.name}${a.dringend?' <span class="tag to" style="font-size:8px">🔥</span>':''}</div><div class="ts">${a.kategorie||''}</div></td>
-      <td>${a.status==='bestaetigt'?'<span class="tag tg">✓ Bestätigt</span>':'<span class="tag ty">❓ Angefragt</span>'}</td>
+    let stTag='';
+    if(abgesagt)stTag='<span class="tag tr">❌ Abgesagt</span>';
+    else if(abg)stTag='<span class="tag tgr">🏁 Abgeschlossen</span>';
+    else if(a.status==='bestaetigt')stTag='<span class="tag tg">✓ Bestätigt</span>';
+    else stTag='<span class="tag ty">❓ Angefragt</span>';
+    const rowStyle=abg||abgesagt?'opacity:.45;background:#fafafa;':'';
+    const abgLabel=abg&&!abgesagt?'<div style="font-size:9px;color:var(--mut);margin-top:2px">Abgeschlossen</div>':'';
+    return`<tr style="${rowStyle}">
+      <td>
+        <div class="tn">${a.name}${a.dringend&&!abg?' <span class="tag to" style="font-size:8px">🔥</span>':''}</div>
+        <div class="ts">${a.kategorie||''}${abgLabel}</div>
+      </td>
+      <td>${stTag}</td>
       <td style="font-size:11px;color:var(--sub)">${fmtD(a)}</td>
       <td style="font-size:11px;color:var(--sub)">${a.location}</td>
       <td><div class="occ"><div class="occ-t"><div class="occ-f" style="width:${op}%;background:${bc}"></div></div><span class="occ-n">${a.pax_besetzt||0}/${a.pax_gesamt}</span></div></td>
       <td><div class="ra">
-        <button class="ia" onclick="openEditAuf('${a.id}')">✏️ Edit</button>
-        ${a.status==='angefragt'?`<button class="ia ia-g" onclick="setAufStatus('${a.id}','bestaetigt')">✓ Best.</button>`:''}
-        <button class="ia ia-o" onclick="gotoDispo('${a.id}')">🗂️ Dispo</button>
+        <button class="ia" onclick="openEditAuf('${a.id}')">✏️</button>
+        ${!abg&&a.status==='angefragt'?`<button class="ia ia-g" onclick="setAufStatus('${a.id}','bestaetigt')">✓</button>`:''}
+        ${!abg?`<button class="ia ia-o" onclick="gotoDispo('${a.id}')">🗂️</button>`:''}
+        ${abg||abgesagt?`<button class="ia ia-r" style="font-size:9px" onclick="deleteAuf('${a.id}')">🗑️</button>`:''}
       </div></td>
     </tr>`}).join(''):`<tr><td colspan="6" class="empty">Keine Aufträge</td></tr>`;
 }
 function fAuf(f,el){aufF=f;document.querySelectorAll('#pg-auftraege .fp').forEach(b=>b.classList.remove('on'));el.classList.add('on');renderAuftraege();}
 function searchAuf(v){aufQ=v;renderAuftraege();}
+
+async function deleteAuf(id){
+  if(!confirm('Auftrag wirklich löschen?'))return;
+  await sb.from('auftraege').delete().eq('id',id);
+  toast('🗑️ Gelöscht','ok');
+  await loadAuftraege();
+}
 
 async function setAufStatus(id,status){
   const{error}=await sb.from('auftraege').update({status,updated_at:new Date().toISOString()}).eq('id',id);
@@ -1058,11 +1112,17 @@ function genStundenPDF(){
 
 function renderMitarbeiter(){
   const tbody = document.getElementById('maTbody');
-  if(!MITARBEITER.length){
-    tbody.innerHTML='<tr><td colspan="8" class="empty">Keine Mitarbeiter</td></tr>';
+  let d = MITARBEITER.slice();
+  if(maF==='ok') d=d.filter(m=>m.vertrag_ok&&m.app_ok&&m.daten_ok);
+  else if(maF==='miss') d=d.filter(m=>!m.vertrag_ok||!m.app_ok||!m.daten_ok);
+  if(maQ) d=d.filter(m=>`${m.vorname} ${m.nachname} ${m.telefon||''} ${m.personalnummer||''}`.toLowerCase().includes(maQ.toLowerCase()));
+  const countEl=document.getElementById('ma-count-all');
+  if(countEl)countEl.textContent='('+d.length+')';
+  if(!d.length){
+    tbody.innerHTML=`<tr><td colspan="8" class="empty">${MITARBEITER.length?'Keine Treffer':'Keine Mitarbeiter – SQL prüfen (siehe unten)'}${!MITARBEITER.length?'<div style="margin-top:8px"><button class="btn b-or" onclick="showSQLHint()" style="margin:0 auto">📋 SQL für Spalten anzeigen</button></div>':''}</td></tr>`;
     return;
   }
-  tbody.innerHTML = MITARBEITER.map(m => {
+  tbody.innerHTML = d.map(m => {
     const pnr = m.personalnummer||'–';
     const name = (m.vorname||'') + ' ' + (m.nachname||'');
     const tel = m.telefon||'–';
@@ -1092,6 +1152,37 @@ function renderMitarbeiter(){
     </tr>`;
   }).join('');
 }
+
+
+
+function showSQLHint(){
+  openM(`<div class="mt">📋 SQL für Mitarbeiter-Spalten</div>
+    <div class="ms">Diese SQL-Abfrage im Supabase SQL Editor ausführen um alle benötigten Spalten anzulegen:</div>
+    <pre style="background:#1e293b;color:#e2e8f0;padding:14px;border-radius:8px;font-size:10px;overflow-x:auto;white-space:pre-wrap;line-height:1.6">ALTER TABLE mitarbeiter ADD COLUMN IF NOT EXISTS personalnummer text;
+ALTER TABLE mitarbeiter ADD COLUMN IF NOT EXISTS vertragsart text;
+ALTER TABLE mitarbeiter ADD COLUMN IF NOT EXISTS erster_arbeitstag date;
+ALTER TABLE mitarbeiter ADD COLUMN IF NOT EXISTS stunden_monat text;
+ALTER TABLE mitarbeiter ADD COLUMN IF NOT EXISTS vertrag_ok boolean default false;
+ALTER TABLE mitarbeiter ADD COLUMN IF NOT EXISTS app_ok boolean default false;
+ALTER TABLE mitarbeiter ADD COLUMN IF NOT EXISTS psa_vorhanden boolean default false;
+ALTER TABLE mitarbeiter ADD COLUMN IF NOT EXISTS daten_ok boolean default false;
+ALTER TABLE mitarbeiter ADD COLUMN IF NOT EXISTS notizen text;
+ALTER TABLE mitarbeiter ADD COLUMN IF NOT EXISTS aktiv boolean default true;
+ALTER TABLE stundennachweise ADD COLUMN IF NOT EXISTS bestaetigt boolean default false;
+ALTER TABLE stundennachweise ADD COLUMN IF NOT EXISTS ma_unterschrift text;
+ALTER TABLE stundennachweise ADD COLUMN IF NOT EXISTS ma_unterschrift_datum timestamptz;
+ALTER TABLE stundennachweise ADD COLUMN IF NOT EXISTS kunde_unterschrift text;
+ALTER TABLE stundennachweise ADD COLUMN IF NOT EXISTS kunde_name text;
+ALTER TABLE stundennachweise ADD COLUMN IF NOT EXISTS kunde_position text;
+ALTER TABLE stundennachweise ADD COLUMN IF NOT EXISTS kunde_datum timestamptz;</pre>
+    <div class="macts">
+      <button class="mb mb-gh" onclick="closeM()">Schließen</button>
+      <button class="mb mb-or" onclick="navigator.clipboard?.writeText(document.querySelector('pre').textContent);toast('✅ Kopiert!','ok')">📋 Kopieren</button>
+    </div>`);
+}
+
+function fMA(f,el){maF=f;document.querySelectorAll('#pg-mitarbeiter .fp').forEach(b=>b.classList.remove('on'));el.classList.add('on');renderMitarbeiter();}
+function searchMA(v){maQ=v;renderMitarbeiter();}
 
 
 function openNeuerMA(){
