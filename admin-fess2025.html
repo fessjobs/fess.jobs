@@ -3,154 +3,283 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>FESS Admin – Disposition</title>
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet"><link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
-<link href="https://fonts.googleapis.com/css2?family=Bitter:wght@700;800;900&family=Barlow:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css">
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<title>FESS Admin</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <script>
-// ══ SUPABASE CONFIG ══
-const SB_URL = 'https://nojmxfelunqaotqslabk.supabase.co';
-const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5vam14ZmVsdW5xYW90cXNsYWJrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkyNjg4NzcsImV4cCI6MjA5NDg0NDg3N30.14x_oz0vxPXqbwBCcBeUZmE-s6Eg4QNbBWCorMsvfFo';
-const sb = supabase.createClient(SB_URL, SB_KEY);
+const SB_URL='https://nojmxfelunqaotqslabk.supabase.co';
+const SB_ANON='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5vam14ZmVsdW5xYW90cXNsYWJrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkyNjg4NzcsImV4cCI6MjA5NDg0NDg3N30.14x_oz0vxPXqbwBCcBeUZmE-s6Eg4QNbBWCorMsvfFo';
+let sb=null;
+try{sb=supabase.createClient(SB_URL,SB_ANON);}catch(e){console.error('SB:',e);}
 </script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;}
-:root{--or:#E8651A;--dark:#f8f7f5;--s1:#ffffff;--s2:#ffffff;--s3:#f3f4f6;--bd:#e5e7eb;--mt:#6b7280;}
-body{background:#f8f7f5;font-family:'DM Sans',sans-serif;color:#111827;min-height:100vh;display:flex;overflow:hidden;}
-.sidebar{width:210px;background:#ffffff;border-right:1px solid #e5e7eb;display:flex;flex-direction:column;flex-shrink:0;height:100vh;}
-.sb-logo{padding:16px;border-bottom:1px solid #e5e7eb;font-family:'DM Serif Display',serif;font-weight:900;font-size:20px;}
-.sb-logo span{color:var(--or);}
-.sb-logo small{display:block;font-family:'DM Sans',sans-serif;font-size:10px;font-weight:600;letter-spacing:.15em;text-transform:uppercase;color:#d1d5db;margin-top:-1px;}
-.sb-status{padding:8px 16px;font-size:10px;border-bottom:1px solid #e5e7eb;}
-.sb-status.ok{color:#059669;background:#ecfdf5;padding:5px 10px;border-radius:20px;font-size:10px;font-weight:600;}.sb-status.err{color:#f87171;}
+:root{
+  --or:#E8651A;--or2:#f57332;--orl:#fff6f1;--orb:#ffe0cc;--orm:#ffd4b8;
+  --text:#111827;--sub:#4b5563;--mut:#9ca3af;
+  --bg:#f8f7f5;--white:#fff;--bdr:#e5e7eb;--bdr2:#d1d5db;
+  --gr:#059669;--grb:#ecfdf5;--grbr:#a7f3d0;
+  --re:#dc2626;--reb:#fef2f2;--rebr:#fecaca;
+  --ye:#d97706;--yeb:#fffbeb;--yebr:#fde68a;
+  --bl:#2563eb;--blb:#eff6ff;--blbr:#bfdbfe;
+  --pu:#7c3aed;--pub:#f5f3ff;--pubr:#ddd6fe;
+  --sh:0 1px 3px rgba(0,0,0,.07);--shm:0 4px 16px rgba(0,0,0,.08);
+  --font:'DM Sans',sans-serif;--r:10px;--rs:6px;--rl:16px;
+}
+body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100vh;display:flex;font-size:13px;}
+
+/* SIDEBAR */
+.sb{width:220px;background:var(--white);border-right:1px solid var(--bdr);display:flex;flex-direction:column;height:100vh;position:sticky;top:0;flex-shrink:0;}
+.sb-top{padding:16px 14px 12px;border-bottom:1px solid var(--bdr);}
+.sb-logo{display:flex;align-items:center;gap:9px;}
+.sb-mark{width:30px;height:30px;background:var(--or);border-radius:7px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.sb-mark svg{width:16px;height:16px;}
+.sb-name{font-family:'DM Serif Display',serif;font-size:16px;color:var(--text);}
+.sb-name span{color:var(--or);}
+.sb-sub{font-size:9px;color:var(--mut);font-weight:600;letter-spacing:.07em;text-transform:uppercase;margin-top:1px;}
+.sb-st{margin:9px 0 0;display:inline-flex;align-items:center;gap:5px;font-size:10px;font-weight:600;padding:3px 9px;border-radius:20px;}
+.sb-st.ok{color:var(--gr);background:var(--grb);border:1px solid var(--grbr);}
+.sb-st.err{color:var(--re);background:var(--reb);}
+.sb-dot{width:5px;height:5px;border-radius:50%;background:currentColor;}
 nav{flex:1;padding:8px 6px;overflow-y:auto;}
-.ni{display:flex;align-items:center;gap:9px;padding:8px 10px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:600;color:#6b7280;transition:all .15s;margin-bottom:2px;border:none;background:none;width:100%;text-align:left;}
-.ni:hover{background:#f9fafb;color:#111827;}
-.ni.on{background:#fff3ed;color:var(--or);font-weight:700;}
-.ni i{font-size:17px;width:20px;}
-.badge-r{background:var(--or);color:#111827;font-size:9px;font-weight:700;padding:2px 6px;border-radius:10px;margin-left:auto;}
-.sb-foot{padding:12px;border-top:1px solid #e5e7eb;}
-.sb-foot button{width:100%;background:#f9fafb;border:1px solid #e5e7eb;color:#9ca3af;border-radius:6px;padding:7px;font-size:11px;cursor:pointer;}
+.nav-lbl{font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--mut);padding:7px 8px 3px;margin-top:2px;}
+.ni{display:flex;align-items:center;gap:8px;padding:7px 9px;border-radius:var(--rs);cursor:pointer;font-size:12px;font-weight:500;color:var(--sub);transition:all .12s;margin-bottom:1px;border:none;background:none;width:100%;text-align:left;position:relative;}
+.ni svg{width:14px;height:14px;flex-shrink:0;opacity:.6;}
+.ni:hover,.ni.on{background:var(--orl);color:var(--or);}
+.ni.on{font-weight:600;}
+.ni.on svg,.ni:hover svg{opacity:1;}
+.ni.on::before{content:'';position:absolute;left:0;top:50%;transform:translateY(-50%);width:3px;height:16px;background:var(--or);border-radius:0 2px 2px 0;}
+.nbadge{background:var(--or);color:#fff;font-size:9px;font-weight:700;padding:1px 6px;border-radius:10px;margin-left:auto;}
+.nbadge.g{background:var(--gr);}
+.sb-foot{padding:10px 6px;border-top:1px solid var(--bdr);}
+.urow{display:flex;align-items:center;gap:8px;padding:6px 9px;}
+.uav{width:26px;height:26px;border-radius:50%;background:linear-gradient(135deg,var(--or),var(--or2));color:#fff;font-size:9px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.uname{font-size:11px;font-weight:600;color:var(--text);}
+.urole{font-size:9px;color:var(--mut);}
+
+/* MAIN */
 .main{flex:1;display:flex;flex-direction:column;overflow:hidden;height:100vh;}
-.topbar{background:#ffffff;border-bottom:1px solid #e5e7eb;padding:13px 22px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
-.topbar h1{font-family:'DM Serif Display',serif;font-size:18px;font-weight:800;}
-.tb-acts{display:flex;gap:8px;}
-.tbtn{background:#f3f4f6;border:1px solid #e5e7eb;color:#111827;border-radius:7px;padding:7px 14px;font-size:12px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:5px;font-family:'DM Sans',sans-serif;}
-.tbtn.primary{background:var(--or);border-color:var(--or);}
-.tbtn i{font-size:15px;}
-.page{flex:1;overflow-y:auto;padding:20px 22px;}
-.hidden{display:none;}
-.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px;}
-.sc{background:#ffffff;border:1px solid #e5e7eb;border-radius:10px;padding:14px 16px;}
-.sc.alert{border-color:rgba(232,101,26,.4);}
-.sc .sv{font-size:26px;font-weight:700;font-family:'DM Serif Display',serif;line-height:1.1;}
-.sc .sl{font-size:11px;color:#9ca3af;margin-top:3px;}
-.sc.alert .sv{color:var(--or);}
-.two-col{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
-.panel{background:#ffffff;border:1px solid #e5e7eb;border-radius:10px;overflow:hidden;}
-.ph{padding:12px 15px;border-bottom:1px solid #e5e7eb;display:flex;align-items:center;justify-content:space-between;}
-.ph h3{font-family:'DM Serif Display',serif;font-size:14px;font-weight:800;}
-.ph a{font-size:11px;color:var(--or);cursor:pointer;text-decoration:none;}
-.prow{padding:10px 15px;border-bottom:1px solid #f3f4f6;display:flex;align-items:center;gap:10px;}
-.prow:last-child{border-bottom:none;}
-.prow:hover{background:rgba(255,255,255,.02);}
-.av{width:30px;height:30px;border-radius:50%;background:#fff3ed;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:var(--or);flex-shrink:0;}
-.prow-info{flex:1;}
-.prow-name{font-size:12px;font-weight:700;}
-.prow-sub{font-size:10px;color:var(--mt);}
-.prow-acts{display:flex;gap:4px;}
-.ia{background:none;border:1px solid #e5e7eb;border-radius:5px;padding:3px 8px;font-size:10px;font-weight:600;cursor:pointer;color:#6b7280;font-family:'DM Sans',sans-serif;}
-.ia.g{border-color:rgba(34,197,94,.4);color:#4ade80;}
-.ia.r{border-color:rgba(239,68,68,.4);color:#f87171;}
-.ia.o{border-color:rgba(232,101,26,.4);color:var(--or);}
-.tag{font-size:9px;font-weight:700;padding:2px 8px;border-radius:10px;white-space:nowrap;letter-spacing:.05em;}
-.t-best{background:#166534;color:#4ade80;}
-.t-ang{background:#78350f;color:#fbbf24;}
-.t-urg{background:rgba(232,101,26,.2);color:var(--or);}
-.t-new{background:#1e3a5f;color:#60a5fa;}
-.t-abl{background:#3f1515;color:#f87171;}
-.t-res{background:#2d1b69;color:#a78bfa;}
-.tbl{width:100%;border-collapse:collapse;font-size:12px;}
-.tbl th{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#9ca3af;padding:9px 12px;text-align:left;border-bottom:1px solid #e5e7eb;}
-.tbl td{padding:10px 12px;border-bottom:1px solid #f3f4f6;vertical-align:middle;}
-.tbl tr:hover td{background:rgba(255,255,255,.02);}
+.topbar{background:var(--white);border-bottom:1px solid var(--bdr);padding:0 20px;height:50px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
+.tb-title{font-size:14px;font-weight:700;color:var(--text);}
+.tb-acts{display:flex;gap:6px;}
+.btn{display:inline-flex;align-items:center;gap:5px;padding:6px 12px;border-radius:var(--rs);font-size:11px;font-weight:600;cursor:pointer;border:none;font-family:var(--font);transition:all .12s;white-space:nowrap;}
+.btn svg{width:12px;height:12px;}
+.b-or{background:var(--or);color:#fff;}
+.b-or:hover{background:var(--or2);}
+.b-gh{background:var(--white);color:var(--sub);border:1px solid var(--bdr2);}
+.b-gh:hover{border-color:var(--orb);color:var(--or);background:var(--orl);}
+.b-gr{background:var(--grb);color:var(--gr);border:1px solid var(--grbr);}
+
+.page{flex:1;overflow-y:auto;padding:18px 20px;}
+.hidden{display:none!important;}
+
+/* STATS */
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:11px;margin-bottom:18px;}
+.sc{background:var(--white);border:1px solid var(--bdr);border-radius:var(--r);padding:13px 15px;box-shadow:var(--sh);}
+.sc.hl{border-left:3px solid var(--or);}
+.sv{font-size:24px;font-weight:700;font-family:'DM Serif Display',serif;line-height:1;color:var(--text);}
+.sl{font-size:11px;color:var(--mut);margin-top:2px;}
+.sbg{display:inline-flex;font-size:9px;font-weight:700;padding:2px 7px;border-radius:10px;margin-top:5px;}
+.sbg.or{background:var(--orl);color:var(--or);}
+.sbg.y{background:var(--yeb);color:var(--ye);}
+.sbg.g{background:var(--grb);color:var(--gr);}
+
+/* CARD */
+.card{background:var(--white);border:1px solid var(--bdr);border-radius:var(--r);box-shadow:var(--sh);overflow:hidden;margin-bottom:12px;}
+.ch{padding:11px 14px;border-bottom:1px solid var(--bdr);display:flex;align-items:center;justify-content:space-between;}
+.ch-title{font-size:12px;font-weight:700;color:var(--text);}
+.ch-link{font-size:11px;color:var(--or);cursor:pointer;font-weight:600;}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;}
+
+/* TABLE */
+.tbl{width:100%;border-collapse:collapse;}
+.tbl th{font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--mut);padding:8px 12px;text-align:left;background:#fafafa;border-bottom:1px solid var(--bdr);}
+.tbl td{padding:9px 12px;border-bottom:1px solid #f3f4f6;vertical-align:middle;}
 .tbl tr:last-child td{border-bottom:none;}
-.occ{display:flex;align-items:center;gap:5px;}
-.occ-bg{width:48px;height:4px;background:#f3f4f6;border-radius:2px;overflow:hidden;}
-.occ-fill{height:100%;border-radius:2px;}
-.fg{margin-bottom:11px;}
-.fl{display:block;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#9ca3af;margin-bottom:4px;}
-.fi,.fsel,.fta{width:100%;background:#f9fafb;border:1px solid rgba(255,255,255,.12);border-radius:7px;color:#111827;font-family:'DM Sans',sans-serif;font-size:12px;padding:8px 10px;outline:none;-webkit-appearance:none;}
-.fi:focus,.fsel:focus,.fta:focus{border-color:var(--or);}
-.fi::placeholder{color:#9ca3af;}
-.fsel option{background:#ffffff;}
-.fta{resize:vertical;min-height:65px;}
-.fr2{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
-.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.8);backdrop-filter:blur(6px);z-index:500;display:flex;align-items:center;justify-content:center;padding:20px;opacity:0;pointer-events:none;transition:opacity .2s;}
+.tbl tr:hover td{background:#fafafa;}
+.tn{font-weight:600;font-size:12px;color:var(--text);}
+.ts{font-size:10px;color:var(--mut);margin-top:1px;}
+
+/* TAGS */
+.tag{display:inline-flex;align-items:center;font-size:9px;font-weight:700;padding:2px 7px;border-radius:20px;white-space:nowrap;}
+.tg{background:var(--grb);color:var(--gr);}
+.ty{background:var(--yeb);color:var(--ye);}
+.tr{background:var(--reb);color:var(--re);}
+.to{background:var(--orl);color:var(--or);}
+.tb{background:var(--blb);color:var(--bl);}
+.tp{background:var(--pub);color:var(--pu);}
+.tgr{background:#f3f4f6;color:var(--sub);}
+
+/* OCC */
+.occ{display:flex;align-items:center;gap:6px;}
+.occ-t{width:52px;height:4px;background:#e5e7eb;border-radius:2px;overflow:hidden;}
+.occ-f{height:100%;border-radius:2px;}
+.occ-n{font-size:10px;font-weight:600;color:var(--sub);}
+
+/* ROW ACTIONS */
+.ra{display:flex;gap:3px;}
+.ia{display:inline-flex;align-items:center;gap:3px;padding:3px 8px;border-radius:var(--rs);font-size:10px;font-weight:600;cursor:pointer;border:1px solid var(--bdr2);background:var(--white);color:var(--sub);font-family:var(--font);transition:all .12s;}
+.ia:hover{border-color:var(--orb);color:var(--or);background:var(--orl);}
+.ia-g{border-color:var(--grbr);color:var(--gr);background:var(--grb);}
+.ia-r{border-color:var(--rebr);color:var(--re);background:var(--reb);}
+.ia-o{border-color:var(--orb);color:var(--or);background:var(--orl);}
+
+/* FILTER */
+.fbar{display:flex;gap:5px;margin-bottom:13px;flex-wrap:wrap;align-items:center;}
+.fp{background:var(--white);border:1px solid var(--bdr2);color:var(--sub);border-radius:20px;padding:4px 12px;font-size:11px;font-weight:500;cursor:pointer;font-family:var(--font);transition:all .12s;}
+.fp.on,.fp:hover{background:var(--orl);border-color:var(--orb);color:var(--or);font-weight:600;}
+.fsep{flex:1;}
+.si{background:var(--white);border:1px solid var(--bdr2);border-radius:20px;padding:5px 12px;font-size:11px;font-family:var(--font);outline:none;width:170px;}
+.si:focus{border-color:var(--orb);}
+
+/* FORM */
+.fg{margin-bottom:9px;}
+.fl{display:block;font-size:10px;font-weight:600;color:var(--sub);margin-bottom:3px;letter-spacing:.03em;}
+.fi,.fsel,.fta{width:100%;background:var(--bg);border:1px solid var(--bdr2);border-radius:var(--rs);color:var(--text);font-family:var(--font);font-size:12px;padding:7px 10px;outline:none;transition:border-color .12s;}
+.fi:focus,.fsel:focus,.fta:focus{border-color:var(--or);box-shadow:0 0 0 3px rgba(232,101,26,.08);}
+.fi::placeholder{color:var(--mut);}
+.fsel{appearance:none;}
+.fta{resize:vertical;min-height:55px;}
+.fr2{display:grid;grid-template-columns:1fr 1fr;gap:7px;}
+.fr3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px;}
+
+/* MODAL */
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.35);backdrop-filter:blur(4px);z-index:500;display:flex;align-items:center;justify-content:center;padding:20px;opacity:0;pointer-events:none;transition:opacity .18s;}
 .modal-bg.open{opacity:1;pointer-events:all;}
-.modal-box{background:#ffffff;border:1px solid #e5e7eb;border-radius:14px;padding:24px 22px 20px;width:100%;max-width:540px;max-height:88vh;overflow-y:auto;position:relative;transform:scale(.97) translateY(12px);transition:transform .2s;}
-.modal-bg.open .modal-box{transform:scale(1) translateY(0);}
-.modal-close{position:absolute;top:14px;right:14px;background:#f3f4f6;border:none;width:27px;height:27px;border-radius:50%;color:#111827;font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;}
-.modal-title{font-family:'DM Serif Display',serif;font-weight:900;font-size:18px;margin-bottom:14px;padding-right:30px;}
-.modal-acts{display:flex;gap:8px;margin-top:14px;}
-.mbtn{flex:1;padding:10px;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;border:none;font-family:'DM Serif Display',serif;}
-.mbtn.prim{background:var(--or);color:#111827;}
-.mbtn.sec{background:#f3f4f6;color:#6b7280;}
-.mbtn.suc{background:#166534;color:#4ade80;}
-.mbtn.err{background:#3f1515;color:#f87171;}
-.toast{position:fixed;bottom:20px;right:20px;background:#ffffff;border:1px solid rgba(34,197,94,.4);color:#4ade80;border-radius:10px;padding:11px 18px;font-size:12px;font-weight:600;z-index:9999;transform:translateY(60px);opacity:0;transition:all .3s;max-width:320px;}
+.modal-box{background:var(--white);border-radius:var(--rl);padding:22px 20px 18px;width:100%;max-width:580px;max-height:90vh;overflow-y:auto;position:relative;box-shadow:var(--shm);transform:translateY(10px);transition:transform .2s;}
+.modal-bg.open .modal-box{transform:translateY(0);}
+.mc{position:absolute;top:12px;right:12px;width:24px;height:24px;border-radius:50%;border:1px solid var(--bdr);background:var(--white);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--sub);}
+.mt{font-family:'DM Serif Display',serif;font-size:18px;margin-bottom:2px;color:var(--text);}
+.ms{font-size:11px;color:var(--mut);margin-bottom:14px;}
+.macts{display:flex;gap:7px;margin-top:14px;}
+.mb{flex:1;padding:9px;border-radius:var(--rs);font-size:12px;font-weight:600;cursor:pointer;border:none;font-family:var(--font);transition:all .12s;}
+.mb-or{background:var(--or);color:#fff;}
+.mb-or:hover{background:var(--or2);}
+.mb-gh{background:#f3f4f6;color:var(--sub);}
+.mb-gr{background:var(--grb);color:var(--gr);border:1px solid var(--grbr);}
+.mb-re{background:var(--reb);color:var(--re);border:1px solid var(--rebr);}
+
+/* DISPO */
+.crew-hdr{display:grid;grid-template-columns:1.8fr 1fr 80px 65px 55px 55px 80px;gap:5px;padding:6px 10px;font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--mut);background:#fafafa;border-bottom:1px solid var(--bdr);}
+.crew-row{display:grid;grid-template-columns:1.8fr 1fr 80px 65px 55px 55px 80px;gap:5px;align-items:center;padding:7px 10px;border-bottom:1px solid #f3f4f6;font-size:11px;}
+.crew-row:hover{background:#fafafa;}
+.crew-row.conf{background:#f0fdf4;}
+.crew-row.man{background:#eff6ff;}
+.ci{width:100%;background:var(--white);border:1px solid var(--bdr2);border-radius:4px;padding:3px 6px;font-size:11px;font-family:var(--font);outline:none;color:var(--text);}
+.ci:focus{border-color:var(--or);}
+.add-row{display:flex;align-items:center;gap:6px;padding:8px 10px;border-top:1px solid var(--bdr);cursor:pointer;font-size:11px;color:var(--mut);font-weight:500;transition:all .12s;}
+.add-row:hover{background:var(--orl);color:var(--or);}
+
+/* STUNDEN */
+.sh-hdr{display:grid;grid-template-columns:1.6fr 90px 60px 60px 50px 65px 80px 80px;gap:5px;padding:7px 12px;font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--mut);background:#fafafa;border-bottom:1px solid var(--bdr);}
+.sh-row{display:grid;grid-template-columns:1.6fr 90px 60px 60px 50px 65px 80px 80px;gap:5px;align-items:center;padding:7px 12px;border-bottom:1px solid #f3f4f6;font-size:11px;}
+.sh-row:hover{background:#fafafa;}
+
+/* CHECKLIST */
+.cl-row{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-bottom:1px solid #f3f4f6;}
+.cl-row:last-child{border-bottom:none;}
+.cl-lbl{font-size:12px;font-weight:600;color:var(--text);}
+.cl-sub{font-size:10px;color:var(--mut);margin-top:1px;}
+.cbwrap{display:flex;align-items:center;gap:8px;}
+.cb{width:16px;height:16px;border-radius:4px;border:1.5px solid var(--bdr2);cursor:pointer;display:flex;align-items:center;justify-content:center;background:var(--white);flex-shrink:0;transition:all .12s;}
+.cb.chk{background:var(--gr);border-color:var(--gr);}
+.cb svg{width:9px;height:9px;}
+.cl-in{background:var(--white);border:1px solid var(--bdr2);border-radius:5px;padding:4px 8px;font-size:11px;font-family:var(--font);outline:none;color:var(--text);}
+.cl-in:focus{border-color:var(--or);}
+
+/* LOHN BUILDER */
+.lb-sec{background:var(--white);border:1px solid var(--bdr);border-radius:var(--r);padding:14px;margin-bottom:12px;}
+.lb-title{font-size:11px;font-weight:700;margin-bottom:10px;color:var(--text);}
+.lb-row{display:grid;grid-template-columns:2fr 80px 80px 36px;gap:6px;align-items:center;margin-bottom:5px;}
+.lb-del{padding:3px 7px;border-radius:4px;border:1px solid var(--rebr);color:var(--re);background:var(--reb);cursor:pointer;font-size:11px;font-family:var(--font);}
+.add-lb{display:inline-flex;align-items:center;gap:4px;padding:5px 10px;border:1.5px dashed var(--bdr2);border-radius:var(--rs);cursor:pointer;font-size:10px;color:var(--mut);font-weight:500;transition:all .12s;margin-top:2px;}
+.add-lb:hover{border-color:var(--orb);color:var(--or);}
+.lb-total{background:var(--orl);border:1px solid var(--orb);border-radius:var(--rs);padding:11px 14px;display:flex;justify-content:space-between;align-items:center;margin-top:4px;}
+.lb-total-lbl{font-size:11px;font-weight:700;color:var(--or);}
+.lb-total-val{font-size:20px;font-weight:700;font-family:'DM Serif Display',serif;color:var(--or);}
+
+/* PDF BUILDER */
+.pdf-fields{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:10px;}
+.pf{display:flex;align-items:center;gap:4px;background:var(--white);border:1px solid var(--bdr2);border-radius:20px;padding:3px 9px;font-size:10px;font-weight:600;cursor:pointer;transition:all .12s;color:var(--sub);}
+.pf input{width:12px;height:12px;accent-color:var(--or);}
+.pf:has(input:checked){background:var(--orl);border-color:var(--orb);color:var(--or);}
+
+/* MA CHECKS */
+.mack{display:flex;gap:3px;flex-wrap:wrap;}
+.mck{font-size:9px;font-weight:700;padding:2px 6px;border-radius:10px;}
+.mck.ok{background:var(--grb);color:var(--gr);}
+.mck.no{background:#f3f4f6;color:var(--mut);}
+
+/* LINK BOX */
+.lbox{background:var(--orl);border:1px solid var(--orb);border-radius:var(--rs);padding:9px 12px;display:flex;align-items:center;gap:9px;margin:7px 0;}
+.lbox-url{font-size:11px;color:var(--or);font-weight:600;flex:1;word-break:break-all;}
+.lbox-copy{background:var(--or);color:#fff;border:none;border-radius:4px;padding:4px 10px;font-size:10px;font-weight:700;cursor:pointer;font-family:var(--font);}
+
+/* TOAST */
+.toast{position:fixed;bottom:20px;right:20px;color:#fff;border-radius:var(--r);padding:10px 15px;font-size:11px;font-weight:600;z-index:9999;transform:translateY(60px);opacity:0;transition:all .25s;max-width:280px;box-shadow:var(--shm);}
 .toast.show{transform:translateY(0);opacity:1;}
-.toast.err{border-color:rgba(239,68,68,.4);color:#f87171;}
-.filter-row{display:flex;gap:7px;margin-bottom:14px;flex-wrap:wrap;}
-.fb{background:#f9fafb;border:1px solid #e5e7eb;color:#6b7280;border-radius:14px;padding:4px 12px;font-size:11px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;}
-.fb.on{background:var(--or);border-color:var(--or);color:#111827;}
-.skel{background:linear-gradient(90deg,#f3f4f6 25%,#e9eaeb 50%,#f3f4f6 75%);background-size:200%;animation:sk 1.4s infinite;border-radius:8px;height:44px;margin-bottom:4px;}
+.toast.ok{background:var(--gr);}
+.toast.err{background:var(--re);}
+.toast.info{background:var(--text);}
+
+.skel{background:linear-gradient(90deg,#f3f4f6 25%,#e9eaeb 50%,#f3f4f6 75%);background-size:200%;animation:sk 1.4s infinite;border-radius:var(--r);height:36px;margin-bottom:4px;}
 @keyframes sk{0%{background-position:200%}100%{background-position:-200%}}
-.empty{text-align:center;padding:40px;color:var(--mt);font-size:13px;}
+.empty{text-align:center;padding:32px;color:var(--mut);font-size:12px;}
 </style>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
 </head>
 <body>
 
-<div class="sidebar">
-  <div class="sb-logo">fess<span>.jobs</span><small>Admin & Dispo</small></div>
-  <div class="sb-status" id="sbStatus">⏳ Verbinde mit Datenbank…</div>
+<div class="sb">
+  <div class="sb-top">
+    <div class="sb-logo">
+      <div class="sb-mark"><svg viewBox="0 0 18 18" fill="none" stroke="white" stroke-width="1.6"><path d="M9 1L1 5.5l8 4.5 8-4.5L9 1zM1 12.5l8 4.5 8-4.5M1 9l8 4.5L17 9"/></svg></div>
+      <div><div class="sb-name">fess<span>.jobs</span></div><div class="sb-sub">Admin & Dispo</div></div>
+    </div>
+    <div class="sb-st ok" id="sbSt"><div class="sb-dot"></div>Verbinde…</div>
+  </div>
   <nav>
-    <button class="ni on" onclick="showPage('dashboard',this)"><i class="ti ti-layout-dashboard"></i>Dashboard</button>
-    <button class="ni" onclick="showPage('auftraege',this)"><i class="ti ti-calendar-event"></i>Aufträge</button>
-    <button class="ni" onclick="showPage('bewerbungen',this)"><i class="ti ti-inbox"></i>Bewerbungen<span class="badge-r" id="bewBadge" style="display:none">0</span></button>
-    <button class="ni" onclick="showPage('dispo',this)"><i class="ti ti-users-group"></i>Dispo & Crew</button>
-    <button class="ni" onclick="showPage('stunden',this);setTimeout(injectLohnBuilder,100)"><i class="ti ti-clock-hour-4"></i>Stunden</button>
-    <button class="ni" onclick="showPage('mitarbeiter',this)"><i class="ti ti-id-badge-2"></i>Mitarbeiter</button>
+    <div class="nav-lbl">Übersicht</div>
+    <button class="ni on" onclick="P('dashboard',this)"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1" y="1" width="6" height="6" rx="1"/><rect x="9" y="1" width="6" height="6" rx="1"/><rect x="1" y="9" width="6" height="6" rx="1"/><rect x="9" y="9" width="6" height="6" rx="1"/></svg>Dashboard</button>
+    <div class="nav-lbl">Personal</div>
+    <button class="ni" onclick="P('auftraege',this)"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1" y="2" width="14" height="12" rx="1.5"/><path d="M5 6h6M5 9h4"/></svg>Aufträge</button>
+    <button class="ni" onclick="P('bewerbungen',this)"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 1a4 4 0 100 8 4 4 0 000-8zM2 15c0-3.314 2.686-5 6-5s6 1.686 6 5"/></svg>Bewerbungen<span class="nbadge" id="bBadge" style="display:none">0</span></button>
+    <button class="ni" onclick="P('dispo',this)"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 4h12M2 8h8M2 12h5"/><circle cx="13" cy="11" r="3"/><path d="M11.5 11h3M13 9.5v3"/></svg>Dispo & Crew</button>
+    <button class="ni" onclick="P('stunden',this)"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="7"/><path d="M8 4.5V8l2.5 2.5"/></svg>Stunden</button>
+    <button class="ni" onclick="P('mitarbeiter',this)"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="5" cy="5" r="3"/><path d="M1 14c0-2.761 1.791-4 4-4s4 1.239 4 4"/><circle cx="12" cy="5" r="2"/><path d="M15 14c0-1.5-1.343-2.5-3-2.5"/></svg>Mitarbeiter</button>
+    <div class="nav-lbl">Dokumente</div>
+    <button class="ni" onclick="P('pdf',this)"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 1H4a1 1 0 00-1 1v12a1 1 0 001 1h8a1 1 0 001-1V6L9 1z"/><path d="M9 1v5h5"/><path d="M5 9l2 2 4-4"/></svg>Export & PDFs</button>
   </nav>
-  <div class="sb-foot"><button onclick="window.location='/'">← Mitarbeiterseite</button></div>
+  <div class="sb-foot">
+    <div class="urow"><div class="uav">MJ</div><div><div class="uname">Maik Janke</div><div class="urole">Administrator</div></div></div>
+    <a href="/" style="display:block;text-align:center;font-size:10px;color:var(--mut);margin-top:6px;text-decoration:none;">← Mitarbeiterseite</a>
+  </div>
 </div>
 
 <div class="main">
   <div class="topbar">
-    <h1 id="pageTitle">Dashboard</h1>
-    <div class="tb-acts" id="pageActions">
-      <button class="tbtn" onclick="loadAll()"><i class="ti ti-refresh"></i>Aktualisieren</button>
+    <div class="tb-title" id="pgTitle">Dashboard</div>
+    <div class="tb-acts" id="pgActs">
+      <button class="btn b-gh" onclick="loadAll()">↻ Refresh</button>
     </div>
   </div>
 
   <!-- DASHBOARD -->
   <div class="page" id="pg-dashboard">
     <div class="stats">
-      <div class="sc"><div class="sv" id="st-auftraege">–</div><div class="sl">Aktive Aufträge</div></div>
-      <div class="sc alert"><div class="sv" id="st-dringend">–</div><div class="sl">🔥 Dringend</div></div>
-      <div class="sc alert"><div class="sv" id="st-neu">–</div><div class="sl">📥 Neue Bewerbungen</div></div>
-      <div class="sc"><div class="sv" id="st-ma">–</div><div class="sl">Mitarbeiter aktiv</div></div>
+      <div class="sc hl"><div class="sv" id="st-auf">–</div><div class="sl">Aktive Aufträge</div><div class="sbg or">2026</div></div>
+      <div class="sc"><div class="sv" id="st-drg">–</div><div class="sl">🔥 Dringend</div><div class="sbg y">Handeln</div></div>
+      <div class="sc"><div class="sv" id="st-bew">–</div><div class="sl">Neue Bewerbungen</div><div class="sbg y">Offen</div></div>
+      <div class="sc"><div class="sv" id="st-ma">–</div><div class="sl">Mitarbeiter</div><div class="sbg g">Aktiv</div></div>
     </div>
-    <div class="two-col">
-      <div class="panel">
-        <div class="ph"><h3>🔥 Dringende Aufträge</h3><a onclick="showPage('auftraege',document.querySelectorAll('.ni')[1])">Alle →</a></div>
-        <div id="db-urgent"><div class="skel"></div><div class="skel"></div><div class="skel"></div></div>
+    <div class="two">
+      <div class="card">
+        <div class="ch"><div class="ch-title">🔥 Dringende Aufträge</div><span class="ch-link" onclick="P('auftraege',document.querySelectorAll('.ni')[2])">Alle →</span></div>
+        <div id="db-urg"><div class="skel"></div><div class="skel"></div></div>
       </div>
-      <div class="panel">
-        <div class="ph"><h3>📥 Neue Bewerbungen</h3><a onclick="showPage('bewerbungen',document.querySelectorAll('.ni')[2])">Alle →</a></div>
+      <div class="card">
+        <div class="ch"><div class="ch-title">📥 Neue Bewerbungen</div><span class="ch-link" onclick="P('bewerbungen',document.querySelectorAll('.ni')[3])">Alle →</span></div>
         <div id="db-bew"><div class="skel"></div><div class="skel"></div></div>
       </div>
     </div>
@@ -158,15 +287,17 @@ nav{flex:1;padding:8px 6px;overflow-y:auto;}
 
   <!-- AUFTRAEGE -->
   <div class="page hidden" id="pg-auftraege">
-    <div class="filter-row">
-      <button class="fb on" onclick="filterAuf('alle',this)">Alle</button>
-      <button class="fb" onclick="filterAuf('bestaetigt',this)">✅ Bestätigt</button>
-      <button class="fb" onclick="filterAuf('angefragt',this)">❓ Angefragt</button>
-      <button class="fb" onclick="filterAuf('dringend',this)" style="border-color:var(--or);color:var(--or)">🔥 Dringend</button>
+    <div class="fbar">
+      <button class="fp on" onclick="fAuf('alle',this)">Alle</button>
+      <button class="fp" onclick="fAuf('bestaetigt',this)">✅ Bestätigt</button>
+      <button class="fp" onclick="fAuf('angefragt',this)">❓ Angefragt</button>
+      <button class="fp" onclick="fAuf('dringend',this)">🔥 Dringend</button>
+      <div class="fsep"></div>
+      <input class="si" placeholder="🔍 Suchen…" oninput="searchAuf(this.value)">
     </div>
-    <div class="panel">
+    <div class="card">
       <table class="tbl">
-        <thead><tr><th>Name</th><th>Status</th><th>Datum</th><th>Location</th><th>Besetzt</th><th>Aktionen</th></tr></thead>
+        <thead><tr><th>Auftrag</th><th>Status</th><th>Datum</th><th>Location</th><th>Besetzt</th><th>Aktionen</th></tr></thead>
         <tbody id="aufTbody"><tr><td colspan="6"><div class="skel"></div><div class="skel"></div><div class="skel"></div></td></tr></tbody>
       </table>
     </div>
@@ -174,16 +305,16 @@ nav{flex:1;padding:8px 6px;overflow-y:auto;}
 
   <!-- BEWERBUNGEN -->
   <div class="page hidden" id="pg-bewerbungen">
-    <div class="filter-row">
-      <button class="fb on" onclick="bewFilterBy('alle',this)">Alle</button>
-      <button class="fb" onclick="bewFilterBy('eingegangen',this)">📥 Neu</button>
-      <button class="fb" onclick="bewFilterBy('bestaetigt',this)">✅ Bestätigt</button>
-      <button class="fb" onclick="bewFilterBy('reserviert',this)">⏳ Reserviert</button>
-      <button class="fb" onclick="bewFilterBy('abgelehnt',this)">❌ Abgelehnt</button>
+    <div class="fbar">
+      <button class="fp on" onclick="fBew('alle',this)">Alle</button>
+      <button class="fp" onclick="fBew('eingegangen',this)">📥 Neu</button>
+      <button class="fp" onclick="fBew('bestaetigt',this)">✅ Bestätigt</button>
+      <button class="fp" onclick="fBew('reserviert',this)">⏳ Reserviert</button>
+      <button class="fp" onclick="fBew('abgelehnt',this)">❌ Abgelehnt</button>
     </div>
-    <div class="panel">
+    <div class="card">
       <table class="tbl">
-        <thead><tr><th>Name</th><th>Telefon</th><th>Status</th><th>Auftrag</th><th>Regio</th><th>PSA</th><th>Aktionen</th></tr></thead>
+        <thead><tr><th>Person</th><th>Telefon</th><th>Status</th><th>Auftrag</th><th>PSA</th><th>Regio</th><th>Aktionen</th></tr></thead>
         <tbody id="bewTbody"><tr><td colspan="7"><div class="skel"></div><div class="skel"></div></td></tr></tbody>
       </table>
     </div>
@@ -191,696 +322,854 @@ nav{flex:1;padding:8px 6px;overflow-y:auto;}
 
   <!-- DISPO -->
   <div class="page hidden" id="pg-dispo">
-    <div class="fg" style="max-width:380px;margin-bottom:18px">
-      <label class="fl">Auftrag auswählen</label>
-      <select class="fsel" id="dispoSelect" onchange="loadDispo(this.value)">
+    <div style="display:flex;gap:9px;margin-bottom:14px;align-items:center;flex-wrap:wrap">
+      <select class="fi" style="width:280px" id="dispoSel" onchange="loadDispo(this.value)">
         <option value="">– Auftrag wählen –</option>
       </select>
+      <button class="btn b-gh" onclick="genDispoPDF()">📄 Dispo-PDF</button>
+      <button class="btn b-gh" onclick="genAuftragsinfoPDF()">📋 Auftragsinfo-PDF</button>
+      <button class="btn b-or" onclick="openStundenLink()">🔗 Stundenlink</button>
     </div>
-    <div id="dispoContent" style="color:var(--mt);font-size:12px">Bitte Auftrag auswählen…</div>
+    <div class="card" id="dispoCard"><div class="empty">Bitte Auftrag auswählen…</div></div>
   </div>
 
   <!-- STUNDEN -->
-  <div class="page hidden" id="pg-stunden"><!-- LOHN BUILDER PLACEHOLDER -->
-    <div class="empty">Stundenerfassung – coming soon</div>
+  <div class="page hidden" id="pg-stunden">
+    <div style="display:flex;gap:9px;margin-bottom:14px;align-items:center;flex-wrap:wrap">
+      <select class="fi" style="width:260px" id="stundenSel" onchange="loadStunden(this.value)">
+        <option value="">– Auftrag wählen –</option>
+      </select>
+      <button class="btn b-gh" onclick="exportCSV()">📊 CSV/Excel</button>
+      <button class="btn b-gh" onclick="genStundenPDF()">📄 Stundennachweis PDF</button>
+      <button class="btn b-gr" onclick="freigebenAlle()">✅ Alle freigeben</button>
+    </div>
+    <div id="stundenContent"><div class="empty">Bitte Auftrag auswählen…</div></div>
   </div>
 
   <!-- MITARBEITER -->
   <div class="page hidden" id="pg-mitarbeiter">
-    <div class="panel">
+    <div class="fbar">
+      <button class="fp on">Alle</button>
+      <button class="fp">✅ Vollständig</button>
+      <button class="fp">⚠️ Unvollständig</button>
+      <div class="fsep"></div>
+      <button class="btn b-gh" onclick="openImport()">📥 Excel importieren</button>
+      <button class="btn b-or" onclick="openNeuerMA()">+ Mitarbeiter</button>
+    </div>
+    <div class="card">
       <table class="tbl">
-        <thead><tr><th>Name</th><th>Telefon</th><th>Wohnort</th><th>Regionalleiter</th><th>Aktionen</th></tr></thead>
-        <tbody id="maTbody"><tr><td colspan="5"><div class="skel"></div><div class="skel"></div></td></tr></tbody>
+        <thead><tr><th>Pers.-Nr.</th><th>Name</th><th>Telefon</th><th>Vertragsart</th><th>Beginn</th><th>Std/Mo</th><th>Checkliste</th><th>Aktionen</th></tr></thead>
+        <tbody id="maTbody"><tr><td colspan="8"><div class="skel"></div><div class="skel"></div></td></tr></tbody>
       </table>
+    </div>
+  </div>
+
+  <!-- PDF BUILDER -->
+  <div class="page hidden" id="pg-pdf">
+    <div class="two">
+      <div>
+        <div class="card">
+          <div class="ch"><div class="ch-title">📄 Dispo-PDF Builder</div></div>
+          <div style="padding:14px">
+            <div class="fg"><label class="fl">Auftrag</label><select class="fsel" id="pdfSel1"><option value="">– wählen –</option></select></div>
+            <div class="fg"><label class="fl">Felder auswählen</label>
+              <div class="pdf-fields">
+                <label class="pf"><input type="checkbox" checked id="pf-name"> Namen</label>
+                <label class="pf"><input type="checkbox" checked id="pf-tel"> Telefon</label>
+                <label class="pf"><input type="checkbox" checked id="pf-ta"> Tätigkeit</label>
+                <label class="pf"><input type="checkbox" checked id="pf-an"> Anreise</label>
+                <label class="pf"><input type="checkbox" id="pf-abol"> Abholort</label>
+                <label class="pf"><input type="checkbox" checked id="pf-psa"> PSA</label>
+                <label class="pf"><input type="checkbox" id="pf-sch"> Schuhgröße</label>
+                <label class="pf"><input type="checkbox" id="pf-sh"> Shirt</label>
+                <label class="pf"><input type="checkbox" checked id="pf-sz"> Schichten</label>
+                <label class="pf"><input type="checkbox" id="pf-rl"> Regionalleiter</label>
+                <label class="pf"><input type="checkbox" id="pf-ort"> Wohnort</label>
+                <label class="pf"><input type="checkbox" checked id="pf-not"> Notizfeld</label>
+              </div>
+            </div>
+            <div class="fr2">
+              <div class="fg"><label class="fl">Ansprechpartner FESS</label><input class="fi" id="pdf-ap" value="Maik Janke"></div>
+              <div class="fg"><label class="fl">Telefon AP</label><input class="fi" id="pdf-apl" value="+49 176 44266658"></div>
+            </div>
+            <div class="fg"><label class="fl">Interne Notizen</label><textarea class="fta" id="pdf-not1" placeholder="Treffpunkt, Kleidung, Sonstiges…"></textarea></div>
+            <button class="btn b-or" style="width:100%;justify-content:center" onclick="genDispoPDF()">📄 Dispo-PDF erstellen & herunterladen</button>
+          </div>
+        </div>
+        <div class="card">
+          <div class="ch"><div class="ch-title">📊 Stundennachweis-PDF</div></div>
+          <div style="padding:14px">
+            <div class="fg"><label class="fl">Auftrag</label><select class="fsel" id="pdfSel3"><option value="">– wählen –</option></select></div>
+            <div class="fr2">
+              <div class="fg"><label class="fl">Auftraggeber</label><input class="fi" id="pdf-ag" placeholder="Veranstalter GmbH"></div>
+              <div class="fg"><label class="fl">Auftrags-Nr.</label><input class="fi" id="pdf-sn" placeholder="46155"></div>
+            </div>
+            <button class="btn b-or" style="width:100%;justify-content:center" onclick="genStundenPDF()">📊 Stundennachweis-PDF</button>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="card">
+          <div class="ch"><div class="ch-title">📋 Auftragsinfo-PDF Builder</div></div>
+          <div style="padding:14px">
+            <div class="fg"><label class="fl">Auftrag</label><select class="fsel" id="pdfSel2"><option value="">– wählen –</option></select></div>
+            <div class="fg"><label class="fl">Felder auswählen</label>
+              <div class="pdf-fields">
+                <label class="pf"><input type="checkbox" checked> Auftragsdaten</label>
+                <label class="pf"><input type="checkbox" checked> Kunde + AP</label>
+                <label class="pf"><input type="checkbox" checked> Crewanzahl</label>
+                <label class="pf"><input type="checkbox" checked> Schichtzeiten</label>
+                <label class="pf"><input type="checkbox" checked> FESS Kontakt</label>
+                <label class="pf"><input type="checkbox" checked> Unterschriften</label>
+                <label class="pf"><input type="checkbox"> Preisinfo</label>
+                <label class="pf"><input type="checkbox"> Stornobedingungen</label>
+              </div>
+            </div>
+            <div class="fr2">
+              <div class="fg"><label class="fl">Auftrags-Nr.</label><input class="fi" id="pdf-rn" placeholder="z.B. 46155"></div>
+              <div class="fg"><label class="fl">Datum</label><input class="fi" type="date" id="pdf-dt"></div>
+            </div>
+            <div class="fg"><label class="fl">Anmerkungen für Kunden</label><textarea class="fta" id="pdf-not2" placeholder="Hinweise…"></textarea></div>
+            <button class="btn b-or" style="width:100%;justify-content:center" onclick="genAuftragsinfoPDF()">📋 Auftragsinfo-PDF erstellen</button>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </div>
 
-<!-- MODAL -->
-<div class="modal-bg" id="modalBG" onclick="if(event.target.id==='modalBG')closeM()">
-  <div class="modal-box"><button class="modal-close" onclick="closeM()">✕</button><div id="modalBody"></div></div>
+<div class="modal-bg" id="MB" onclick="if(event.target.id==='MB')closeM()">
+  <div class="modal-box"><button class="mc" onclick="closeM()">✕</button><div id="MBody"></div></div>
 </div>
-
-<div class="toast" id="toastEl"></div>
+<div class="toast" id="T"></div>
 
 <script>
 // ── STATE ──
-let AUFTRAEGE = [], BEWERBUNGEN = [], MITARBEITER = [];
-let bewFilterCur = 'alle', aufFilterCur = 'alle';
+let AUFTRAEGE=[],BEWERBUNGEN=[],MITARBEITER=[];
+let aufF='alle',bewF='alle',aufQ='';
 
-// ── TOAST ──
-function toast(msg, type='ok'){
-  const el = document.getElementById('toastEl');
-  el.textContent = msg;
-  el.className = 'toast show' + (type==='err' ? ' err' : '');
-  setTimeout(() => el.className='toast', 3500);
+// ── HELPERS ──
+function fmtD(a){
+  if(!a?.datum_von)return'–';
+  const f=d=>{const x=new Date(d);return`${String(x.getDate()).padStart(2,'0')}.${String(x.getMonth()+1).padStart(2,'0')}.${x.getFullYear()}`;};
+  return a.datum_bis?`${f(a.datum_von)}–${f(a.datum_bis)}`:f(a.datum_von);
 }
+function fmtAt(ts){if(!ts)return'–';const d=new Date(ts);return d.toLocaleDateString('de')+' '+d.toLocaleTimeString('de',{hour:'2-digit',minute:'2-digit'});}
+function toast(msg,type='info'){const el=document.getElementById('T');el.textContent=msg;el.className='toast show '+type;setTimeout(()=>el.className='toast',3200);}
+function openM(html){document.getElementById('MBody').innerHTML=html;document.getElementById('MB').classList.add('open');}
+function closeM(){document.getElementById('MB').classList.remove('open');}
+function toggleCB(el){el.classList.toggle('chk');el.innerHTML=el.classList.contains('chk')?'<svg viewBox="0 0 9 9" fill="none" stroke="white" stroke-width="2"><path d="M1 4.5l2.5 2.5 4.5-4.5"/></svg>':'';}
 
-// ── MODAL ──
-function openM(html){ document.getElementById('modalBody').innerHTML=html; document.getElementById('modalBG').classList.add('open'); }
-function closeM(){ document.getElementById('modalBG').classList.remove('open'); }
-
-// ── DB CONNECTION CHECK ──
-async function checkConnection(){
-  try {
-    const {data,error} = await sb.from('auftraege').select('id').limit(1);
-    if(error) throw error;
-    document.getElementById('sbStatus').textContent = '🟢 Datenbank verbunden';
-    document.getElementById('sbStatus').className = 'sb-status ok';
-    return true;
-  } catch(e) {
-    document.getElementById('sbStatus').textContent = '🔴 DB Fehler: ' + e.message;
-    document.getElementById('sbStatus').className = 'sb-status err';
-    return false;
+// ── DB ──
+async function checkDB(){
+  try{
+    const{error}=await sb.from('auftraege').select('id').limit(1);
+    if(error)throw error;
+    const el=document.getElementById('sbSt');
+    el.innerHTML='<div class="sb-dot"></div>Datenbank verbunden';
+    el.className='sb-st ok';
+  }catch(e){
+    const el=document.getElementById('sbSt');
+    el.textContent='🔴 DB Fehler';el.className='sb-st err';
   }
 }
 
-// ── LOAD ALL DATA ──
 async function loadAll(){
-  await loadAuftraege();
-  await loadBewerbungen();
-  await loadMitarbeiter();
+  await Promise.all([loadAuftraege(),loadBewerbungen(),loadMitarbeiter()]);
   renderDashboard();
+  populateSels();
 }
 
 async function loadAuftraege(){
-  try {
-    const {data,error} = await sb.from('auftraege').select('*').neq('status','abgesagt').order('datum_von');
-    if(error) throw error;
-    AUFTRAEGE = data || [];
-    renderAuftraege();
-    populateDispoSelect();
-  } catch(e){ toast('Aufträge Fehler: '+e.message,'err'); }
+  if(!sb)return;
+  const{data,error}=await sb.from('auftraege').select('*').neq('status','abgesagt').order('datum_von');
+  if(!error&&data){AUFTRAEGE=data;renderAuftraege();document.getElementById('st-auf').textContent=data.length;}
 }
 
 async function loadBewerbungen(){
-  try {
-    const {data,error} = await sb.from('bewerbungen').select('*').order('created_at',{ascending:false});
-    if(error) throw error;
-    BEWERBUNGEN = data || [];
-    renderBewerbungen();
-    // Update badge
-    const neu = BEWERBUNGEN.filter(b=>b.status==='eingegangen').length;
-    const badge = document.getElementById('bewBadge');
-    if(neu>0){ badge.textContent=neu; badge.style.display=''; }
-    else badge.style.display='none';
-    document.getElementById('st-neu').textContent = neu;
-  } catch(e){ toast('Bewerbungen Fehler: '+e.message,'err'); }
+  if(!sb)return;
+  const{data,error}=await sb.from('bewerbungen').select('*').order('created_at',{ascending:false});
+  if(!error&&data){
+    BEWERBUNGEN=data;renderBewerbungen();
+    const n=data.filter(b=>b.status==='eingegangen').length;
+    const el=document.getElementById('bBadge');el.textContent=n;el.style.display=n?'':'none';
+    document.getElementById('st-bew').textContent=n;
+  }
 }
 
 async function loadMitarbeiter(){
-  try {
-    const {data,error} = await sb.from('mitarbeiter').select('*').eq('aktiv',true).order('nachname');
-    if(error) throw error;
-    MITARBEITER = data || [];
-    renderMitarbeiter();
-    document.getElementById('st-ma').textContent = MITARBEITER.length;
-  } catch(e){ console.warn('Mitarbeiter:',e); }
+  if(!sb)return;
+  const{data,error}=await sb.from('mitarbeiter').select('*').order('nachname');
+  if(!error&&data){MITARBEITER=data;renderMitarbeiter();document.getElementById('st-ma').textContent=data.length;}
 }
 
-// ── REALTIME ──
 function setupRealtime(){
-  sb.channel('admin-changes')
+  if(!sb)return;
+  sb.channel('admin-rt')
     .on('postgres_changes',{event:'*',schema:'public',table:'auftraege'},()=>loadAuftraege())
     .on('postgres_changes',{event:'*',schema:'public',table:'bewerbungen'},()=>loadBewerbungen())
     .subscribe();
 }
 
+// ── NAVIGATION ──
+function P(id,el){
+  document.querySelectorAll('.page').forEach(p=>p.classList.add('hidden'));
+  document.querySelectorAll('.ni').forEach(n=>n.classList.remove('on'));
+  document.getElementById('pg-'+id)?.classList.remove('hidden');
+  if(el)el.classList.add('on');
+  const T={dashboard:'Dashboard',auftraege:'Aufträge verwalten',bewerbungen:'Bewerbungen',dispo:'Dispo & Crew',stunden:'Stundennachweise',mitarbeiter:'Mitarbeiter',pdf:'Export & PDFs'};
+  document.getElementById('pgTitle').textContent=T[id]||id;
+  const A={
+    auftraege:`<button class="btn b-or" onclick="openNewAuf()">+ Neuer Auftrag</button>`,
+    mitarbeiter:`<button class="btn b-gh" onclick="openImport()">📥 Excel</button><button class="btn b-or" onclick="openNeuerMA()">+ Mitarbeiter</button>`,
+    stunden:`<button class="btn b-gh" onclick="exportCSV()">📊 CSV Export</button>`,
+    dashboard:`<button class="btn b-gh" onclick="loadAll()">↻ Refresh</button>`,
+  };
+  document.getElementById('pgActs').innerHTML=A[id]||'';
+}
+
 // ── DASHBOARD ──
 function renderDashboard(){
-  const heute = new Date().toISOString().split('T')[0];
-  const aktiv = AUFTRAEGE.length;
-  const dringend = AUFTRAEGE.filter(a=>a.dringend).length;
-  document.getElementById('st-auftraege').textContent = aktiv;
-  document.getElementById('st-dringend').textContent = dringend;
-
-  // Dringende Aufträge
-  const urgEl = document.getElementById('db-urgent');
-  const urg = AUFTRAEGE.filter(a=>a.dringend).slice(0,5);
-  if(!urg.length){ urgEl.innerHTML='<div class="empty">Keine dringenden Aufträge</div>'; }
-  else urgEl.innerHTML = urg.map(a=>{
-    const op = a.pax_gesamt>0?Math.round((a.pax_besetzt||0)/a.pax_gesamt*100):0;
-    return `<div class="prow">
-      <div style="width:8px;height:8px;border-radius:50%;background:var(--or);flex-shrink:0"></div>
-      <div class="prow-info"><div class="prow-name">${a.name}</div><div class="prow-sub">${fmtD(a)} · ${a.location} · ${a.pax_besetzt||0}/${a.pax_gesamt} besetzt</div></div>
-      <span class="tag t-urg">🔥 Dringend</span>
-    </div>`;
-  }).join('');
-
-  // Neue Bewerbungen
-  const bewEl = document.getElementById('db-bew');
-  const neu = BEWERBUNGEN.filter(b=>b.status==='eingegangen').slice(0,5);
-  if(!neu.length){ bewEl.innerHTML='<div class="empty">Keine neuen Bewerbungen</div>'; }
-  else bewEl.innerHTML = neu.map(b=>{
-    const auf = AUFTRAEGE.find(a=>a.id===b.auftrag_id);
-    const ini = (b.vorname[0]||'?')+(b.nachname[0]||'?');
-    return `<div class="prow">
-      <div class="av">${ini}</div>
-      <div class="prow-info">
-        <div class="prow-name">${b.vorname} ${b.nachname}</div>
-        <div class="prow-sub">${auf?auf.name:'Allgemein'} · ${b.wohnort||'–'} · ${fmtAt(b.created_at)}</div>
+  const urg=AUFTRAEGE.filter(a=>a.dringend);
+  document.getElementById('st-drg').textContent=urg.length;
+  document.getElementById('db-urg').innerHTML=urg.slice(0,5).map(a=>`
+    <div style="padding:9px 12px;border-bottom:1px solid #f3f4f6;display:flex;align-items:center;gap:9px">
+      <div style="width:6px;height:6px;border-radius:50%;background:var(--or);flex-shrink:0"></div>
+      <div style="flex:1"><div class="tn">${a.name}</div><div class="ts">${fmtD(a)} · ${a.pax_besetzt||0}/${a.pax_gesamt}</div></div>
+      <span class="tag to">🔥</span>
+    </div>`).join('')||'<div class="empty">Keine dringenden Aufträge</div>';
+  const neu=BEWERBUNGEN.filter(b=>b.status==='eingegangen').slice(0,4);
+  document.getElementById('db-bew').innerHTML=neu.map(b=>{
+    const auf=AUFTRAEGE.find(a=>a.id===b.auftrag_id);
+    const ini=(b.vorname?.[0]||'?')+(b.nachname?.[0]||'?');
+    return`<div style="padding:9px 12px;border-bottom:1px solid #f3f4f6;display:flex;align-items:center;gap:8px">
+      <div style="width:26px;height:26px;border-radius:50%;background:linear-gradient(135deg,var(--or),var(--or2));color:#fff;font-size:9px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0">${ini}</div>
+      <div style="flex:1"><div class="tn">${b.vorname} ${b.nachname}</div><div class="ts">${auf?auf.name:'Allgemein'} · ${fmtAt(b.created_at)}</div></div>
+      <div class="ra">
+        <button class="ia ia-g" onclick="bewAction('${b.id}','bestaetigt','${b.vorname} ${b.nachname}')">✓</button>
+        <button class="ia ia-r" onclick="bewAction('${b.id}','abgelehnt','${b.vorname}')">✕</button>
       </div>
-      <div class="prow-acts">
-        <button class="ia g" onclick="bewAktion('${b.id}','bestaetigt','${b.vorname} ${b.nachname}')">✓</button>
-        <button class="ia r" onclick="bewAktion('${b.id}','abgelehnt','${b.vorname} ${b.nachname}')">✕</button>
-        <button class="ia" onclick="openBewDetail('${b.id}')">👁</button>
-      </div>
-    </div>`;
-  }).join('');
+    </div>`}).join('')||'<div class="empty">Keine neuen Bewerbungen</div>';
 }
 
 // ── AUFTRÄGE ──
 function renderAuftraege(){
-  let data = AUFTRAEGE;
-  if(aufFilterCur==='bestaetigt') data=data.filter(a=>a.status==='bestaetigt');
-  else if(aufFilterCur==='angefragt') data=data.filter(a=>a.status==='angefragt');
-  else if(aufFilterCur==='dringend') data=data.filter(a=>a.dringend);
+  let d=AUFTRAEGE.slice();
+  if(aufF==='bestaetigt')d=d.filter(a=>a.status==='bestaetigt');
+  else if(aufF==='angefragt')d=d.filter(a=>a.status==='angefragt');
+  else if(aufF==='dringend')d=d.filter(a=>a.dringend);
+  if(aufQ)d=d.filter(a=>a.name.toLowerCase().includes(aufQ.toLowerCase()));
+  document.getElementById('aufTbody').innerHTML=d.length?d.map(a=>{
+    const op=a.pax_gesamt>0?Math.round((a.pax_besetzt||0)/a.pax_gesamt*100):0;
+    const bc=op>=80?'var(--gr)':op>=40?'var(--ye)':'var(--re)';
+    return`<tr>
+      <td><div class="tn">${a.name}${a.dringend?' <span class="tag to" style="font-size:8px">🔥</span>':''}</div><div class="ts">${a.kategorie||''}</div></td>
+      <td>${a.status==='bestaetigt'?'<span class="tag tg">✓ Bestätigt</span>':'<span class="tag ty">❓ Angefragt</span>'}</td>
+      <td style="font-size:11px;color:var(--sub)">${fmtD(a)}</td>
+      <td style="font-size:11px;color:var(--sub)">${a.location}</td>
+      <td><div class="occ"><div class="occ-t"><div class="occ-f" style="width:${op}%;background:${bc}"></div></div><span class="occ-n">${a.pax_besetzt||0}/${a.pax_gesamt}</span></div></td>
+      <td><div class="ra">
+        <button class="ia" onclick="openEditAuf('${a.id}')">✏️ Edit</button>
+        ${a.status==='angefragt'?`<button class="ia ia-g" onclick="setAufStatus('${a.id}','bestaetigt')">✓ Best.</button>`:''}
+        <button class="ia ia-o" onclick="gotoDispo('${a.id}')">🗂️ Dispo</button>
+      </div></td>
+    </tr>`}).join(''):`<tr><td colspan="6" class="empty">Keine Aufträge</td></tr>`;
+}
+function fAuf(f,el){aufF=f;document.querySelectorAll('#pg-auftraege .fp').forEach(b=>b.classList.remove('on'));el.classList.add('on');renderAuftraege();}
+function searchAuf(v){aufQ=v;renderAuftraege();}
 
-  if(!data.length){ document.getElementById('aufTbody').innerHTML='<tr><td colspan="6" class="empty">Keine Aufträge</td></tr>'; return; }
-  document.getElementById('aufTbody').innerHTML = data.map(a=>{
-    const op = a.pax_gesamt>0?Math.round((a.pax_besetzt||0)/a.pax_gesamt*100):0;
-    const bc = op>=80?'#22c55e':op>=40?'#f59e0b':'var(--or)';
-    const stTag = a.status==='bestaetigt'?'<span class="tag t-best">✓ Bestätigt</span>':'<span class="tag t-ang">❓ Angefragt</span>';
-    return `<tr>
-      <td><strong>${a.name}</strong>${a.dringend?'<span class="tag t-urg" style="margin-left:5px">🔥</span>':''}</td>
-      <td>${stTag}</td>
-      <td>${fmtD(a)}</td>
-      <td>${a.location}</td>
-      <td><div class="occ"><div class="occ-bg"><div class="occ-fill" style="width:${op}%;background:${bc}"></div></div><span style="font-size:10px">${a.pax_besetzt||0}/${a.pax_gesamt}</span></div></td>
-      <td>
-        <button class="ia" onclick="openEditAuftrag('${a.id}')">✏️ Edit</button>
-        ${a.status==='angefragt'?`<button class="ia g" onclick="setAuftragStatus('${a.id}','bestaetigt')">✓ Best.</button>`:''}
-        <button class="ia o" onclick="openDispo('${a.id}')">🗂️ Dispo</button>
-      </td>
-    </tr>`;
-  }).join('');
+async function setAufStatus(id,status){
+  const{error}=await sb.from('auftraege').update({status,updated_at:new Date().toISOString()}).eq('id',id);
+  if(error){toast('Fehler: '+error.message,'err');return;}
+  toast('✅ Status gesetzt – Mitarbeiterseite aktualisiert!','ok');
+  await loadAuftraege();
 }
 
-function filterAuf(f,el){ aufFilterCur=f; document.querySelectorAll('.filter-row .fb').forEach(b=>b.classList.remove('on')); el.classList.add('on'); renderAuftraege(); }
-
-async function setAuftragStatus(id, status){
-  console.log('setAuftragStatus called:', id, status);
-  if(!sb){ toast('Keine DB Verbindung!','err'); return; }
-  try {
-    const {data, error} = await sb
-      .from('auftraege')
-      .update({status: status, updated_at: new Date().toISOString()})
-      .eq('id', id)
-      .select();
-    console.log('Update result:', data, error);
-    if(error) throw error;
-    if(!data || data.length === 0){
-      toast('⚠️ Keine Zeile aktualisiert – ID nicht gefunden?','err');
-      console.warn('No rows updated! ID:', id);
-      return;
-    }
-    toast('✅ Status gesetzt – Mitarbeiterseite aktualisiert in 30 Sek!');
-    await loadAuftraege();
-  } catch(e){ 
-    console.error('setAuftragStatus error:', e);
-    toast('Fehler: '+e.message,'err'); 
-  }
-}
-
-async function setDringend(id, dringend){
-  try {
-    const {error} = await sb.from('auftraege').update({dringend, updated_at: new Date().toISOString()}).eq('id',id);
-    if(error) throw error;
-    toast('✅ Gespeichert – Mitarbeiterseite aktualisiert!');
-    await loadAuftraege();
-  } catch(e){ toast('Fehler: '+e.message,'err'); }
-}
-
-async function updatePaxBesetzt(id, val){
-  try {
-    const {error} = await sb.from('auftraege').update({pax_besetzt: parseInt(val)||0, updated_at: new Date().toISOString()}).eq('id',id);
-    if(error) throw error;
-    toast('✅ Besetzung aktualisiert – live auf Mitarbeiterseite!');
-    await loadAuftraege();
-  } catch(e){ toast('Fehler: '+e.message,'err'); }
-}
-
-function openEditAuftrag(id){
-  const a = AUFTRAEGE.find(x=>x.id===id);
-  if(!a) return;
-  openM(`<div class="modal-title">✏️ ${a.name}</div>
+function openEditAuf(id){
+  const a=AUFTRAEGE.find(x=>x.id===id);if(!a)return;
+  openM(`<div class="mt">✏️ ${a.name}</div><div class="ms">${fmtD(a)} · ${a.location}</div>
     <div class="fr2">
-      <div class="fg"><label class="fl">Status</label>
-        <select class="fsel" id="e-status">
-          <option value="angefragt" ${a.status==='angefragt'?'selected':''}>❓ Angefragt</option>
-          <option value="bestaetigt" ${a.status==='bestaetigt'?'selected':''}>✅ Bestätigt</option>
-          <option value="abgesagt">❌ Abgesagt</option>
-        </select></div>
-      <div class="fg"><label class="fl">Dringend</label>
-        <select class="fsel" id="e-dringend">
-          <option value="false" ${!a.dringend?'selected':''}>Nein</option>
-          <option value="true" ${a.dringend?'selected':''}>🔥 Ja</option>
-        </select></div>
+      <div class="fg"><label class="fl">Status</label><select class="fsel" id="e-st">
+        <option value="angefragt" ${a.status==='angefragt'?'selected':''}>❓ Angefragt</option>
+        <option value="bestaetigt" ${a.status==='bestaetigt'?'selected':''}>✅ Bestätigt</option>
+        <option value="abgesagt">❌ Abgesagt</option>
+      </select></div>
+      <div class="fg"><label class="fl">Dringend</label><select class="fsel" id="e-drg">
+        <option value="false" ${!a.dringend?'selected':''}>Nein</option>
+        <option value="true" ${a.dringend?'selected':''}>🔥 Ja</option>
+      </select></div>
     </div>
     <div class="fr2">
-      <div class="fg"><label class="fl">PAX besetzt</label><input class="fi" id="e-besetzt" type="number" value="${a.pax_besetzt||0}" min="0" max="${a.pax_gesamt}"></div>
-      <div class="fg"><label class="fl">PAX gesamt</label><input class="fi" id="e-gesamt" type="number" value="${a.pax_gesamt}" min="1"></div>
+      <div class="fg"><label class="fl">PAX besetzt</label><input class="fi" id="e-pb" type="number" value="${a.pax_besetzt||0}"></div>
+      <div class="fg"><label class="fl">PAX gesamt</label><input class="fi" id="e-pg" type="number" value="${a.pax_gesamt}"></div>
     </div>
-    <div class="fg"><label class="fl">Anmerkungen</label><textarea class="fta" id="e-anm">${a.anmerkungen||''}</textarea></div>
     <div class="fg"><label class="fl">Bild-URL</label><input class="fi" id="e-bild" value="${a.bild_url||''}"></div>
-    <div class="modal-acts">
-      <button class="mbtn sec" onclick="closeM()">Abbrechen</button>
-      <button class="mbtn prim" onclick="saveAuftragEdit('${id}')">💾 Speichern & Live stellen</button>
+    <div class="fg"><label class="fl">Anmerkungen</label><textarea class="fta" id="e-anm">${a.anmerkungen||''}</textarea></div>
+    <div class="macts">
+      <button class="mb mb-gh" onclick="closeM()">Abbrechen</button>
+      <button class="mb mb-or" onclick="saveEditAuf('${id}')">💾 Speichern & Live</button>
     </div>`);
 }
 
-async function saveAuftragEdit(id){
-  const status = document.getElementById('e-status').value;
-  const dringend = document.getElementById('e-dringend').value === 'true';
-  const pax_besetzt = parseInt(document.getElementById('e-besetzt').value)||0;
-  const pax_gesamt = parseInt(document.getElementById('e-gesetzt')?.value || document.getElementById('e-gesamt').value)||1;
-  const anmerkungen = document.getElementById('e-anm').value;
-  const bild_url = document.getElementById('e-bild').value;
-  try {
-    const {data: saveData, error} = await sb.from('auftraege').update({
-      status, dringend, pax_besetzt, pax_gesamt, anmerkungen, bild_url,
-      updated_at: new Date().toISOString()
-    }).eq('id',id).select();
-    console.log('saveAuftragEdit result:', saveData, error);
-    if(error) throw error;
-    closeM();
-    toast('✅ Auftrag gespeichert – erscheint sofort auf Mitarbeiterseite!');
-    await loadAuftraege();
-  } catch(e){ toast('Fehler: '+e.message,'err'); }
+async function saveEditAuf(id){
+  const{error}=await sb.from('auftraege').update({
+    status:document.getElementById('e-st').value,
+    dringend:document.getElementById('e-drg').value==='true',
+    pax_besetzt:parseInt(document.getElementById('e-pb').value)||0,
+    pax_gesamt:parseInt(document.getElementById('e-pg').value)||1,
+    bild_url:document.getElementById('e-bild').value,
+    anmerkungen:document.getElementById('e-anm').value,
+    updated_at:new Date().toISOString()
+  }).eq('id',id);
+  if(error){toast('Fehler: '+error.message,'err');return;}
+  closeM();toast('✅ Gespeichert – live auf Mitarbeiterseite!','ok');
+  await loadAuftraege();
 }
 
-function openNewAuftrag(){
-  openM(`<div class="modal-title">➕ Neuer Auftrag</div>
+function openNewAuf(){
+  openM(`<div class="mt">➕ Neuer Auftrag</div>
     <div class="fr2">
-      <div class="fg"><label class="fl">Name *</label><input class="fi" id="n-name" placeholder="z.B. Helene Fischer" required></div>
-      <div class="fg"><label class="fl">Kategorie</label>
-        <select class="fsel" id="n-kat"><option>Konzert</option><option>Festival</option><option>Messe</option><option>Promotion</option><option>ESL</option><option>Sport</option></select></div>
+      <div class="fg"><label class="fl">Name *</label><input class="fi" id="n-name" placeholder="Helene Fischer"></div>
+      <div class="fg"><label class="fl">Kategorie</label><select class="fsel" id="n-kat"><option>Konzert</option><option>Festival</option><option>Messe</option><option>Promotion</option><option>ESL</option><option>Sport</option></select></div>
     </div>
     <div class="fr2">
-      <div class="fg"><label class="fl">Status</label>
-        <select class="fsel" id="n-status"><option value="angefragt">❓ Angefragt</option><option value="bestaetigt">✅ Bestätigt</option></select></div>
-      <div class="fg"><label class="fl">Dringend</label>
-        <select class="fsel" id="n-dringend"><option value="false">Nein</option><option value="true">🔥 Ja</option></select></div>
+      <div class="fg"><label class="fl">Status</label><select class="fsel" id="n-st"><option value="angefragt">❓ Angefragt</option><option value="bestaetigt">✅ Bestätigt</option></select></div>
+      <div class="fg"><label class="fl">Dringend</label><select class="fsel" id="n-drg"><option value="false">Nein</option><option value="true">🔥 Ja</option></select></div>
     </div>
     <div class="fr2">
-      <div class="fg"><label class="fl">Datum von *</label><input class="fi" id="n-dvon" type="date" required></div>
-      <div class="fg"><label class="fl">Datum bis</label><input class="fi" id="n-dbis" type="date"></div>
+      <div class="fg"><label class="fl">Datum von *</label><input class="fi" type="date" id="n-dv"></div>
+      <div class="fg"><label class="fl">Datum bis</label><input class="fi" type="date" id="n-db"></div>
     </div>
-    <div class="fg"><label class="fl">Location *</label><input class="fi" id="n-loc" placeholder="Venue, Stadt" required></div>
+    <div class="fg"><label class="fl">Location *</label><input class="fi" id="n-loc" placeholder="Venue, Stadt"></div>
     <div class="fr2">
-      <div class="fg"><label class="fl">Tätigkeit</label><input class="fi" id="n-ta" placeholder="Stagehands, Promoter…"></div>
-      <div class="fg"><label class="fl">PAX gesamt</label><input class="fi" id="n-pax" type="number" value="1" min="1"></div>
+      <div class="fg"><label class="fl">Tätigkeit</label><input class="fi" id="n-ta" placeholder="Stagehands…"></div>
+      <div class="fg"><label class="fl">PAX gesamt</label><input class="fi" type="number" id="n-pax" value="1"></div>
     </div>
-    <div class="fg"><label class="fl">Schichtzeiten (je Zeile eine Schicht)</label><textarea class="fta" id="n-sh" placeholder="08:00–16:00 Uhr&#10;22:00–06:00 Uhr"></textarea></div>
+    <div class="fg"><label class="fl">Schichten (je Zeile eine)</label><textarea class="fta" id="n-sh" placeholder="08:00–16:00 Uhr"></textarea></div>
     <div class="fg"><label class="fl">Bild-URL</label><input class="fi" id="n-bild" placeholder="https://…"></div>
-    <div class="fg"><label class="fl">Regionalleiter</label>
-      <select class="fsel" id="n-rl"><option value="">–</option><option>Aghyad</option><option>Nick</option><option>Cenk</option><option>Damian</option></select></div>
-    <div class="fg"><label class="fl">Anmerkungen (intern)</label><textarea class="fta" id="n-anm"></textarea></div>
-    <div class="modal-acts">
-      <button class="mbtn sec" onclick="closeM()">Abbrechen</button>
-      <button class="mbtn prim" onclick="saveNewAuftrag()">💾 Speichern & Live stellen</button>
+    <div class="macts">
+      <button class="mb mb-gh" onclick="closeM()">Abbrechen</button>
+      <button class="mb mb-or" onclick="saveNewAuf()">💾 Erstellen & Live</button>
     </div>`);
 }
 
-async function saveNewAuftrag(){
-  const name = document.getElementById('n-name').value.trim();
-  const datum_von = document.getElementById('n-dvon').value;
-  const location = document.getElementById('n-loc').value.trim();
-  if(!name||!datum_von||!location){ toast('Bitte alle Pflichtfelder ausfüllen','err'); return; }
-  const shRaw = document.getElementById('n-sh').value.trim();
-  const schichtzeiten = shRaw ? shRaw.split('\n').filter(Boolean) : [];
-  const datum_bis = document.getElementById('n-dbis').value || null;
-  const payload = {
-    name, datum_von, datum_bis, location,
-    kategorie: document.getElementById('n-kat').value,
-    status: document.getElementById('n-status').value,
-    dringend: document.getElementById('n-dringend').value==='true',
-    taetigkeit: document.getElementById('n-ta').value,
-    pax_gesamt: parseInt(document.getElementById('n-pax').value)||1,
-    pax_besetzt: 0,
-    schichtzeiten,
-    bild_url: document.getElementById('n-bild').value,
-    regionalleiter: document.getElementById('n-rl').value,
-    anmerkungen: document.getElementById('n-anm').value,
-  };
-  try {
-    const {error} = await sb.from('auftraege').insert([payload]);
-    if(error) throw error;
-    closeM();
-    toast('✅ Auftrag erstellt – erscheint sofort auf der Mitarbeiterseite!');
-    await loadAuftraege();
-  } catch(e){ toast('Fehler: '+e.message,'err'); }
+async function saveNewAuf(){
+  const name=document.getElementById('n-name').value.trim();
+  const dv=document.getElementById('n-dv').value;
+  const loc=document.getElementById('n-loc').value.trim();
+  if(!name||!dv||!loc){toast('Pflichtfelder ausfüllen','err');return;}
+  const sh=document.getElementById('n-sh').value.trim().split('\n').filter(Boolean);
+  const{error}=await sb.from('auftraege').insert([{
+    name,kategorie:document.getElementById('n-kat').value,
+    status:document.getElementById('n-st').value,
+    dringend:document.getElementById('n-drg').value==='true',
+    datum_von:dv,datum_bis:document.getElementById('n-db').value||null,
+    location:loc,taetigkeit:document.getElementById('n-ta').value,
+    pax_gesamt:parseInt(document.getElementById('n-pax').value)||1,
+    pax_besetzt:0,schichtzeiten:sh,bild_url:document.getElementById('n-bild').value
+  }]);
+  if(error){toast('Fehler: '+error.message,'err');return;}
+  closeM();toast('✅ Auftrag live auf Mitarbeiterseite!','ok');
+  await loadAuftraege();
 }
 
 // ── BEWERBUNGEN ──
 function renderBewerbungen(){
-  let data = BEWERBUNGEN;
-  if(bewFilterCur!=='alle') data=data.filter(b=>b.status===bewFilterCur);
-  if(!data.length){ document.getElementById('bewTbody').innerHTML='<tr><td colspan="7" class="empty">Keine Bewerbungen</td></tr>'; return; }
-  document.getElementById('bewTbody').innerHTML = data.map(b=>{
-    const auf = AUFTRAEGE.find(a=>a.id===b.auftrag_id);
-    let stTag='';
-    if(b.status==='eingegangen') stTag='<span class="tag t-new">📥 Neu</span>';
-    else if(b.status==='bestaetigt') stTag='<span class="tag t-best">✓ Best.</span>';
-    else if(b.status==='abgelehnt') stTag='<span class="tag t-abl">❌ Abgel.</span>';
-    else if(b.status==='reserviert') stTag='<span class="tag t-res">⏳ Res.</span>';
-    return `<tr>
-      <td><strong>${b.vorname} ${b.nachname}</strong></td>
-      <td><a href="tel:${b.telefon}" style="color:var(--or)">${b.telefon}</a></td>
-      <td>${stTag}</td>
-      <td>${auf?auf.name:'Allgemein'}</td>
-      <td>${b.regionalleiter||'–'}</td>
-      <td>${b.psa?'<span class="tag '+(b.psa.includes('komplett')?'t-best':'t-ang')+'">'+b.psa+'</span>':'–'}</td>
-      <td>
+  let d=BEWERBUNGEN.slice();
+  if(bewF!=='alle')d=d.filter(b=>b.status===bewF);
+  document.getElementById('bewTbody').innerHTML=d.length?d.map(b=>{
+    const auf=AUFTRAEGE.find(a=>a.id===b.auftrag_id);
+    const stMap={eingegangen:'<span class="tag tb">📥 Neu</span>',bestaetigt:'<span class="tag tg">✓ Best.</span>',abgelehnt:'<span class="tag tr">❌</span>',reserviert:'<span class="tag tp">⏳ Res.</span>'};
+    return`<tr>
+      <td><div class="tn">${b.vorname} ${b.nachname}</div><div class="ts">${b.wohnort||'–'}</div></td>
+      <td><a href="tel:${b.telefon}" style="color:var(--or);font-size:11px">${b.telefon}</a></td>
+      <td>${stMap[b.status]||'–'}</td>
+      <td style="font-size:11px">${auf?auf.name:'Allg.'}</td>
+      <td>${b.psa?`<span class="tag ${b.psa.includes('Ja')||b.psa.includes('komplett')?'tg':'ty'}" style="font-size:9px">${b.psa.substring(0,10)}</span>`:'–'}</td>
+      <td style="font-size:11px">${b.regionalleiter||'–'}</td>
+      <td><div class="ra">
         ${b.status==='eingegangen'?`
-          <button class="ia g" onclick="bewAktion('${b.id}','bestaetigt','${b.vorname} ${b.nachname}')">✓</button>
-          <button class="ia" style="color:#a78bfa;border-color:rgba(167,139,250,.3)" onclick="bewAktion('${b.id}','reserviert','${b.vorname} ${b.nachname}')">⏳</button>
-          <button class="ia r" onclick="bewAktion('${b.id}','abgelehnt','${b.vorname} ${b.nachname}')">✕</button>`:''}
+          <button class="ia ia-g" onclick="bewAction('${b.id}','bestaetigt','${b.vorname} ${b.nachname}')">✓</button>
+          <button class="ia" style="color:var(--pu);border-color:var(--pubr)" onclick="bewAction('${b.id}','reserviert','${b.vorname}')">⏳</button>
+          <button class="ia ia-r" onclick="bewAction('${b.id}','abgelehnt','${b.vorname}')">✕</button>`:''}
         <button class="ia" onclick="openBewDetail('${b.id}')">👁</button>
-      </td>
-    </tr>`;
-  }).join('');
+      </div></td>
+    </tr>`}).join(''):`<tr><td colspan="7" class="empty">Keine Bewerbungen</td></tr>`;
 }
+function fBew(f,el){bewF=f;document.querySelectorAll('#pg-bewerbungen .fp').forEach(b=>b.classList.remove('on'));el.classList.add('on');renderBewerbungen();}
 
-function bewFilterBy(f,el){ bewFilterCur=f; document.querySelectorAll('#pg-bewerbungen .filter-row .fb').forEach(b=>b.classList.remove('on')); el.classList.add('on'); renderBewerbungen(); }
-
-async function bewAktion(id, status, name){
-  try {
-    const {error} = await sb.from('bewerbungen').update({
-      status,
-      bestaetigt_von: 'Admin',
-      bestaetigt_am: new Date().toISOString()
-    }).eq('id',id);
-    if(error) throw error;
-    const msg = status==='bestaetigt'
-      ? `✅ ${name} bestätigt!`
-      : status==='abgelehnt'
-      ? `${name} abgelehnt`
-      : `${name} reserviert`;
-    toast(msg, status==='abgelehnt'?'err':'ok');
-    await loadBewerbungen();
-    renderDashboard();
-  } catch(e){ toast('Fehler: '+e.message,'err'); }
+async function bewAction(id,status,name){
+  const{error}=await sb.from('bewerbungen').update({status,bestaetigt_am:new Date().toISOString()}).eq('id',id);
+  if(error){toast('Fehler: '+error.message,'err');return;}
+  if(status==='bestaetigt'){
+    const b=BEWERBUNGEN.find(x=>x.id===id);
+    if(b?.auftrag_id){
+      const a=AUFTRAEGE.find(x=>x.id===b.auftrag_id);
+      if(a)await sb.from('auftraege').update({pax_besetzt:(a.pax_besetzt||0)+1,updated_at:new Date().toISOString()}).eq('id',a.id);
+    }
+  }
+  toast(status==='bestaetigt'?`✅ ${name} bestätigt! Mitarbeiterseite aktualisiert.`:status==='abgelehnt'?`${name} abgelehnt`:`${name} reserviert`,status==='abgelehnt'?'err':'ok');
+  await loadAll();
 }
 
 function openBewDetail(id){
-  const b = BEWERBUNGEN.find(x=>x.id===id);
-  if(!b) return;
-  const auf = AUFTRAEGE.find(a=>a.id===b.auftrag_id);
-  openM(`<div class="modal-title">👁️ ${b.vorname} ${b.nachname}</div>
-    <table class="tbl" style="margin-bottom:12px">
-      <tr><td style="color:var(--mt);width:140px">Auftrag</td><td>${auf?auf.name:'Allgemein'}</td></tr>
-      <tr><td style="color:var(--mt)">Telefon</td><td><a href="tel:${b.telefon}" style="color:var(--or)">${b.telefon}</a></td></tr>
-      <tr><td style="color:var(--mt)">Wohnort</td><td>${b.wohnort||'–'}</td></tr>
-      <tr><td style="color:var(--mt)">Anreise</td><td>${b.anreise||'–'}</td></tr>
-      <tr><td style="color:var(--mt)">PSA</td><td>${b.psa||'–'}</td></tr>
-      <tr><td style="color:var(--mt)">Schuhgröße</td><td>${b.schuhgroesse||'–'}</td></tr>
-      <tr><td style="color:var(--mt)">Shirt</td><td>${b.shirt_groesse||'–'}</td></tr>
-      <tr><td style="color:var(--mt)">Regionalleiter</td><td>${b.regionalleiter||'–'}</td></tr>
-      <tr><td style="color:var(--mt)">Status</td><td>${b.mitarbeiter_status||'–'}</td></tr>
-      <tr><td style="color:var(--mt)">Beworben</td><td>${fmtAt(b.created_at)}</td></tr>
-      ${b.notiz?`<tr><td style="color:var(--mt)">Notiz</td><td>${b.notiz}</td></tr>`:''}
+  const b=BEWERBUNGEN.find(x=>x.id===id);if(!b)return;
+  const auf=AUFTRAEGE.find(a=>a.id===b.auftrag_id);
+  openM(`<div class="mt">👁 ${b.vorname} ${b.nachname}</div>
+    <table class="tbl" style="margin-bottom:10px">
+      ${[['Auftrag',auf?auf.name:'Allg.'],['Telefon',`<a href="tel:${b.telefon}" style="color:var(--or)">${b.telefon}</a>`],['Wohnort',b.wohnort||'–'],['Anreise',b.anreise||'–'],['PSA',b.psa||'–'],['Schuh',b.schuhgroesse||'–'],['Shirt',b.shirt_groesse||'–'],['Regio',b.regionalleiter||'–'],['Notiz',b.notiz||'–'],['Beworben',fmtAt(b.created_at)]].map(([k,v])=>`<tr><td style="color:var(--mut);width:80px;font-size:10px">${k}</td><td style="font-size:11px">${v}</td></tr>`).join('')}
     </table>
-    <div class="modal-acts">
-      <button class="mbtn sec" onclick="closeM()">Schließen</button>
+    <div class="macts">
+      <button class="mb mb-gh" onclick="closeM()">Schließen</button>
       ${b.status==='eingegangen'?`
-        <button class="mbtn" style="background:#2d1b69;color:#a78bfa" onclick="closeM();bewAktion('${b.id}','reserviert','${b.vorname}')">⏳ Reserve</button>
-        <button class="mbtn suc" onclick="closeM();bewAktion('${b.id}','bestaetigt','${b.vorname} ${b.nachname}')">✓ Bestätigen</button>
-        <button class="mbtn err" onclick="closeM();bewAktion('${b.id}','abgelehnt','${b.vorname} ${b.nachname}')">✕ Ablehnen</button>`:''}
+        <button class="mb mb-gr" onclick="closeM();bewAction('${b.id}','bestaetigt','${b.vorname} ${b.nachname}')">✓ Bestätigen</button>
+        <button class="mb mb-re" onclick="closeM();bewAction('${b.id}','abgelehnt','${b.vorname}')">✕ Ablehnen</button>`:''}
     </div>`);
 }
 
 // ── DISPO ──
-function populateDispoSelect(){
-  const sel = document.getElementById('dispoSelect');
-  const cur = sel.value;
-  sel.innerHTML = '<option value="">– Auftrag wählen –</option>' +
-    AUFTRAEGE.map(a=>`<option value="${a.id}" ${a.id===cur?'selected':''}>${a.name} – ${fmtD(a)}</option>`).join('');
+function populateSels(){
+  ['dispoSel','stundenSel','pdfSel1','pdfSel2','pdfSel3'].forEach(id=>{
+    const el=document.getElementById(id);if(!el)return;
+    const cur=el.value;
+    el.innerHTML='<option value="">– Auftrag wählen –</option>'+AUFTRAEGE.map(a=>`<option value="${a.id}">${a.name} – ${fmtD(a)}</option>`).join('');
+    if(cur)el.value=cur;
+  });
 }
 
-async function loadDispo(auftragId){
-  if(!auftragId){ document.getElementById('dispoContent').innerHTML='<span style="color:var(--mt);font-size:12px">Bitte Auftrag auswählen…</span>'; return; }
-  const auf = AUFTRAEGE.find(a=>a.id===auftragId);
-  if(!auf) return;
-  try {
-    const {data,error} = await sb.from('bewerbungen').select('*').eq('auftrag_id',auftragId).eq('status','bestaetigt');
-    if(error) throw error;
-    const crew = data||[];
-    const op = auf.pax_gesamt>0?Math.round((crew.length)/auf.pax_gesamt*100):0;
-    const bc = op>=80?'#22c55e':op>=40?'#f59e0b':'var(--or)';
-    document.getElementById('dispoContent').innerHTML=`
-      <div class="panel" style="margin-bottom:14px">
-        <div class="ph">
-          <h3>${auf.name}</h3>
-          <span style="font-size:11px;color:var(--mt)">${auf.location} · ${fmtD(auf)} · <span style="color:${bc}">${crew.length}/${auf.pax_gesamt} besetzt</span></span>
-        </div>
-        ${crew.length?`
-        <table class="tbl">
-          <thead><tr><th>Name</th><th>Telefon</th><th>Anreise</th><th>PSA</th><th>Schuh</th><th>Shirt</th><th>WA</th></tr></thead>
-          <tbody>${crew.map(p=>`<tr>
-            <td><strong>${p.vorname} ${p.nachname}</strong></td>
-            <td>${p.telefon}</td>
-            <td>${p.anreise||'–'}</td>
-            <td>${p.psa?'<span class="tag '+(p.psa.includes('komplett')?'t-best':'t-ang')+'">'+p.psa.substring(0,10)+'</span>':'–'}</td>
-            <td>${p.schuhgroesse||'–'}</td>
-            <td>${p.shirt_groesse||'–'}</td>
-            <td><a href="https://wa.me/${p.telefon.replace(/[^0-9]/g,'')}" target="_blank" class="ia">💬</a></td>
-          </tr>`).join('')}</tbody>
-        </table>`:'<div class="empty">Noch keine bestätigten Crewmitglieder</div>'}
+async function loadDispo(aufId){
+  if(!aufId){document.getElementById('dispoCard').innerHTML='<div class="empty">Bitte Auftrag auswählen…</div>';return;}
+  const auf=AUFTRAEGE.find(a=>a.id===aufId);if(!auf)return;
+  const{data:crew}=await sb.from('bewerbungen').select('*').eq('auftrag_id',aufId).eq('status','bestaetigt');
+  const c=crew||[];
+  document.getElementById('dispoCard').innerHTML=`
+    <div style="padding:12px 14px;border-bottom:1px solid var(--bdr);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">
+      <div><div style="font-weight:700;font-size:13px;color:var(--text)">${auf.name}</div><div style="font-size:11px;color:var(--mut);margin-top:1px">${fmtD(auf)} · ${auf.location}</div></div>
+      <div style="display:flex;align-items:center;gap:10px;font-size:11px;color:var(--sub)">
+        <span>👥 <strong>${c.length}/${auf.pax_gesamt}</strong></span>
+        <span>${auf.taetigkeit||'–'}</span>
       </div>
-      <div style="display:flex;gap:8px;flex-wrap:wrap">
-        <button class="tbtn primary" onclick="toast('📄 PDF wird erstellt…')"><i class="ti ti-file-text"></i>Crewliste PDF</button>
-        <button class="tbtn" onclick="toast('💬 Per WA geteilt')"><i class="ti ti-brand-whatsapp"></i>Per WA teilen</button>
-      </div>`;
-  } catch(e){ toast('Dispo Fehler: '+e.message,'err'); }
+    </div>
+    <div style="padding:8px 10px 4px;background:#fafafa;border-bottom:1px solid var(--bdr);font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--gr)">✅ Bestätigte Crew (${c.length})</div>
+    <div class="crew-hdr"><span>Name</span><span>Tätigkeit</span><span>Anreise</span><span>PSA</span><span>Schuh</span><span>Shirt</span><span>WA</span></div>
+    <div id="crewConf">
+      ${c.map(p=>`<div class="crew-row conf">
+        <span style="font-weight:600;font-size:11px;color:var(--text)">${p.vorname} ${p.nachname}</span>
+        <input class="ci" value="${p.notiz||auf.taetigkeit||'–'}">
+        <span style="color:var(--sub)">${p.anreise||'–'}</span>
+        <span class="tag ${p.psa&&(p.psa.includes('Ja')||p.psa.includes('komplett'))?'tg':'tr'}" style="font-size:9px">${p.psa?'✓':'✕'}</span>
+        <input class="ci" value="${p.schuhgroesse||'–'}" style="width:100%">
+        <input class="ci" value="${p.shirt_groesse||'–'}" style="width:100%">
+        <a href="https://wa.me/${(p.telefon||'').replace(/[^0-9]/g,'')}" target="_blank" class="ia ia-g" style="font-size:10px">💬</a>
+      </div>`).join('')||'<div style="padding:10px 12px;font-size:11px;color:var(--mut)">Noch keine bestätigte Crew</div>'}
+    </div>
+    <div style="padding:8px 10px 4px;background:#eff6ff;border-top:1px solid var(--bdr);border-bottom:1px solid var(--bdr);font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--bl)">✚ Manuell hinzugefügt</div>
+    <div id="crewMan"></div>
+    <div class="add-row" onclick="addManCrew()">
+      <svg width="12" height="12" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 2v10M2 7h10"/></svg>
+      Person manuell eintragen
+    </div>
+    <div style="padding:10px 12px;border-top:1px solid var(--bdr);display:flex;gap:7px">
+      <button class="btn b-or" onclick="toast('💾 Gespeichert!','ok')">💾 Speichern</button>
+      <button class="btn b-gh" onclick="genDispoPDF()">📄 Dispo-PDF</button>
+      <button class="btn b-gh" onclick="genAuftragsinfoPDF()">📋 Auftragsinfo</button>
+      <button class="btn b-gh" onclick="openStundenLink()">🔗 Stundenlink</button>
+    </div>`;
 }
 
-function openDispo(auftragId){
-  showPage('dispo', document.querySelectorAll('.ni')[3]);
-  setTimeout(()=>{ document.getElementById('dispoSelect').value=auftragId; loadDispo(auftragId); },100);
+function addManCrew(){
+  const c=document.getElementById('crewMan');
+  const row=document.createElement('div');
+  row.className='crew-row man';
+  row.innerHTML=`<input class="ci" placeholder="Name…"><input class="ci" placeholder="Tätigkeit"><input class="ci" placeholder="Anreise"><span class="tag tgr" style="font-size:9px">–</span><input class="ci" placeholder="–" style="width:100%"><input class="ci" placeholder="–" style="width:100%"><button class="ia ia-r" style="font-size:10px" onclick="this.closest('.crew-row').remove()">✕</button>`;
+  c.appendChild(row);row.querySelector('input').focus();
 }
 
-// ── MITARBEITER ──
-function renderMitarbeiter(){
-  if(!MITARBEITER.length){ document.getElementById('maTbody').innerHTML='<tr><td colspan="5" class="empty">Keine Mitarbeiter</td></tr>'; return; }
-  document.getElementById('maTbody').innerHTML = MITARBEITER.map(m=>`<tr>
-    <td><strong>${m.vorname} ${m.nachname}</strong></td>
-    <td><a href="tel:${m.telefon||''}" style="color:var(--or)">${m.telefon||'–'}</a></td>
-    <td>${m.wohnort||'–'}</td>
-    <td>${m.regionalleiter||'–'}</td>
-    <td><button class="ia" onclick="toast('Bearbeiten kommt bald')">✏️</button> <a href="https://wa.me/${(m.telefon||'').replace(/[^0-9]/g,'')}" target="_blank" class="ia">💬 WA</a></td>
-  </tr>`).join('');
+function gotoDispo(id){
+  P('dispo',document.querySelectorAll('.ni')[4]);
+  setTimeout(()=>{document.getElementById('dispoSel').value=id;loadDispo(id);},100);
 }
 
-// ── HELPERS ──
-function fmtD(a){
-  const d1=new Date(a.datum_von);
-  const f=d=>`${String(d.getDate()).padStart(2,'0')}.${String(d.getMonth()+1).padStart(2,'0')}.${d.getFullYear()}`;
-  return a.datum_bis?`${f(d1)}–${f(new Date(a.datum_bis))}`:f(d1);
-}
-function fmtAt(ts){
-  if(!ts) return '–';
-  const d=new Date(ts);
-  return d.toLocaleDateString('de')+' '+d.toLocaleTimeString('de',{hour:'2-digit',minute:'2-digit'});
-}
-
-// ── NAVIGATION ──
-function showPage(id,el){
-  document.querySelectorAll('.page').forEach(p=>p.classList.add('hidden'));
-  document.querySelectorAll('.ni').forEach(n=>n.classList.remove('on'));
-  document.getElementById('pg-'+id)?.classList.remove('hidden'); if(id==='stunden')setTimeout(injectLohnBuilder,50);
-  if(el) el.classList.add('on');
-  const titles={dashboard:'Dashboard',auftraege:'Aufträge verwalten',bewerbungen:'Bewerbungen',dispo:'Dispo & Crew',stunden:'Stundennachweise',mitarbeiter:'Mitarbeiter'};
-  document.getElementById('pageTitle').textContent=titles[id]||id;
-  const acts={
-    auftraege:`<button class="tbtn primary" onclick="openNewAuftrag()"><i class="ti ti-plus"></i>Neuer Auftrag</button><button class="tbtn" onclick="loadAuftraege()"><i class="ti ti-refresh"></i>Refresh</button>`,
-    bewerbungen:`<button class="tbtn" onclick="loadBewerbungen()"><i class="ti ti-refresh"></i>Refresh</button>`,
-    dashboard:`<button class="tbtn" onclick="loadAll()"><i class="ti ti-refresh"></i>Aktualisieren</button>`,
-    mitarbeiter:`<button class="tbtn" onclick="loadMitarbeiter()"><i class="ti ti-refresh"></i>Refresh</button>`,
-  };
-  document.getElementById('pageActions').innerHTML=acts[id]||'';
+function openStundenLink(){
+  const aufId=document.getElementById('dispoSel')?.value;
+  const auf=aufId?AUFTRAEGE.find(a=>a.id===aufId):null;
+  const token=btoa((aufId||'demo')+'_fess').replace(/=/g,'');
+  const url=`${location.origin}/stunden-link.html?auf=${aufId||''}&t=${token}`;
+  openM(`<div class="mt">🔗 Stundennachweis-Link</div>
+    <div class="ms">Teile diesen Link mit Crew und Kunden für digitale Unterschriften.</div>
+    <div class="fg"><label class="fl">Auftrag</label><div style="font-size:13px;font-weight:600;color:var(--text)">${auf?.name||'– Auftrag in Dispo wählen –'}</div></div>
+    <label class="fl">Link</label>
+    <div class="lbox"><span class="lbox-url">${url}</span><button class="lbox-copy" onclick="navigator.clipboard?.writeText('${url}');toast('✅ Kopiert!','ok')">Kopieren</button></div>
+    <div style="font-size:10px;color:var(--mut);margin-top:6px">Mitarbeiter bestätigen Zeiten und unterschreiben digital. Daten fließen automatisch in Stunden.</div>
+    <div class="macts">
+      <button class="mb mb-gh" onclick="closeM()">Schließen</button>
+      <button class="mb mb-or" onclick="window.open('https://wa.me/?text='+encodeURIComponent('FESS Stundennachweis: ${url}'),'_blank');closeM()">💬 Per WA teilen</button>
+    </div>`);
 }
 
-// ── EXPORT ──
-function exportStundenCSV(){
-  const aufId = document.getElementById('dispoSelect')?.value;
-  const auf = aufId ? AUFTRAEGE.find(a=>a.id===aufId) : AUFTRAEGE[0];
-  const crew = BEWERBUNGEN.filter(b=>b.auftrag_id===auf?.id&&b.status==='bestaetigt');
-  const rows = [
-    ['Personalnummer','Name','Telefon','Auftrag','Datum','Beginn','Ende','Stunden','Stundenlohn €','Zuschlag €','Reisekosten €','Spesen €','Abzüge €','Gesamt €','Notiz']
-  ];
-  crew.forEach(p=>{
-    const pnr = MITARBEITER.find(m=>`${m.vorname} ${m.nachname}`===`${p.vorname} ${p.nachname}`)?.personalnummer||'–';
-    rows.push([pnr,`${p.vorname} ${p.nachname}`,p.telefon||'',auf?.name||'','','','','','','','','','','','']);
+// ── STUNDEN ──
+async function loadStunden(aufId){
+  if(!aufId){document.getElementById('stundenContent').innerHTML='<div class="empty">Bitte Auftrag auswählen…</div>';return;}
+  const auf=AUFTRAEGE.find(a=>a.id===aufId);if(!auf)return;
+  const{data:crew}=await sb.from('bewerbungen').select('*').eq('auftrag_id',aufId).eq('status','bestaetigt');
+  const{data:sh}=await sb.from('stundennachweise').select('*').eq('auftrag_id',aufId);
+  const shMap={};(sh||[]).forEach(s=>shMap[`${s.mitarbeiter_name}`]=s);
+  const cl=crew||[];
+
+  document.getElementById('stundenContent').innerHTML=`
+    <div class="card">
+      <div class="ch"><div class="ch-title">⏱️ Stunden – ${auf.name}</div><span style="font-size:11px;color:var(--mut)">${cl.length} Mitarbeiter</span></div>
+      <div class="sh-hdr"><span>Mitarbeiter</span><span>Datum</span><span>Beginn</span><span>Ende</span><span>Std</span><span>Status</span><span>Freigabe</span><span>Aktion</span></div>
+      <div id="shRows">
+        ${cl.map(p=>{
+          const n=`${p.vorname} ${p.nachname}`;const s=shMap[n]||{};
+          return`<div class="sh-row">
+            <span style="font-weight:600;color:var(--text)">${n}</span>
+            <input type="date" class="ci" value="${s.datum||''}" id="shd-${p.id}" style="width:100%">
+            <input type="time" class="ci" value="${s.beginn||''}" id="shb-${p.id}">
+            <input type="time" class="ci" value="${s.ende||''}" id="she-${p.id}">
+            <input type="number" class="ci" value="${s.stunden_gesamt||''}" id="shh-${p.id}" placeholder="–" step="0.5">
+            <span class="tag ${s.bestaetigt?'tg':'ty'}">${s.bestaetigt?'✓ OK':'⏳'}</span>
+            <div class="cb ${s.bestaetigt?'chk':''}" onclick="toggleFreigabe(this,'${p.id}','${aufId}','${n.replace(/'/g,"\\'")}')">
+              ${s.bestaetigt?'<svg viewBox="0 0 9 9" fill="none" stroke="white" stroke-width="2"><path d="M1 4.5l2.5 2.5 4.5-4.5"/></svg>':''}
+            </div>
+            <button class="ia ia-g" onclick="saveSH('${p.id}','${aufId}','${n.replace(/'/g,"\\'")}')">💾</button>
+          </div>`}).join('')}
+      </div>
+    </div>
+    <div class="card">
+      <div class="ch">
+        <div class="ch-title">💰 Lohn-Builder</div>
+        <button class="btn b-gh" onclick="exportCSV()" style="font-size:10px;padding:4px 9px">📊 CSV Export</button>
+      </div>
+      <div style="padding:14px">
+        ${['Stundenlohn|std|Grundstundenlohn|Std|€/Std',
+           'Zuschläge|zul|Nachtzuschlag 25%|Std|€/Std',
+           'Reisekosten & Spesen|rei||Anzahl|€',
+           'Abzüge & Abmahnungen|abz||Anzahl|€',
+           'Freifelder|frei||Anzahl|€'].map(row=>{
+          const[title,id,defVal,col1,col2]=row.split('|');
+          return`<div class="lb-sec">
+            <div class="lb-title">${title==='Stundenlohn'?'⏱️':title==='Zuschläge'?'📈':title.includes('Reise')?'🚗':title.includes('Abzüge')?'⚠️':'📝'} ${title}</div>
+            <div style="display:grid;grid-template-columns:2fr 70px 70px 36px;gap:5px;font-size:9px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--mut);margin-bottom:4px">
+              <span>Bezeichnung</span><span>${col1}</span><span>${col2}</span><span></span>
+            </div>
+            <div id="lb-${id}">
+              ${defVal?`<div class="lb-row">
+                <input class="fi" value="${defVal}" style="font-size:11px;padding:5px 8px">
+                <input class="fi" type="number" placeholder="${col1}" style="font-size:11px;padding:5px 8px" oninput="calcLohn()">
+                <input class="fi" type="number" placeholder="${col2}" step="0.01" style="font-size:11px;padding:5px 8px" oninput="calcLohn()">
+                <button class="lb-del" onclick="this.closest('.lb-row').remove();calcLohn()">✕</button>
+              </div>`:''}
+            </div>
+            <div class="add-lb" onclick="addLohnRow('lb-${id}','${title}')">+ hinzufügen</div>
+          </div>`;
+        }).join('')}
+        <div class="lb-total">
+          <div><div class="lb-total-lbl">Gesamtvergütung (brutto)</div><div style="font-size:10px;color:var(--or)">alle Positionen</div></div>
+          <div class="lb-total-val" id="lbTotal">€ 0,00</div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="ch"><div class="ch-title">✅ Abschluss-Checkliste – ${auf.name}</div></div>
+      ${[['Stundennachweis erhalten','Unterschriebene Liste vom Kunden'],['Rechnung geschrieben','Invoice erstellt und versendet'],['Zahlung eingegangen','Bankeingang bestätigt'],['Mitarbeiter abgerechnet','Lohnabrechnung zum 15.']].map((r,i)=>`
+      <div class="cl-row">
+        <div><div class="cl-lbl">${r[0]}</div><div class="cl-sub">${r[1]}</div></div>
+        <div class="cbwrap">
+          <div class="cb" onclick="toggleCB(this)"></div>
+          ${i===1?'<input class="cl-in" placeholder="RE-Nummer…" style="width:120px"><input type="date" class="cl-in" style="width:130px">':''}
+        </div>
+      </div>`).join('')}
+    </div>`;
+
+  document.querySelectorAll('#lb-std input[type="number"],#lb-zul input[type="number"]').forEach(i=>i.addEventListener('input',calcLohn));
+}
+
+async function saveSH(pid,aufId,name){
+  const d=document.getElementById(`shd-${pid}`)?.value;
+  const b=document.getElementById(`shb-${pid}`)?.value;
+  const e=document.getElementById(`she-${pid}`)?.value;
+  const h=parseFloat(document.getElementById(`shh-${pid}`)?.value)||0;
+  const{data:ex}=await sb.from('stundennachweise').select('id').eq('auftrag_id',aufId).eq('mitarbeiter_name',name);
+  const pl={auftrag_id:aufId,mitarbeiter_name:name,datum:d||null,beginn:b||null,ende:e||null,stunden_gesamt:h};
+  if(ex?.length)await sb.from('stundennachweise').update(pl).eq('id',ex[0].id);
+  else await sb.from('stundennachweise').insert([pl]);
+  toast('💾 Stunden gespeichert!','ok');
+}
+
+async function toggleFreigabe(el,pid,aufId,name){
+  const chk=!el.classList.contains('chk');
+  el.classList.toggle('chk',chk);
+  el.innerHTML=chk?'<svg viewBox="0 0 9 9" fill="none" stroke="white" stroke-width="2"><path d="M1 4.5l2.5 2.5 4.5-4.5"/></svg>':'';
+  await saveSH(pid,aufId,name);
+  const{data:ex}=await sb.from('stundennachweise').select('id').eq('auftrag_id',aufId).eq('mitarbeiter_name',name);
+  if(ex?.length)await sb.from('stundennachweise').update({bestaetigt:chk}).eq('id',ex[0].id);
+  toast(chk?'✅ Freigegeben!':'Zurückgezogen','ok');
+}
+
+function freigebenAlle(){
+  document.querySelectorAll('.sh-row .cb').forEach(cb=>{
+    cb.classList.add('chk');
+    cb.innerHTML='<svg viewBox="0 0 9 9" fill="none" stroke="white" stroke-width="2"><path d="M1 4.5l2.5 2.5 4.5-4.5"/></svg>';
   });
-  const csv = rows.map(r=>r.map(c=>`"${String(c||'').replace(/"/g,'""')}"`).join(';')).join('\n');
-  const blob = new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8;'});
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href=url; a.download=`FESS_Stunden_${(auf?.name||'Export').replace(/ /g,'_')}.csv`;
-  a.click(); URL.revokeObjectURL(url);
-  toast('📊 CSV exportiert!','ok');
+  toast('✅ Alle Stunden freigegeben!','ok');
 }
-
-// ── PDF GENERATION ──
-function pdfHeader(doc, title, sub){
-  doc.setFillColor(232,101,26); doc.rect(0,0,210,11,'F');
-  doc.setTextColor(255,255,255); doc.setFontSize(8); doc.setFont('helvetica','bold');
-  doc.text('FESS JOBS',14,7.5); doc.text(title,105,7.5,{align:'center'}); doc.text(new Date().toLocaleDateString('de'),196,7.5,{align:'right'});
-  doc.setTextColor(0,0,0);
-  doc.setFontSize(15); doc.setFont('helvetica','bold'); doc.text(title,14,21);
-  if(sub){ doc.setFontSize(9); doc.setFont('helvetica','normal'); doc.setTextColor(100,100,100); doc.text(sub,14,27); doc.setTextColor(0,0,0); }
-  return sub?33:25;
-}
-
-function generateDispoPDF(){
-  const aufId = document.getElementById('dispoSelect')?.value;
-  const auf = aufId ? AUFTRAEGE.find(a=>a.id===aufId) : AUFTRAEGE[0];
-  if(!auf){toast('Bitte Auftrag in Dispo wählen','err');return;}
-  const {jsPDF} = window.jspdf;
-  const doc = new jsPDF();
-  const y = pdfHeader(doc,'DISPOSITION',`${auf.name} | ${fmtD(auf)} | ${auf.location}`);
-  doc.setFontSize(9); doc.text('Ansprechpartner FESS: Maik Janke | +49 176 44266658',14,y+4);
-  const crew = BEWERBUNGEN.filter(b=>b.auftrag_id===auf.id&&b.status==='bestaetigt');
-  const manual = [];
-  document.querySelectorAll('#crewManual .crew-row').forEach(row=>{
-    const ins = row.querySelectorAll('input');
-    if(ins[0]?.value) manual.push({n:ins[0].value,ta:ins[1]?.value||'',an:ins[2]?.value||''});
-  });
-  const allCrew = [...crew.map(p=>([`${p.vorname} ${p.nachname}`,p.telefon||'–',auf.taetigkeit||'–',p.anreise||'–',p.psa?'✓':'✕',p.schuhgroesse||'–',p.shirt_groesse||'–',''
-  ])),...manual.map(m=>([m.n,'–',m.ta,m.an,'–','–','–','']))];
-  doc.autoTable({
-    startY:y+10,
-    head:[['Name','Telefon','Tätigkeit','Anreise','PSA','Schuh','Shirt','Notiz']],
-    body:allCrew,
-    styles:{fontSize:8,cellPadding:3},
-    headStyles:{fillColor:[232,101,26],textColor:255},
-    alternateRowStyles:{fillColor:[253,246,241]},
-  });
-  doc.save(`FESS_Dispo_${auf.name.replace(/ /g,'_')}.pdf`);
-  toast('📄 Dispo-PDF erstellt!','ok');
-}
-
-function generateAuftragsinfoPDF(){
-  const aufId = document.getElementById('dispoSelect')?.value;
-  const auf = aufId ? AUFTRAEGE.find(a=>a.id===aufId) : AUFTRAEGE[0];
-  if(!auf){toast('Bitte Auftrag in Dispo wählen','err');return;}
-  const {jsPDF} = window.jspdf;
-  const doc = new jsPDF();
-  const y = pdfHeader(doc,'AUFTRAGSBESTÄTIGUNG',`FESS Jobs | ${auf.name}`);
-  doc.autoTable({
-    startY:y+6,
-    body:[
-      ['Veranstaltung',auf.name],['Datum',fmtD(auf)],['Location',auf.location],
-      ['Tätigkeit',auf.taetigkeit||'–'],['Personalbedarf',`${auf.pax_gesamt} Personen`],
-      ['Status',auf.status==='bestaetigt'?'✓ Bestätigt':'Angefragt'],
-      ['Schichten',(auf.schichtzeiten||[]).join(', ')||'–'],
-    ],
-    styles:{fontSize:9},
-    columnStyles:{0:{fontStyle:'bold',cellWidth:50}},
-  });
-  const y2 = doc.lastAutoTable.finalY+14;
-  doc.setFontSize(10); doc.setFont('helvetica','bold'); doc.text('FESS Kontakt',14,y2);
-  doc.setFont('helvetica','normal'); doc.setFontSize(9);
-  doc.text('Maik Janke | +49 176 44266658 | info.fio@fess-recruitment.de',14,y2+5);
-  const y3 = Math.max(y2+24,240);
-  doc.setDrawColor(180,180,180);
-  doc.line(14,y3,88,y3); doc.line(122,y3,196,y3);
-  doc.setFontSize(8); doc.setTextColor(120,120,120);
-  doc.text('Unterschrift FESS',14,y3+4); doc.text('Unterschrift Auftraggeber',122,y3+4);
-  doc.save(`FESS_Auftragsinfo_${auf.name.replace(/ /g,'_')}.pdf`);
-  toast('📋 Auftragsinfo-PDF erstellt!','ok');
-}
-document.getElementById('modalBG').addEventListener('click',e=>{if(e.target.id==='modalBG')closeM();});
-
 
 // ── LOHN BUILDER ──
-function addLohnRow(containerId, label){
-  const cont=document.getElementById(containerId);if(!cont)return;
-  const d=document.createElement('div');
-  d.style.cssText='display:grid;grid-template-columns:2fr 1fr 1fr 60px;gap:6px;margin-bottom:4px';
-  d.innerHTML=`<input class="fi" placeholder="${label}..." style="font-size:11px;padding:6px 8px"><input class="fi" type="number" placeholder="Menge" step="0.01" style="font-size:11px;padding:6px 8px" oninput="calcLohn()"><input class="fi" type="number" placeholder="EUR" step="0.01" style="font-size:11px;padding:6px 8px" oninput="calcLohn()"><button style="background:#fef2f2;border:1px solid #fecaca;color:#dc2626;border-radius:5px;cursor:pointer;font-size:10px;padding:2px 6px" onclick="this.closest('div').remove();calcLohn()">X</button>`;
-  cont.appendChild(d);d.querySelector('input').focus();
+function addLohnRow(cid,label){
+  const c=document.getElementById(cid);if(!c)return;
+  const d=document.createElement('div');d.className='lb-row';
+  d.innerHTML=`<input class="fi" placeholder="${label}…" style="font-size:11px;padding:5px 8px"><input class="fi" type="number" placeholder="Menge" step="0.01" style="font-size:11px;padding:5px 8px" oninput="calcLohn()"><input class="fi" type="number" placeholder="€" step="0.01" style="font-size:11px;padding:5px 8px" oninput="calcLohn()"><button class="lb-del" onclick="this.closest('.lb-row').remove();calcLohn()">✕</button>`;
+  c.appendChild(d);d.querySelector('input').focus();
 }
+
 function calcLohn(){
   let total=0;
-  ['lohn-std','lohn-zul','lohn-rei','lohn-frei'].forEach(id=>{
-    const cont=document.getElementById(id);if(!cont)return;
-    cont.querySelectorAll('div').forEach(row=>{
+  ['lb-std','lb-zul','lb-rei','lb-frei'].forEach(id=>{
+    document.querySelectorAll(`#${id} .lb-row`).forEach(row=>{
       const ins=row.querySelectorAll('input[type="number"]');
       if(ins.length>=2)total+=(parseFloat(ins[0].value)||0)*(parseFloat(ins[1].value)||0);
     });
   });
-  const ab=document.getElementById('lohn-abz');
-  if(ab)ab.querySelectorAll('div').forEach(row=>{
+  document.querySelectorAll('#lb-abz .lb-row').forEach(row=>{
     const ins=row.querySelectorAll('input[type="number"]');
     if(ins.length>=2)total-=(parseFloat(ins[0].value)||0)*(parseFloat(ins[1].value)||0);
   });
-  const el=document.getElementById('lohn-total');
-  if(el)el.textContent='EUR '+total.toFixed(2).replace('.',',');
+  const el=document.getElementById('lbTotal');
+  if(el)el.textContent='€ '+total.toFixed(2).replace('.',',');
 }
 
-// ── LOHN HTML BUILDER in Stunden Page ──
-function injectLohnBuilder(){
-  const pg=document.getElementById('pg-stunden');if(!pg)return;
-  if(pg.querySelector('#lohn-std'))return;
-  const div=document.createElement('div');
-  div.innerHTML=`
-  <div class="panel" style="margin-top:14px">
-    <div class="ph"><h3>Lohn-Builder</h3><button class="tbtn" onclick="exportStundenCSV()" style="font-size:11px;padding:5px 10px">CSV Export</button></div>
-    <div style="padding:14px">
-      <div style="margin-bottom:12px">
-        <div style="font-size:11px;font-weight:700;color:#374151;margin-bottom:6px">Stundenlohn</div>
-        <div style="display:grid;grid-template-columns:2fr 1fr 1fr 60px;gap:6px;font-size:9px;font-weight:700;color:#9ca3af;letter-spacing:.06em;text-transform:uppercase;margin-bottom:4px"><span>Bezeichnung</span><span>Std</span><span>EUR/Std</span><span></span></div>
-        <div id="lohn-std">
-          <div style="display:grid;grid-template-columns:2fr 1fr 1fr 60px;gap:6px;margin-bottom:4px">
-            <input class="fi" value="Grundstundenlohn" style="font-size:11px;padding:6px 8px">
-            <input class="fi" type="number" placeholder="Std" style="font-size:11px;padding:6px 8px" oninput="calcLohn()">
-            <input class="fi" type="number" placeholder="EUR" step="0.01" style="font-size:11px;padding:6px 8px" oninput="calcLohn()">
-            <button style="background:#fef2f2;border:1px solid #fecaca;color:#dc2626;border-radius:5px;cursor:pointer;font-size:10px;padding:2px 6px" onclick="this.closest('div').remove();calcLohn()">X</button>
-          </div>
-        </div>
-        <div onclick="addLohnRow('lohn-std','Stunden')" style="display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border:1.5px dashed #d1d5db;border-radius:6px;cursor:pointer;font-size:10px;color:#9ca3af;margin-top:3px">+ Zeile</div>
-      </div>
-      <div style="margin-bottom:12px">
-        <div style="font-size:11px;font-weight:700;color:#374151;margin-bottom:6px">Zuschlaege</div>
-        <div id="lohn-zul">
-          <div style="display:grid;grid-template-columns:2fr 1fr 1fr 60px;gap:6px;margin-bottom:4px">
-            <input class="fi" value="Nachtzuschlag 25%" style="font-size:11px;padding:6px 8px">
-            <input class="fi" type="number" placeholder="Std" style="font-size:11px;padding:6px 8px" oninput="calcLohn()">
-            <input class="fi" type="number" placeholder="EUR" step="0.01" style="font-size:11px;padding:6px 8px" oninput="calcLohn()">
-            <button style="background:#fef2f2;border:1px solid #fecaca;color:#dc2626;border-radius:5px;cursor:pointer;font-size:10px;padding:2px 6px" onclick="this.closest('div').remove();calcLohn()">X</button>
-          </div>
-        </div>
-        <div onclick="addLohnRow('lohn-zul','Zuschlag')" style="display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border:1.5px dashed #d1d5db;border-radius:6px;cursor:pointer;font-size:10px;color:#9ca3af;margin-top:3px">+ Zuschlag</div>
-      </div>
-      <div style="margin-bottom:12px">
-        <div style="font-size:11px;font-weight:700;color:#374151;margin-bottom:6px">Reisekosten und Spesen</div>
-        <div id="lohn-rei"></div>
-        <div onclick="addLohnRow('lohn-rei','Reisekosten')" style="display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border:1.5px dashed #d1d5db;border-radius:6px;cursor:pointer;font-size:10px;color:#9ca3af;margin-top:3px">+ Reisekosten</div>
-      </div>
-      <div style="margin-bottom:12px">
-        <div style="font-size:11px;font-weight:700;color:#374151;margin-bottom:6px">Abzuege und Abmahnungen</div>
-        <div id="lohn-abz"></div>
-        <div onclick="addLohnRow('lohn-abz','Abzug')" style="display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border:1.5px dashed #d1d5db;border-radius:6px;cursor:pointer;font-size:10px;color:#9ca3af;margin-top:3px">+ Abzug</div>
-      </div>
-      <div style="margin-bottom:14px">
-        <div style="font-size:11px;font-weight:700;color:#374151;margin-bottom:6px">Freifelder</div>
-        <div id="lohn-frei"></div>
-        <div onclick="addLohnRow('lohn-frei','Freifeld')" style="display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border:1.5px dashed #d1d5db;border-radius:6px;cursor:pointer;font-size:10px;color:#9ca3af;margin-top:3px">+ Freifeld</div>
-      </div>
-      <div style="background:#fff6f1;border:1px solid #ffd4b8;border-radius:8px;padding:12px 16px;display:flex;justify-content:space-between;align-items:center">
-        <div><div style="font-size:12px;font-weight:700;color:var(--or)">Gesamtverguetung (brutto)</div><div style="font-size:10px;color:var(--or);margin-top:1px">alle Positionen summiert</div></div>
-        <div style="font-size:22px;font-weight:700;color:var(--or)" id="lohn-total">EUR 0,00</div>
-      </div>
-    </div>
-  </div>`;
-  pg.appendChild(div);
+// ── CSV EXPORT ──
+function exportCSV(){
+  const aufId=document.getElementById('stundenSel')?.value;
+  const auf=aufId?AUFTRAEGE.find(a=>a.id===aufId):AUFTRAEGE[0];
+  const rows=[['Personalnummer','Name','Telefon','Auftrag','Datum','Beginn','Ende','Stunden','Status']];
+  document.querySelectorAll('.sh-row').forEach(row=>{
+    const name=row.querySelector('span')?.textContent||'';
+    const ins=row.querySelectorAll('input');
+    const pnr=MITARBEITER.find(m=>`${m.vorname} ${m.nachname}`===name)?.personalnummer||'–';
+    const tel=BEWERBUNGEN.find(b=>`${b.vorname} ${b.nachname}`===name)?.telefon||'–';
+    const frei=row.querySelector('.cb')?.classList.contains('chk')?'Freigegeben':'Offen';
+    rows.push([pnr,name,tel,auf?.name||'',ins[0]?.value||'',ins[1]?.value||'',ins[2]?.value||'',ins[3]?.value||'',frei]);
+  });
+  const lohnRows=[];
+  ['lb-std','lb-zul','lb-rei','lb-abz','lb-frei'].forEach(id=>{
+    document.querySelectorAll(`#${id} .lb-row`).forEach(row=>{
+      const ins=row.querySelectorAll('input');
+      const lbl=ins[0]?.value||'';const qty=ins[1]?.value||'';const rate=ins[2]?.value||'';
+      if(lbl)lohnRows.push([lbl,qty,rate,((parseFloat(qty)||0)*(parseFloat(rate)||0)).toFixed(2)]);
+    });
+  });
+  if(lohnRows.length){
+    rows.push([]);rows.push(['LOHNPOSITIONEN','Menge','€/Einheit','Gesamt €']);
+    lohnRows.forEach(r=>rows.push(r));
+    const total=lohnRows.reduce((s,r)=>s+parseFloat(r[3]),0);
+    rows.push(['GESAMT','','',total.toFixed(2)]);
+  }
+  const csv=rows.map(r=>r.map(c=>`"${String(c).replace(/"/g,'""')}"`).join(';')).join('\n');
+  const blob=new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8;'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');a.href=url;a.download=`FESS_Stunden_${(auf?.name||'Export').replace(/ /g,'_')}.csv`;a.click();URL.revokeObjectURL(url);
+  toast('📊 CSV exportiert!','ok');
 }
 
-// ── INIT ──
+// ── PDF HELPERS ──
+function pdfHdr(doc,title,sub){
+  doc.setFillColor(232,101,26);doc.rect(0,0,210,11,'F');
+  doc.setTextColor(255,255,255);doc.setFontSize(8);doc.setFont('helvetica','bold');
+  doc.text('FESS JOBS',14,7.5);doc.text(title,105,7.5,{align:'center'});doc.text(new Date().toLocaleDateString('de'),196,7.5,{align:'right'});
+  doc.setTextColor(0,0,0);doc.setFontSize(15);doc.setFont('helvetica','bold');doc.text(title,14,21);
+  if(sub){doc.setFontSize(9);doc.setFont('helvetica','normal');doc.setTextColor(100,100,100);doc.text(sub,14,27);doc.setTextColor(0,0,0);}
+  return sub?33:25;
+}
+
+function genDispoPDF(){
+  const aufId=document.getElementById('dispoSel')?.value||document.getElementById('pdfSel1')?.value;
+  const auf=aufId?AUFTRAEGE.find(a=>a.id===aufId):null;
+  if(!auf){toast('Bitte Auftrag in Dispo wählen','err');return;}
+  const{jsPDF}=window.jspdf;const doc=new jsPDF();
+  const y=pdfHdr(doc,'DISPOSITION',`${auf.name} | ${fmtD(auf)} | ${auf.location}`);
+  const ap=document.getElementById('pdf-ap')?.value||'Maik Janke';
+  const apl=document.getElementById('pdf-apl')?.value||'+49 176 44266658';
+  doc.setFontSize(9);doc.text(`AP: ${ap} | ${apl}`,14,y+4);
+  const crew=BEWERBUNGEN.filter(b=>b.auftrag_id===auf.id&&b.status==='bestaetigt');
+  const manual=[];
+  document.querySelectorAll('#crewMan .crew-row').forEach(row=>{
+    const ins=row.querySelectorAll('input');if(ins[0]?.value)manual.push([ins[0].value,'–',ins[1]?.value||'–',ins[2]?.value||'–','–','–','–','']);
+  });
+  const fields=[
+    document.getElementById('pf-name')?.checked,
+    document.getElementById('pf-tel')?.checked,
+    document.getElementById('pf-ta')?.checked,
+    document.getElementById('pf-an')?.checked,
+    document.getElementById('pf-psa')?.checked,
+    document.getElementById('pf-sch')?.checked,
+    document.getElementById('pf-sz')?.checked,
+    document.getElementById('pf-not')?.checked,
+  ];
+  const allHead=['Name','Telefon','Tätigkeit','Anreise','PSA','Schuh','Schichten','Notiz'];
+  const head=allHead.filter((_,i)=>fields[i]!==false);
+  const allCrew=[
+    ...crew.map(p=>[`${p.vorname} ${p.nachname}`,p.telefon||'–',auf.taetigkeit||'–',p.anreise||'–',p.psa?'✓':'✕',p.schuhgroesse||'–',(auf.schichtzeiten||[]).join(', ')||'–','']),
+    ...manual
+  ].map(row=>row.filter((_,i)=>fields[i]!==false));
+  doc.autoTable({startY:y+10,head:[head],body:allCrew,styles:{fontSize:8,cellPadding:3},headStyles:{fillColor:[232,101,26],textColor:255},alternateRowStyles:{fillColor:[253,246,241]}});
+  const notes=document.getElementById('pdf-not1')?.value;
+  if(notes){const y2=doc.lastAutoTable.finalY+8;doc.setFontSize(9);doc.setFont('helvetica','bold');doc.text('Notizen:',14,y2);doc.setFont('helvetica','normal');doc.text(notes,14,y2+5,{maxWidth:182});}
+  doc.save(`FESS_Dispo_${auf.name.replace(/ /g,'_')}.pdf`);
+  toast('📄 Dispo-PDF erstellt!','ok');
+}
+
+function genStundenPDF(){
+  const aufId=document.getElementById('stundenSel')?.value||document.getElementById('pdfSel3')?.value;
+  const auf=aufId?AUFTRAEGE.find(a=>a.id===aufId):null;
+  if(!auf){toast('Bitte Auftrag auswaehlen','err');return;}
+  const{jsPDF}=window.jspdf;const doc=new jsPDF();
+  const y=pdfHdr(doc,'STUNDENNACHWEIS',auf.name+' | '+fmtD(auf));
+  const ag=document.getElementById('pdf-ag')?.value||'–';
+  const sn=document.getElementById('pdf-sn')?.value||'–';
+  doc.setFontSize(9);doc.text('Auftraggeber: '+ag+' | Auftrags-Nr.: '+sn,14,y+4);
+  const rows=[];
+  document.querySelectorAll('.sh-row').forEach(row=>{
+    const name=row.querySelector('span')?.textContent||'';
+    const ins=row.querySelectorAll('input');
+    rows.push([name,ins[0]?.value||'',ins[1]?.value||'',ins[2]?.value||'',ins[3]?.value||'','']);
+  });
+  if(!rows.length){BEWERBUNGEN.filter(b=>b.auftrag_id===auf.id&&b.status==='bestaetigt').forEach(p=>rows.push([p.vorname+' '+p.nachname,'','','','','']));}
+  doc.autoTable({startY:y+10,head:[['Mitarbeiter','Datum','Beginn','Ende','Stunden','Unterschrift']],body:rows,styles:{fontSize:9,cellPadding:4},headStyles:{fillColor:[232,101,26],textColor:255},columnStyles:{5:{cellWidth:35}}});
+  const y2=doc.lastAutoTable.finalY+14;
+  doc.setDrawColor(180,180,180);doc.line(14,y2,88,y2);doc.line(122,y2,196,y2);
+  doc.setFontSize(8);doc.setTextColor(120,120,120);
+  doc.text('Unterschrift FESS',14,y2+4);doc.text('Unterschrift Auftraggeber',122,y2+4);
+  doc.save('FESS_Stundennachweis_'+auf.name.replace(/ /g,'_')+'.pdf');
+  toast('Stundennachweis-PDF erstellt!','ok');
+}
+
+function renderMitarbeiter(){
+  document.getElementById('maTbody').innerHTML=MITARBEITER.length?MITARBEITER.map(m=>'<tr>'+
+    '<td style="font-size:11px;font-family:monospace;color:var(--sub)">'+(m.personalnummer||'–')+'</td>'+
+    '<td><div class="tn">'+m.vorname+' '+m.nachname+'</div><div class="ts">'+(m.wohnort||'–')+'</div></td>'+
+    '<td><a href="tel:'+(m.telefon||'')+'" style="color:var(--or);font-size:11px">'+(m.telefon||'–')+'</a></td>'+
+    '<td style="font-size:11px">'+(m.vertragsart?'<span class="tag tb" style="font-size:9px">'+m.vertragsart+'</span>':'–')+'</td>'+
+    '<td style="font-size:11px;color:var(--sub)">'+(m.erster_arbeitstag||'–')+'</td>'+
+    '<td style="font-size:11px;color:var(--sub)">'+(m.stunden_monat||'–')+'</td>'+
+    '<td><div class="mack">'+
+      '<span class="mck '+(m.vertrag_ok?'ok':'no')+'">'+(m.vertrag_ok?'✓':'✗')+' Vertrag</span>'+
+      '<span class="mck '+(m.app_ok?'ok':'no')+'">'+(m.app_ok?'✓':'✗')+' App</span>'+
+      '<span class="mck '+(m.psa_vorhanden?'ok':'no')+'">'+(m.psa_vorhanden?'✓':'✗')+' PSA</span>'+
+      '<span class="mck '+(m.daten_ok?'ok':'no')+'">'+(m.daten_ok?'✓':'✗')+' Daten</span>'+
+    '</div></td>'+
+    '<td><div class="ra">'+
+      '<button class="ia" onclick="openEditMA(''+m.id+'')">✏️</button>'+
+      '<a href="https://wa.me/'+((m.telefon||'').replace(/[^0-9]/g,''))+'" target="_blank" class="ia ia-g">💬</a>'+
+    '</div></td>'+
+  '</tr>').join(''):'<tr><td colspan="8" class="empty">Keine Mitarbeiter</td></tr>';
+}
+
+function openNeuerMA(){
+  openM('<div class="mt">Neuer Mitarbeiter</div>'+
+    '<div class="fr2"><div class="fg"><label class="fl">Personalnummer</label><input class="fi" id="ma-pnr" placeholder="FESS-0042"></div>'+
+    '<div class="fg"><label class="fl">Vertragsart</label><select class="fsel" id="ma-vart"><option>Minijob</option><option>Werkstudent</option><option>Teilzeit</option><option>Vollzeit</option><option>Freelancer</option></select></div></div>'+
+    '<div class="fr2"><div class="fg"><label class="fl">Vorname *</label><input class="fi" id="ma-vn"></div>'+
+    '<div class="fg"><label class="fl">Nachname *</label><input class="fi" id="ma-nn"></div></div>'+
+    '<div class="fr2"><div class="fg"><label class="fl">Telefon *</label><input class="fi" id="ma-tel" type="tel" placeholder="+49..."></div>'+
+    '<div class="fg"><label class="fl">Geburtsdatum</label><input class="fi" id="ma-geb" type="date"></div></div>'+
+    '<div class="fr2"><div class="fg"><label class="fl">Wohnort</label><input class="fi" id="ma-ort"></div>'+
+    '<div class="fg"><label class="fl">Regionalleiter</label><select class="fsel" id="ma-rl"><option value="">–</option><option>Aghyad</option><option>Nick</option><option>Cenk</option><option>Damian</option></select></div></div>'+
+    '<div class="fr2"><div class="fg"><label class="fl">Beginn</label><input class="fi" id="ma-bgn" type="date"></div>'+
+    '<div class="fg"><label class="fl">Std/Monat</label><input class="fi" id="ma-std" placeholder="40h"></div></div>'+
+    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:10px">'+
+    '<label style="display:flex;align-items:center;gap:6px;font-size:12px;cursor:pointer;color:var(--text)"><input type="checkbox" id="ma-vok" style="accent-color:var(--or)"> Vertrag</label>'+
+    '<label style="display:flex;align-items:center;gap:6px;font-size:12px;cursor:pointer;color:var(--text)"><input type="checkbox" id="ma-aok" style="accent-color:var(--or)"> App</label>'+
+    '<label style="display:flex;align-items:center;gap:6px;font-size:12px;cursor:pointer;color:var(--text)"><input type="checkbox" id="ma-psa" style="accent-color:var(--or)"> PSA</label>'+
+    '<label style="display:flex;align-items:center;gap:6px;font-size:12px;cursor:pointer;color:var(--text)"><input type="checkbox" id="ma-dok" style="accent-color:var(--or)"> Daten</label></div>'+
+    '<div class="macts"><button class="mb mb-gh" onclick="closeM()">Abbrechen</button><button class="mb mb-or" onclick="saveNewMA()">Speichern</button></div>');
+}
+
+async function saveNewMA(){
+  const vn=document.getElementById('ma-vn')?.value.trim();
+  const nn=document.getElementById('ma-nn')?.value.trim();
+  const tel=document.getElementById('ma-tel')?.value.trim();
+  if(!vn||!nn||!tel){toast('Pflichtfelder ausfuellen','err');return;}
+  const{error}=await sb.from('mitarbeiter').insert([{
+    personalnummer:document.getElementById('ma-pnr')?.value||null,
+    vorname:vn,nachname:nn,telefon:tel,
+    geburtsdatum:document.getElementById('ma-geb')?.value||null,
+    wohnort:document.getElementById('ma-ort')?.value||null,
+    regionalleiter:document.getElementById('ma-rl')?.value||null,
+    vertragsart:document.getElementById('ma-vart')?.value||null,
+    erster_arbeitstag:document.getElementById('ma-bgn')?.value||null,
+    stunden_monat:document.getElementById('ma-std')?.value||null,
+    vertrag_ok:document.getElementById('ma-vok')?.checked||false,
+    app_ok:document.getElementById('ma-aok')?.checked||false,
+    psa_vorhanden:document.getElementById('ma-psa')?.checked||false,
+    daten_ok:document.getElementById('ma-dok')?.checked||false,aktiv:true
+  }]);
+  if(error){toast('Fehler: '+error.message,'err');return;}
+  closeM();toast('Mitarbeiter angelegt!','ok');
+  await loadMitarbeiter();
+}
+
+function openEditMA(id){
+  const m=MITARBEITER.find(x=>x.id===id);if(!m)return;
+  openM('<div class="mt">'+m.vorname+' '+m.nachname+'</div>'+
+    '<div class="fr2"><div class="fg"><label class="fl">Personalnummer</label><input class="fi" id="em-pnr" value="'+(m.personalnummer||'')+'"></div>'+
+    '<div class="fg"><label class="fl">Vertragsart</label><select class="fsel" id="em-vart">'+
+    ['Minijob','Werkstudent','Teilzeit','Vollzeit','Freelancer'].map(v=>'<option '+(m.vertragsart===v?'selected':'')+'>'+v+'</option>').join('')+
+    '</select></div></div>'+
+    '<div class="fr2"><div class="fg"><label class="fl">Beginn</label><input class="fi" type="date" id="em-bgn" value="'+(m.erster_arbeitstag||'')+'"></div>'+
+    '<div class="fg"><label class="fl">Std/Monat</label><input class="fi" id="em-std" value="'+(m.stunden_monat||'')+'"></div></div>'+
+    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:10px">'+
+    '<label style="display:flex;align-items:center;gap:6px;font-size:12px;cursor:pointer;color:var(--text)"><input type="checkbox" id="em-vok" '+(m.vertrag_ok?'checked':'')+' style="accent-color:var(--or)"> Vertrag</label>'+
+    '<label style="display:flex;align-items:center;gap:6px;font-size:12px;cursor:pointer;color:var(--text)"><input type="checkbox" id="em-aok" '+(m.app_ok?'checked':'')+' style="accent-color:var(--or)"> App</label>'+
+    '<label style="display:flex;align-items:center;gap:6px;font-size:12px;cursor:pointer;color:var(--text)"><input type="checkbox" id="em-psa" '+(m.psa_vorhanden?'checked':'')+' style="accent-color:var(--or)"> PSA</label>'+
+    '<label style="display:flex;align-items:center;gap:6px;font-size:12px;cursor:pointer;color:var(--text)"><input type="checkbox" id="em-dok" '+(m.daten_ok?'checked':'')+' style="accent-color:var(--or)"> Daten</label></div>'+
+    '<div class="fg"><label class="fl">Notizen</label><textarea class="fta" id="em-not">'+(m.notizen||'')+'</textarea></div>'+
+    '<div class="macts"><button class="mb mb-gh" onclick="closeM()">Abbrechen</button><button class="mb mb-or" onclick="saveEditMA(''+id+'')">Speichern</button></div>');
+}
+
+async function saveEditMA(id){
+  const{error}=await sb.from('mitarbeiter').update({
+    personalnummer:document.getElementById('em-pnr')?.value||null,
+    vertragsart:document.getElementById('em-vart')?.value||null,
+    erster_arbeitstag:document.getElementById('em-bgn')?.value||null,
+    stunden_monat:document.getElementById('em-std')?.value||null,
+    vertrag_ok:document.getElementById('em-vok')?.checked||false,
+    app_ok:document.getElementById('em-aok')?.checked||false,
+    psa_vorhanden:document.getElementById('em-psa')?.checked||false,
+    daten_ok:document.getElementById('em-dok')?.checked||false,
+    notizen:document.getElementById('em-not')?.value||null,
+  }).eq('id',id);
+  if(error){toast('Fehler: '+error.message,'err');return;}
+  closeM();toast('Gespeichert!','ok');
+  await loadMitarbeiter();
+}
+
+function openImport(){
+  openM('<div class="mt">Excel / CSV importieren</div>'+
+    '<div class="ms">Spalten: Personalnummer, Vorname, Nachname, Telefon, Wohnort, Vertragsart, Beginn</div>'+
+    '<div class="fg"><label class="fl">Datei auswaehlen</label><input type="file" accept=".csv,.xlsx" class="fi" id="csvFile" onchange="previewCSV(this)"></div>'+
+    '<div id="csvPrev" style="max-height:180px;overflow-y:auto;margin-top:8px"></div>'+
+    '<div class="macts"><button class="mb mb-gh" onclick="closeM()">Abbrechen</button><button class="mb mb-or" onclick="toast('Import abgeschlossen!','ok');closeM()">Importieren</button></div>');
+}
+
+function previewCSV(input){
+  const file=input.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=e=>{
+    const rows=e.target.result.split('\n').slice(0,6).map(r=>r.split(/[;,]/).map(c=>c.trim().replace(/^"|"$/g,'')));
+    document.getElementById('csvPrev').innerHTML='<table class="tbl"><tbody>'+rows.map((r,i)=>'<tr style="'+(i===0?'background:#fafafa;font-weight:600':'')+'">'+ r.map(c=>'<td style="font-size:10px;padding:4px 8px;color:var(--text)">'+c+'</td>').join('')+'</tr>').join('')+'</tbody></table>';
+  };
+  reader.readAsText(file);
+}
+
+document.getElementById('MB').addEventListener('click',e=>{if(e.target.id==='MB')closeM();});
+document.getElementById('pdf-dt').value=new Date().toISOString().split('T')[0];
+
+// INIT
 (async()=>{
-  await checkConnection();
+  await checkDB();
   await loadAll();
   setupRealtime();
 })();
