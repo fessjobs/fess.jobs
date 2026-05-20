@@ -241,7 +241,7 @@ function openM(html){ document.getElementById('modalBody').innerHTML=html; docum
 function closeM(){ document.getElementById('modalBG').classList.remove('open'); }
 
 // ── DB CONNECTION CHECK ──
-async function checkConnection(){
+async async function checkConnection(){
   try {
     const {data,error} = await sb.from('auftraege').select('id').limit(1);
     if(error) throw error;
