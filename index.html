@@ -126,6 +126,8 @@ section{padding:60px 20px;}
 .jcard-row{display:flex;align-items:flex-start;gap:5px;font-size:11px;color:#6b7280;line-height:1.4;margin-bottom:3px;}
 .jcard-shifts{display:flex;flex-wrap:wrap;gap:3px;margin-top:4px;}
 .jcard-shift{background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;padding:2px 6px;font-size:9px;color:#9ca3af;}
+.gk .jcard-body .jcard-name,.gf .jcard-body .jcard-name{color:#111827;}
+.jcard-body{background:#fff;color:#111827;}
 .jcard-btn{margin-top:8px;width:100%;background:var(--or);color:#ffffff;border:none;border-radius:7px;font-family:'Bitter',serif;font-weight:700;font-size:11px;padding:8px 0;cursor:pointer;}
 /* PROCESS */
 .process-section{background:#0d0d0d;border-top:1px solid var(--border);border-bottom:1px solid var(--border);}
@@ -316,6 +318,36 @@ canvas.sig-canvas{width:100%;height:80px;cursor:crosshair;display:block;touch-ac
 .soc-pill{display:flex;align-items:center;gap:5px;padding:7px 12px;border-radius:18px;font-size:11px;font-weight:700;text-decoration:none;color:#111827;}
 .wa-pill{background:#25D366;}.ig-pill{background:linear-gradient(135deg,#f09433,#dc2743,#bc1888);}
 .wa-btn{display:flex;align-items:center;justify-content:center;gap:6px;margin-top:10px;background:#25D366;color:#111827;font-family:'Bitter',serif;font-weight:800;font-size:12px;padding:11px;border-radius:8px;text-decoration:none;width:100%;}
+
+/* INBOX */
+.inbox-panel{background:var(--white);border:1px solid var(--border);border-radius:12px;padding:0;margin-bottom:20px;overflow:hidden;display:none;}
+.inbox-header{background:linear-gradient(135deg,var(--or),#f57332);padding:12px 16px;display:flex;align-items:center;justify-content:space-between;}
+.inbox-title{font-family:'Bitter',serif;font-weight:800;font-size:14px;color:#fff;}
+.inbox-badge{background:rgba(255,255,255,.25);color:#fff;font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px;}
+.inbox-item{padding:12px 16px;border-bottom:1px solid #f3f4f6;cursor:pointer;}
+.inbox-item:last-child{border-bottom:none;}
+.inbox-item:hover{background:#fafafa;}
+.inbox-type{font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;margin-bottom:4px;}
+.inbox-type.confirmed{color:#059669;}
+.inbox-type.invited{color:var(--or);}
+.inbox-type.msg{color:#2563eb;}
+.inbox-name{font-weight:700;font-size:13px;color:#111827;margin-bottom:2px;}
+.inbox-sub{font-size:11px;color:var(--muted);}
+.inbox-actions{display:flex;gap:6px;margin-top:8px;}
+.ia-yes{background:#ecfdf5;color:#059669;border:1px solid #a7f3d0;border-radius:6px;padding:5px 12px;font-size:11px;font-weight:700;cursor:pointer;font-family:var(--font);}
+.ia-no{background:#fef2f2;color:#dc2626;border:1px solid #fecaca;border-radius:6px;padding:5px 12px;font-size:11px;font-weight:700;cursor:pointer;font-family:var(--font);}
+.ia-chat{background:#eff6ff;color:#2563eb;border:1px solid #bfdbfe;border-radius:6px;padding:5px 12px;font-size:11px;font-weight:700;cursor:pointer;font-family:var(--font);}
+/* CHAT MODAL */
+.chat-msgs{max-height:200px;overflow-y:auto;padding:10px;background:#f9fafb;border-radius:8px;margin-bottom:8px;}
+.chat-msg{margin-bottom:8px;}
+.chat-msg.admin .chat-bubble{background:var(--or);color:#fff;margin-left:auto;}
+.chat-msg.user .chat-bubble{background:#fff;border:1px solid #e5e7eb;color:#111827;}
+.chat-bubble{padding:7px 10px;border-radius:10px;font-size:11px;max-width:80%;line-height:1.5;}
+.chat-who{font-size:9px;color:var(--muted);margin-bottom:2px;}
+.chat-input-row{display:flex;gap:6px;}
+.chat-input{flex:1;background:#fff;border:1px solid #e5e7eb;border-radius:8px;padding:8px 10px;font-size:12px;font-family:var(--font);outline:none;}
+.chat-input:focus{border-color:var(--or);}
+.chat-send{background:var(--or);color:#fff;border:none;border-radius:8px;padding:8px 12px;font-size:12px;cursor:pointer;font-family:var(--font);font-weight:700;}
 /* COOKIE */
 .cookie-banner{position:fixed;bottom:0;left:0;right:0;background:#ffffff;border-top:1px solid rgba(232,101,26,.3);padding:14px 20px;z-index:900;display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;transform:translateY(100%);transition:transform .4s;}
 .cookie-banner.show{transform:translateY(0);}
@@ -391,7 +423,14 @@ canvas.sig-canvas{width:100%;height:80px;cursor:crosshair;display:block;touch-ac
       <h2 class="section-title">Aktuelle Einsätze 2026</h2>
       <p class="section-sub">Wähle deinen Einsatz, bewerbe dich in Sekunden und werde Teil unserer Crew.</p>
     </div>
-    <div class="my-apps-bar" id="myAppsBar">
+        <div class="inbox-panel" id="inboxPanel">
+      <div class="inbox-header">
+        <div class="inbox-title">📬 Nachrichten & Einsätze</div>
+        <span class="inbox-badge" id="inboxCount">0</span>
+      </div>
+      <div id="inboxList"></div>
+    </div>
+<div class="my-apps-bar" id="myAppsBar">
       <div class="my-apps-bar-header">
         <div class="my-apps-bar-title">👤 <span id="myAppsGreeting">Hallo!</span></div>
         <button class="my-apps-bar-clear" onclick="clearAllData()">Profil löschen</button>
@@ -650,6 +689,132 @@ function clearAllData(){
     renderMyApps();
   }
 }
+
+// ── INBOX ──
+let INBOX_USER = null;
+
+function getInboxUser(){
+  if(INBOX_USER) return INBOX_USER;
+  const p = loadProfile();
+  if(p?.vorname && p?.tel) INBOX_USER = p;
+  return INBOX_USER;
+}
+
+async function loadInbox(){
+  const p = getInboxUser();
+  const panel = document.getElementById('inboxPanel');
+  if(!panel) return;
+  if(!p?.tel){ panel.style.display='none'; return; }
+  if(!sb) return;
+  try {
+    // Load bewerbungen for this user
+    const tel = p.tel||p.telefon||'';
+    const {data:bews} = await sb.from('bewerbungen')
+      .select('*').eq('telefon', tel).order('created_at',{ascending:false});
+    if(!bews?.length){ panel.style.display='none'; return; }
+    
+    // Load messages
+    const ids = bews.map(b=>b.id);
+    let msgs = [];
+    try {
+      const {data:m} = await sb.from('nachrichten')
+        .select('*').in('bewerbung_id', ids).order('created_at',{ascending:false});
+      msgs = m||[];
+    } catch(e){}
+    
+    const items = [];
+    bews.forEach(b => {
+      const auf = ALL.find(x=>x.id===b.auftrag_id)||EV.find(x=>x.id===b.auftrag_id);
+      const aufName = auf?.n || auf?.name || b.auftrag_id || 'Allgemein';
+      if(b.status === 'bestaetigt') {
+        items.push({type:'confirmed', title:'✅ Bestätigt!', sub: aufName, bew: b, auf});
+      } else if(b.status === 'reserviert') {
+        items.push({type:'invited', title:'⏳ Reserviert', sub: aufName, bew: b, auf});
+      } else if(b.status === 'eingegangen') {
+        items.push({type:'invited', title:'📥 Beworben', sub: aufName, bew: b, auf});
+      }
+      // Messages for this bew
+      const bewMsgs = msgs.filter(m=>m.bewerbung_id===b.id&&!m.gelesen_von_ma);
+      if(bewMsgs.length) {
+        items.push({type:'msg', title:`💬 ${bewMsgs.length} neue Nachricht(en)`, sub: aufName + ' – ' + bewMsgs[0]?.inhalt?.substring(0,40)+'…', bew: b, auf, msgCount: bewMsgs.length});
+      }
+    });
+    
+    if(!items.length){ panel.style.display='none'; return; }
+    panel.style.display='block';
+    document.getElementById('inboxCount').textContent = items.length;
+    
+    document.getElementById('inboxList').innerHTML = items.map((item,i) => `
+      <div class="inbox-item" onclick="openInboxItem('${item.bew.id}','${(item.auf?.n||item.auf?.name||'Allgemein').replace(/'/g,"\'")}','${item.bew.status}')">
+        <div class="inbox-type ${item.type}">${item.title}</div>
+        <div class="inbox-name">${item.sub}</div>
+        <div class="inbox-sub">${item.bew.vorname} ${item.bew.nachname} · ${new Date(item.bew.created_at).toLocaleDateString('de')}</div>
+        ${item.bew.status==='bestaetigt'?`<div class="inbox-actions">
+          <button class="ia-chat" onclick="event.stopPropagation();openChat('${item.bew.id}','${(item.auf?.n||'Einsatz').replace(/'/g,"\'")}')">💬 Chat</button>
+          <a class="ia-yes" href="https://wa.me/491633626855?text=${encodeURIComponent('Bestätigt für: '+(item.auf?.n||'Einsatz'))}" target="_blank" onclick="event.stopPropagation()">✓ WA Bestätigen</a>
+        </div>`:''}
+        ${item.bew.status==='eingegangen'?`<div class="inbox-actions">
+          <button class="ia-yes" onclick="event.stopPropagation();antwortBewerbung('${item.bew.id}','ja')">✓ Dabei</button>
+          <button class="ia-no" onclick="event.stopPropagation();antwortBewerbung('${item.bew.id}','nein')">✗ Absagen</button>
+          <button class="ia-chat" onclick="event.stopPropagation();openChat('${item.bew.id}','${(item.auf?.n||'Einsatz').replace(/'/g,"\'")}')">💬 Chat</button>
+        </div>`:''}
+      </div>`).join('');
+  } catch(err){ console.warn('Inbox error:', err.message); }
+}
+
+function openInboxItem(bewId, aufName, status){
+  openBewerbungDetail(bewId, aufName, status);
+}
+
+async function antwortBewerbung(bewId, antwort){
+  if(!sb) return;
+  const status = antwort==='ja' ? 'reserviert' : 'abgelehnt';
+  await sb.from('bewerbungen').update({status}).eq('id', bewId);
+  toast(antwort==='ja'?'✅ Bestätigt!':'Abgesagt', antwort==='ja'?'ok':'info');
+  loadInbox();
+}
+
+async function openChat(bewId, aufName){
+  if(!sb){ toast('Kein Supabase','err'); return; }
+  let msgs = [];
+  try {
+    const {data} = await sb.from('nachrichten').select('*').eq('bewerbung_id', bewId).order('created_at');
+    msgs = data||[];
+    // Mark as read
+    await sb.from('nachrichten').update({gelesen_von_ma:true}).eq('bewerbung_id',bewId).eq('von','admin');
+  } catch(e){}
+  
+  const p = getInboxUser();
+  document.getElementById('MBody').innerHTML = `
+    <div class="modal-title">💬 Chat – ${aufName}</div>
+    <div class="chat-msgs" id="chatMsgs">
+      ${msgs.length ? msgs.map(m=>`
+        <div class="chat-msg ${m.von==='admin'?'admin':'user'}">
+          <div class="chat-who">${m.von==='admin'?'FESS Team':p?.vorname||'Du'} · ${new Date(m.created_at).toLocaleTimeString('de',{hour:'2-digit',minute:'2-digit'})}</div>
+          <div class="chat-bubble">${m.inhalt}</div>
+        </div>`).join('') : '<div style="text-align:center;color:var(--muted);font-size:11px;padding:20px">Noch keine Nachrichten</div>'}
+    </div>
+    <div class="chat-input-row">
+      <input class="chat-input" id="chatInput" placeholder="Nachricht schreiben…" onkeydown="if(event.key==='Enter')sendChatMsg('${bewId}','${(p?.vorname||'MA').replace(/'/g,"\'")}')">
+      <button class="chat-send" onclick="sendChatMsg('${bewId}','${(p?.vorname||'MA').replace(/'/g,"\'")}')">→</button>
+    </div>
+    <div style="margin-top:8px"><button onclick="closeM()" style="width:100%;background:#f3f4f6;border:none;border-radius:8px;padding:9px;font-size:12px;cursor:pointer;font-family:var(--font)">Schließen</button></div>`;
+  document.getElementById('MB').classList.add('open');
+  const cm = document.getElementById('chatMsgs');
+  if(cm) cm.scrollTop = cm.scrollHeight;
+}
+
+async function sendChatMsg(bewId, vonName){
+  const input = document.getElementById('chatInput');
+  const txt = input?.value.trim();
+  if(!txt||!sb) return;
+  try {
+    await sb.from('nachrichten').insert([{bewerbung_id:bewId, von:'ma', von_name:vonName, inhalt:txt, gelesen_von_admin:false}]);
+    input.value='';
+    openChat(bewId, '');
+  } catch(e){ toast('Fehler beim Senden','err'); }
+}
+
 async function renderMyApps(){
   const p=loadProfile(), h=loadHistory(), bar=document.getElementById('myAppsBar');
   if(!bar)return;
@@ -1144,6 +1309,7 @@ async function loadEvents(){
         console.log("ALL populated with", ALL.length, "events");
         renderJobs();
         renderMyApps().catch(e=>console.warn(e));
+        loadInbox().catch(e=>console.warn(e));
         return;
       }
     }
@@ -1158,6 +1324,7 @@ loadEvents();
 renderProcess();
 renderAbout();
 renderMyApps().catch(e=>console.warn(e));
+loadInbox().catch(e=>console.warn(e));
 checkCookies();
 
 // Auto-refresh alle 30 Sekunden

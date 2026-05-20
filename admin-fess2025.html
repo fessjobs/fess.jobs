@@ -218,6 +218,27 @@ nav{flex:1;padding:8px 6px;overflow-y:auto;}
 .lbox-copy{background:var(--or);color:#fff;border:none;border-radius:4px;padding:4px 10px;font-size:10px;font-weight:700;cursor:pointer;font-family:var(--font);}
 
 /* TOAST */
+
+/* DISPO LIST */
+.dispo-auf-card{background:var(--white);border:1px solid var(--bdr);border-radius:var(--r);margin-bottom:10px;overflow:hidden;box-shadow:var(--sh);}
+.dispo-auf-hdr{padding:10px 14px;display:flex;align-items:center;gap:10px;cursor:pointer;transition:background .12s;}
+.dispo-auf-hdr:hover{background:#fafafa;}
+.dispo-auf-hdr.open{background:var(--orl);border-bottom:1px solid var(--orb);}
+.dispo-auf-name{font-weight:700;font-size:13px;color:var(--text);flex:1;}
+.dispo-auf-meta{font-size:10px;color:var(--mut);}
+.dispo-crew{display:none;padding:0;}
+.dispo-crew.open{display:block;}
+/* INLINE CREW ROW */
+.crew-inline-hdr{display:grid;grid-template-columns:1.6fr 1fr 80px 70px 70px 65px 60px 60px;gap:4px;padding:7px 12px;font-size:9px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--mut);background:#fafafa;border-bottom:1px solid var(--bdr);}
+.crew-inline-row{display:grid;grid-template-columns:1.6fr 1fr 80px 70px 70px 65px 60px 60px;gap:4px;align-items:center;padding:6px 12px;border-bottom:1px solid #f3f4f6;}
+.crew-inline-row:hover{background:#fafafa;}
+.ci2{width:100%;background:var(--bg);border:1px solid var(--bdr2);border-radius:4px;padding:4px 6px;font-size:11px;font-family:var(--font);outline:none;color:var(--text);}
+.ci2:focus{border-color:var(--or);}
+/* SCHICHTEN */
+.schicht-row{display:flex;align-items:center;gap:6px;padding:5px 12px;border-bottom:1px solid #f3f4f6;}
+.schicht-lbl{font-size:11px;font-weight:600;color:var(--text);min-width:80px;}
+.add-schicht{display:flex;align-items:center;gap:5px;padding:7px 12px;cursor:pointer;font-size:11px;color:var(--mut);border-top:1px solid var(--bdr);}
+.add-schicht:hover{color:var(--or);}
 .toast{position:fixed;bottom:20px;right:20px;color:#fff;border-radius:var(--r);padding:10px 15px;font-size:11px;font-weight:600;z-index:9999;transform:translateY(60px);opacity:0;transition:all .25s;max-width:280px;box-shadow:var(--shm);}
 .toast.show{transform:translateY(0);opacity:1;}
 .toast.ok{background:var(--gr);}
@@ -336,15 +357,15 @@ nav{flex:1;padding:8px 6px;overflow-y:auto;}
 
   <!-- DISPO -->
   <div class="page hidden" id="pg-dispo">
-    <div style="display:flex;gap:9px;margin-bottom:14px;align-items:center;flex-wrap:wrap">
-      <select class="fi" style="width:280px" id="dispoSel" onchange="loadDispo(this.value)">
-        <option value="">– Auftrag wählen –</option>
-      </select>
-      <button class="btn b-gh" onclick="genDispoPDF()">📄 Dispo-PDF</button>
-      <button class="btn b-gh" onclick="genAuftragsinfoPDF()">📋 Auftragsinfo-PDF</button>
-      <button class="btn b-or" onclick="openStundenLink()">🔗 Stundenlink</button>
+    <div style="display:flex;gap:7px;margin-bottom:14px;align-items:center;flex-wrap:wrap">
+      <span style="font-size:10px;font-weight:700;color:var(--mut);text-transform:uppercase;letter-spacing:.08em">Sortierung:</span>
+      <button class="fp on" onclick="sortDispo('datum',this)">↑ Datum</button>
+      <button class="fp" onclick="sortDispo('name',this)">A–Z</button>
+      <button class="fp" onclick="sortDispo('besetzt',this)">↓ Besetzt</button>
+      <div class="fsep"></div>
+      <input class="si" placeholder="🔍 Suchen…" oninput="filterDispoList(this.value)" style="width:160px">
     </div>
-    <div class="card" id="dispoCard"><div class="empty">Bitte Auftrag auswählen…</div></div>
+    <div id="dispoList"><div class="empty">Lade Aufträge…</div></div>
   </div>
 
   <!-- STUNDEN -->
@@ -368,7 +389,7 @@ nav{flex:1;padding:8px 6px;overflow-y:auto;}
       <button class="fp" onclick="fMA('miss',this)">⚠️ Unvollständig</button>
       <div class="fsep"></div>
       <input class="si" placeholder="🔍 Suchen…" style="width:160px" oninput="searchMA(this.value)">
-      <button class="btn b-gh" onclick="openImport()">📥 Excel</button>
+      <button class="btn b-gh" onclick="configCheckliste()">⚙️ Checkliste</button><button class="btn b-gh" onclick="openImport()">📥 Excel</button>
       <button class="btn b-or" onclick="openNeuerMA()">+ Mitarbeiter</button>
     </div>
     <div class="card">
@@ -542,10 +563,11 @@ function P(id,el){
   document.getElementById('pg-'+id)?.classList.remove('hidden');
   if(el)el.classList.add('on');
   const T={dashboard:'Dashboard',auftraege:'Aufträge verwalten',bewerbungen:'Bewerbungen',dispo:'Dispo & Crew',stunden:'Stundennachweise',mitarbeiter:'Mitarbeiter',pdf:'Export & PDFs'};
+  if(id==='dispo')setTimeout(renderDispoList,50);
   document.getElementById('pgTitle').textContent=T[id]||id;
   const A={
     auftraege:`<button class="btn b-or" onclick="openNewAuf()">+ Neuer Auftrag</button>`,
-    mitarbeiter:`<button class="btn b-gh" onclick="openImport()">📥 Excel</button><button class="btn b-or" onclick="openNeuerMA()">+ Mitarbeiter</button>`,
+    mitarbeiter:`<button class="btn b-gh" onclick="configCheckliste()">⚙️ Checkliste</button><button class="btn b-gh" onclick="openImport()">📥 Excel</button><button class="btn b-or" onclick="openNeuerMA()">+ Mitarbeiter</button>`,
     stunden:`<button class="btn b-gh" onclick="exportCSV()">📊 CSV Export</button>`,
     dashboard:`<button class="btn b-gh" onclick="loadAll()">↻ Refresh</button>`,
   };
@@ -589,6 +611,219 @@ function renderDashboard(){
         ${b.regionalleiter?`<span style="font-size:10px;background:var(--orl);color:var(--or);border-radius:6px;padding:1px 6px;font-weight:600">👤 ${b.regionalleiter}</span>`:''}
       </div>
     </div>`}).join(''):'<div class="empty">Keine neuen Bewerbungen ✅</div>';
+}
+
+
+// ── DISPO LIST ──
+let dispoSort = 'datum', dispoQ = '';
+
+function sortDispo(s,el){ dispoSort=s; document.querySelectorAll('#pg-dispo .fp').forEach(b=>b.classList.remove('on')); el.classList.add('on'); renderDispoList(); }
+function filterDispoList(v){ dispoQ=v; renderDispoList(); }
+
+function renderDispoList(){
+  let d = AUFTRAEGE.slice();
+  // Only active (not abgesagt, not abgeschlossen)
+  d = d.filter(a=>a.status!=='abgesagt');
+  if(dispoQ) d = d.filter(a=>a.name.toLowerCase().includes(dispoQ.toLowerCase())||a.location?.toLowerCase().includes(dispoQ.toLowerCase()));
+  if(dispoSort==='datum') d.sort((a,b)=>a.datum_von.localeCompare(b.datum_von));
+  else if(dispoSort==='name') d.sort((a,b)=>a.name.localeCompare(b.name));
+  else if(dispoSort==='besetzt') d.sort((a,b)=>{
+    const pa=(a.pax_gesamt>0?(a.pax_besetzt||0)/a.pax_gesamt:0);
+    const pb=(b.pax_gesamt>0?(b.pax_besetzt||0)/b.pax_gesamt:0);
+    return pb-pa;
+  });
+  
+  const el = document.getElementById('dispoList');
+  if(!d.length){ el.innerHTML='<div class="empty">Keine Aufträge</div>'; return; }
+  el.innerHTML = d.map(auf=>{
+    const op = auf.pax_gesamt>0?Math.round((auf.pax_besetzt||0)/auf.pax_gesamt*100):0;
+    const bc = op>=80?'var(--gr)':op>=40?'var(--ye)':'var(--re)';
+    return `<div class="dispo-auf-card" id="dac-${auf.id}">
+      <div class="dispo-auf-hdr" onclick="toggleDispoCard('${auf.id}')">
+        <div style="width:32px;height:32px;border-radius:var(--rs);background:${auf.dringend?'#dc2626':'var(--orl)'};color:${auf.dringend?'#fff':'var(--or)'};display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0">${auf.dringend?'🔥':'📋'}</div>
+        <div style="flex:1">
+          <div class="dispo-auf-name">${auf.name}</div>
+          <div class="dispo-auf-meta">${fmtD(auf)} · ${auf.location} · 👷 ${auf.taetigkeit||'–'}</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <div style="width:50px;height:5px;background:#e5e7eb;border-radius:3px;overflow:hidden"><div style="width:${op}%;height:100%;background:${bc};border-radius:3px"></div></div>
+          <span style="font-size:11px;font-weight:700;color:var(--sub)">${auf.pax_besetzt||0}/${auf.pax_gesamt}</span>
+          <span style="font-size:11px;color:var(--mut)">▼</span>
+        </div>
+      </div>
+      <div class="dispo-crew" id="dc-${auf.id}"></div>
+    </div>`;
+  }).join('');
+}
+
+async function toggleDispoCard(aufId){
+  const hdr = document.querySelector(`#dac-${aufId} .dispo-auf-hdr`);
+  const crew = document.getElementById(`dc-${aufId}`);
+  const isOpen = crew.classList.contains('open');
+  if(isOpen){ crew.classList.remove('open'); hdr.classList.remove('open'); return; }
+  hdr.classList.add('open'); crew.classList.add('open');
+  if(crew.dataset.loaded) return;
+  crew.dataset.loaded = '1';
+  await loadDispoInline(aufId);
+}
+
+async function loadDispoInline(aufId){
+  const auf = AUFTRAEGE.find(a=>a.id===aufId); if(!auf) return;
+  const crew = document.getElementById(`dc-${aufId}`);
+  
+  // Load confirmed + all applicants
+  const {data:confirmed} = await sb.from('bewerbungen').select('*').eq('auftrag_id',aufId).eq('status','bestaetigt');
+  const {data:allBews} = await sb.from('bewerbungen').select('*').eq('auftrag_id',aufId);
+  const c = confirmed||[];
+  
+  crew.innerHTML = `
+    <!-- SCHICHTEN -->
+    <div style="padding:8px 12px;background:#fafafa;border-bottom:1px solid var(--bdr)">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+        <span style="font-size:10px;font-weight:700;color:var(--mut);text-transform:uppercase;letter-spacing:.07em">Schichten</span>
+        <button class="btn b-gh" style="font-size:10px;padding:3px 8px" onclick="addSchicht('${aufId}')">+ Schicht</button>
+      </div>
+      <div id="schichten-${aufId}">
+        ${(auf.schichtzeiten||[]).map((s,i)=>`
+          <div class="schicht-row">
+            <input class="ci2" value="${s}" id="sc-${aufId}-${i}" style="flex:1">
+            <button onclick="removeSchicht('${aufId}',${i})" style="background:var(--reb);color:var(--re);border:none;border-radius:4px;padding:3px 8px;cursor:pointer;font-size:11px">✕</button>
+          </div>`).join('')||'<div style="font-size:11px;color:var(--mut);padding:4px 0">Keine Schichten – jetzt hinzufügen</div>'}
+      </div>
+      <button class="btn b-gh" style="width:100%;justify-content:center;font-size:10px;margin-top:6px" onclick="saveSchichten('${aufId}')">💾 Schichten speichern</button>
+    </div>
+    <!-- CREW -->
+    <div style="padding:6px 12px 4px;background:#f0fdf4;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--bdr)">
+      <span style="font-size:10px;font-weight:700;color:var(--gr);text-transform:uppercase;letter-spacing:.07em">✅ Bestätigte Crew (${c.length}/${auf.pax_gesamt})</span>
+      <div style="display:flex;gap:5px">
+        <button class="btn b-gh" style="font-size:10px;padding:3px 8px" onclick="openAnfrageQuick('${aufId}')">📢 Anfragen</button>
+        <button class="btn b-gh" style="font-size:10px;padding:3px 8px" onclick="addManCrewInline('${aufId}')">+ Manuell</button>
+        <button class="btn b-gh" style="font-size:10px;padding:3px 8px" onclick="addFromDBInline('${aufId}')">👥 Aus Kontakten</button>
+        <button class="btn b-or" style="font-size:10px;padding:3px 8px" onclick="openStundenLinkFor('${aufId}')">🔗 Stundenlink</button>
+        <button class="btn b-gh" style="font-size:10px;padding:3px 8px" onclick="genDispoPDFFor('${aufId}')">📄 PDF</button>
+      </div>
+    </div>
+    ${c.length?`
+    <div class="crew-inline-hdr"><span>Name</span><span>Tätigkeit</span><span>Schicht</span><span>Anreise</span><span>PSA</span><span>Bemerkung</span><span>WA</span><span>Aktion</span></div>
+    <div id="crew-rows-${aufId}">
+      ${c.map(p=>`<div class="crew-inline-row" id="cr-${p.id}">
+        <span style="font-weight:600;font-size:11px;color:var(--text)">${p.vorname} ${p.nachname}</span>
+        <input class="ci2" value="${p.notiz||auf.taetigkeit||''}" id="ta-${p.id}" placeholder="Tätigkeit">
+        <select class="ci2" id="sh-${p.id}">
+          <option value="">–</option>
+          ${(auf.schichtzeiten||[]).map(s=>`<option value="${s}" ${(p.schicht===s)?'selected':''}>${s}</option>`).join('')}
+        </select>
+        <span style="font-size:11px;color:var(--sub)">${p.anreise||'–'}</span>
+        <span class="tag ${(p.psa&&!p.psa.includes('Nein'))?'tg':'tr'}" style="font-size:9px">${(p.psa&&!p.psa.includes('Nein'))?'✓':'✕'}</span>
+        <input class="ci2" value="${p.notiz2||''}" id="bm-${p.id}" placeholder="Bemerkung">
+        <a href="https://wa.me/${(p.telefon||'').replace(/[^0-9]/g,'')}" target="_blank" class="ia ia-g" style="font-size:10px;padding:3px 8px">💬</a>
+        <button class="ia ia-r" style="font-size:10px;padding:3px 8px" onclick="saveCrewRow('${p.id}','${aufId}')">💾</button>
+      </div>`).join('')}
+    </div>`:'<div style="padding:10px 12px;font-size:11px;color:var(--mut)">Noch keine bestätigte Crew</div>'}
+    <div id="manual-crew-${aufId}"></div>
+  `;
+}
+
+async function addSchicht(aufId){
+  const auf = AUFTRAEGE.find(a=>a.id===aufId); if(!auf) return;
+  const newSch = prompt('Neue Schicht (z.B. 08:00–16:00 Uhr):');
+  if(!newSch) return;
+  const schichten = [...(auf.schichtzeiten||[]), newSch.trim()];
+  await sb.from('auftraege').update({schichtzeiten:schichten}).eq('id',aufId);
+  auf.schichtzeiten = schichten;
+  await loadDispoInline(aufId);
+  document.getElementById(`dc-${aufId}`).dataset.loaded='';
+  toast('✅ Schicht hinzugefügt','ok');
+}
+
+async function removeSchicht(aufId, idx){
+  const auf = AUFTRAEGE.find(a=>a.id===aufId); if(!auf) return;
+  const schichten = (auf.schichtzeiten||[]).filter((_,i)=>i!==idx);
+  await sb.from('auftraege').update({schichtzeiten:schichten}).eq('id',aufId);
+  auf.schichtzeiten = schichten;
+  document.getElementById(`dc-${aufId}`).dataset.loaded='';
+  await loadDispoInline(aufId);
+  toast('Schicht entfernt','ok');
+}
+
+async function saveSchichten(aufId){
+  const auf = AUFTRAEGE.find(a=>a.id===aufId); if(!auf) return;
+  const rows = document.querySelectorAll(`[id^="sc-${aufId}-"]`);
+  const schichten = [...rows].map(r=>r.value.trim()).filter(Boolean);
+  await sb.from('auftraege').update({schichtzeiten:schichten}).eq('id',aufId);
+  auf.schichtzeiten = schichten;
+  toast('✅ Schichten gespeichert!','ok');
+}
+
+async function saveCrewRow(bewId, aufId){
+  const ta = document.getElementById(`ta-${bewId}`)?.value||'';
+  const bm = document.getElementById(`bm-${bewId}`)?.value||'';
+  const sh = document.getElementById(`sh-${bewId}`)?.value||'';
+  await sb.from('bewerbungen').update({notiz:ta, notiz2:bm, schicht:sh}).eq('id',bewId);
+  toast('💾 Gespeichert!','ok');
+}
+
+function addManCrewInline(aufId){
+  const c = document.getElementById(`manual-crew-${aufId}`); if(!c) return;
+  const row = document.createElement('div');
+  row.className='crew-inline-row';
+  row.innerHTML=`<input class="ci2" placeholder="Name"><input class="ci2" placeholder="Tätigkeit"><input class="ci2" placeholder="Schicht"><input class="ci2" placeholder="Anreise"><span class="tag tgr">–</span><input class="ci2" placeholder="Bemerkung"><span></span><button class="ia ia-r" style="font-size:10px" onclick="this.closest('.crew-inline-row').remove()">✕</button>`;
+  c.appendChild(row);
+}
+
+function addFromDBInline(aufId){
+  openM(`<div class="mt">👥 Aus Kontakten hinzufügen</div>
+    <div class="ms">Wähle Mitarbeiter oder Bewerber für diesen Auftrag</div>
+    <div class="fg"><label class="fl">Mitarbeiter (DB)</label>
+      <select class="fsel" id="db-ma-sel" multiple style="height:120px">
+        ${MITARBEITER.map(m=>`<option value="${m.id}">${m.vorname} ${m.nachname}${m.personalnummer?' · '+m.personalnummer:''}</option>`).join('')}
+      </select>
+    </div>
+    <div class="fg"><label class="fl">Bewerber für diesen Auftrag</label>
+      <select class="fsel" id="db-bew-sel" multiple style="height:80px">
+        ${BEWERBUNGEN.filter(b=>b.auftrag_id===aufId&&b.status!=='bestaetigt').map(b=>`<option value="${b.id}">${b.vorname} ${b.nachname} (${b.status})</option>`).join('')}
+      </select>
+    </div>
+    <div class="macts">
+      <button class="mb mb-gh" onclick="closeM()">Abbrechen</button>
+      <button class="mb mb-or" onclick="confirmAddFromDB('${aufId}')">✅ Einplanen</button>
+    </div>`);
+}
+
+async function confirmAddFromDB(aufId){
+  const maSel = [...document.getElementById('db-ma-sel').selectedOptions];
+  const bewSel = [...document.getElementById('db-bew-sel').selectedOptions];
+  // Add bewerbungen for selected MA that don't have one yet
+  for(const opt of maSel){
+    const ma = MITARBEITER.find(m=>m.id===opt.value);
+    if(!ma) continue;
+    const exists = BEWERBUNGEN.find(b=>b.auftrag_id===aufId&&b.telefon===ma.telefon);
+    if(!exists){
+      await sb.from('bewerbungen').insert([{auftrag_id:aufId,vorname:ma.vorname,nachname:ma.nachname,telefon:ma.telefon||'',status:'bestaetigt'}]);
+    } else {
+      await sb.from('bewerbungen').update({status:'bestaetigt'}).eq('id',exists.id);
+    }
+  }
+  // Confirm selected bewerber
+  for(const opt of bewSel){
+    await sb.from('bewerbungen').update({status:'bestaetigt'}).eq('id',opt.value);
+    const b = BEWERBUNGEN.find(x=>x.id===opt.value);
+    if(b){ const auf=AUFTRAEGE.find(a=>a.id===aufId); if(auf) await sb.from('auftraege').update({pax_besetzt:(auf.pax_besetzt||0)+1}).eq('id',aufId); }
+  }
+  closeM(); toast('✅ Eingeplant!','ok');
+  await loadAll();
+  document.getElementById(`dc-${aufId}`).dataset.loaded='';
+  await loadDispoInline(aufId);
+}
+
+function openStundenLinkFor(aufId){
+  document.getElementById('dispoSel').value=aufId;
+  openStundenLink();
+}
+
+function genDispoPDFFor(aufId){
+  document.getElementById('dispoSel').value=aufId;
+  genDispoPDF();
 }
 
 // ── AUFTRÄGE ──
@@ -846,32 +1081,101 @@ function renderBewerbungen(){
 function fBew(f,el){bewF=f;document.querySelectorAll('#pg-bewerbungen .fp').forEach(b=>b.classList.remove('on'));el.classList.add('on');renderBewerbungen();}
 
 async function bewAction(id,status,name){
-  const{error}=await sb.from('bewerbungen').update({status,bestaetigt_am:new Date().toISOString()}).eq('id',id);
-  if(error){toast('Fehler: '+error.message,'err');return;}
   if(status==='bestaetigt'){
+    // Show popup to select which auftrag
     const b=BEWERBUNGEN.find(x=>x.id===id);
-    if(b?.auftrag_id){
-      const a=AUFTRAEGE.find(x=>x.id===b.auftrag_id);
-      if(a)await sb.from('auftraege').update({pax_besetzt:(a.pax_besetzt||0)+1,updated_at:new Date().toISOString()}).eq('id',a.id);
+    openM(`<div class="mt">✅ ${name} bestätigen</div>
+      <div class="ms">Für welchen Auftrag soll ${name} eingeplant werden?</div>
+      <div class="fg"><label class="fl">Auftrag wählen</label>
+        <select class="fsel" id="bw-auf-sel">
+          ${b?.auftrag_id?`<option value="${b.auftrag_id}" selected>🎯 Wunsch: ${AUFTRAEGE.find(a=>a.id===b.auftrag_id)?.name||b.auftrag_id}</option>`:''}
+          ${AUFTRAEGE.filter(a=>a.status!=='abgesagt'&&!isAbgeschlossen(a)).map(a=>`<option value="${a.id}" ${a.id===b?.auftrag_id?'selected':''}>${a.name} – ${fmtD(a)}</option>`).join('')}
+        </select>
+      </div>
+      <div class="fg"><label class="fl">Schicht zuweisen (optional)</label>
+        <select class="fsel" id="bw-sh-sel">
+          <option value="">–</option>
+          ${b?.auftrag_id?(AUFTRAEGE.find(a=>a.id===b.auftrag_id)?.schichtzeiten||[]).map(s=>`<option value="${s}">${s}</option>`).join(''):''}
+        </select>
+      </div>
+      <div class="macts">
+        <button class="mb mb-gh" onclick="closeM()">Abbrechen</button>
+        <button class="mb mb-or" onclick="confirmBewAction('${id}','${name.replace(/'/g,"\'")}')">✅ Bestätigen & Einplanen</button>
+      </div>`);
+    return;
+  }
+  await doBewaktion(id,status,name,null);
+}
+
+async function confirmBewAction(id,name){
+  const aufId = document.getElementById('bw-auf-sel')?.value;
+  const schicht = document.getElementById('bw-sh-sel')?.value;
+  closeM();
+  await doBewaktion(id,'bestaetigt',name,aufId,schicht);
+}
+
+async function doBewaktion(id,status,name,aufId,schicht){
+  const upd = {status,bestaetigt_am:new Date().toISOString()};
+  if(aufId) upd.auftrag_id=aufId;
+  if(schicht) upd.schicht=schicht;
+  const{error}=await sb.from('bewerbungen').update(upd).eq('id',id);
+  if(error){toast('Fehler: '+error.message,'err');return;}
+  if(status==='bestaetigt'&&aufId){
+    const a=AUFTRAEGE.find(x=>x.id===aufId);
+    if(a)await sb.from('auftraege').update({pax_besetzt:(a.pax_besetzt||0)+1,updated_at:new Date().toISOString()}).eq('id',a.id);
+    // Send inbox notification via nachrichten table
+    if(sb){
+      try{
+        await sb.from('nachrichten').insert([{
+          bewerbung_id:id, von:'admin', von_name:'FESS Team',
+          inhalt:`🎉 Du wurdest für "${a?.name||'einen Einsatz'}" eingeplant! ${a?.datum_von?'Datum: '+fmtD(a):''}`,
+          gelesen_von_ma:false
+        }]);
+      }catch(e){}
     }
   }
-  toast(status==='bestaetigt'?`✅ ${name} bestätigt! Mitarbeiterseite aktualisiert.`:status==='abgelehnt'?`${name} abgelehnt`:`${name} reserviert`,status==='abgelehnt'?'err':'ok');
+  toast(status==='bestaetigt'?`✅ ${name} bestätigt & eingeplant!`:status==='abgelehnt'?`${name} abgelehnt`:`${name} reserviert`,status==='abgelehnt'?'err':'ok');
   await loadAll();
 }
 
-function openBewDetail(id){
+async function openBewDetail(id){
   const b=BEWERBUNGEN.find(x=>x.id===id);if(!b)return;
   const auf=AUFTRAEGE.find(a=>a.id===b.auftrag_id);
+  let msgs=[];
+  try{ const{data}=await sb.from('nachrichten').select('*').eq('bewerbung_id',id).order('created_at'); msgs=data||[]; }catch(e){}
   openM(`<div class="mt">👁 ${b.vorname} ${b.nachname}</div>
     <table class="tbl" style="margin-bottom:10px">
-      ${[['Auftrag',auf?auf.name:'Allg.'],['Telefon',`<a href="tel:${b.telefon}" style="color:var(--or)">${b.telefon}</a>`],['Wohnort',b.wohnort||'–'],['Anreise',b.anreise||'–'],['PSA',b.psa||'–'],['Schuh',b.schuhgroesse||'–'],['Shirt',b.shirt_groesse||'–'],['Regio',b.regionalleiter||'–'],['Notiz',b.notiz||'–'],['Beworben',fmtAt(b.created_at)]].map(([k,v])=>`<tr><td style="color:var(--mut);width:80px;font-size:10px">${k}</td><td style="font-size:11px">${v}</td></tr>`).join('')}
+      ${[['Auftrag',auf?auf.name:'Allg.'],['Telefon',`<a href="tel:${b.telefon}" style="color:var(--or)">${b.telefon}</a>`],['Wohnort',b.wohnort||'–'],['Anreise',b.anreise||'–'],['PSA',b.psa||'–'],['Regio',b.regionalleiter||'–'],['Notiz',b.notiz||'–'],['Status',b.status],['Beworben',fmtAt(b.created_at)]].map(([k,v])=>`<tr><td style="color:var(--mut);width:70px;font-size:10px">${k}</td><td style="font-size:11px">${v}</td></tr>`).join('')}
     </table>
+    <div style="font-size:11px;font-weight:700;color:var(--text);margin-bottom:6px">💬 Chat mit ${b.vorname}</div>
+    <div style="max-height:150px;overflow-y:auto;background:#f9fafb;border-radius:8px;padding:8px;margin-bottom:8px" id="admChatMsgs">
+      ${msgs.length?msgs.map(m=>`<div style="margin-bottom:6px">
+        <div style="font-size:9px;color:var(--mut)">${m.von==='admin'?'FESS Team':b.vorname} · ${fmtAt(m.created_at)}</div>
+        <div style="background:${m.von==='admin'?'var(--or)':'#fff'};color:${m.von==='admin'?'#fff':'var(--text)'};border:${m.von==='admin'?'none':'1px solid #e5e7eb'};border-radius:8px;padding:5px 9px;font-size:11px;max-width:85%;${m.von==='admin'?'margin-left:auto':''}">${m.inhalt}</div>
+      </div>`).join(''):'<div style="text-align:center;color:var(--mut);font-size:11px;padding:10px">Noch keine Nachrichten</div>'}
+    </div>
+    <div style="display:flex;gap:6px;margin-bottom:10px">
+      <input class="fi" id="admChatIn" placeholder="Nachricht an ${b.vorname}…" style="flex:1;font-size:12px" onkeydown="if(event.key==='Enter')sendAdminChat('${id}','${b.vorname}')">
+      <button class="btn b-or" style="padding:6px 12px" onclick="sendAdminChat('${id}','${b.vorname}')">→</button>
+    </div>
     <div class="macts">
       <button class="mb mb-gh" onclick="closeM()">Schließen</button>
       ${b.status==='eingegangen'?`
         <button class="mb mb-gr" onclick="closeM();bewAction('${b.id}','bestaetigt','${b.vorname} ${b.nachname}')">✓ Bestätigen</button>
         <button class="mb mb-re" onclick="closeM();bewAction('${b.id}','abgelehnt','${b.vorname}')">✕ Ablehnen</button>`:''}
     </div>`);
+  const cm=document.getElementById('admChatMsgs'); if(cm) cm.scrollTop=cm.scrollHeight;
+  // Mark as read
+  try{ await sb.from('nachrichten').update({gelesen_von_admin:true}).eq('bewerbung_id',id).eq('von','ma'); }catch(e){}
+}
+
+async function sendAdminChat(bewId, name){
+  const inp=document.getElementById('admChatIn'); if(!inp?.value.trim()) return;
+  try{
+    await sb.from('nachrichten').insert([{bewerbung_id:bewId,von:'admin',von_name:'FESS Team',inhalt:inp.value.trim(),gelesen_von_ma:false}]);
+    inp.value='';
+    await openBewDetail(bewId);
+  }catch(e){ toast('Fehler','err'); }
 }
 
 // ── DISPO ──
@@ -1048,6 +1352,46 @@ async function saveSH(pid,aufId,name){
 function handleSaveSH(el){
   saveSH(el.dataset.pid, el.dataset.auf, decodeURIComponent(el.dataset.name));
 }
+
+async function toggleCheck(maId, field, el){
+  const newVal = !el.classList.contains('ok');
+  el.classList.toggle('ok', newVal);
+  el.classList.toggle('no', !newVal);
+  el.textContent = (newVal?'✓':'✗') + ' ' + el.textContent.slice(2);
+  const upd = {}; upd[field] = newVal;
+  await sb.from('mitarbeiter').update(upd).eq('id', maId);
+  const ma = MITARBEITER.find(m=>m.id===maId);
+  if(ma) ma[field] = newVal;
+  toast(newVal ? '✅ Gesetzt!' : 'Zurückgesetzt', 'ok');
+}
+
+function configCheckliste(){
+  const felder = JSON.parse(localStorage.getItem('fess_cl_felder')||
+    JSON.stringify([{id:'vertrag_ok',label:'Vertrag'},{id:'app_ok',label:'App'},{id:'psa_vorhanden',label:'PSA'},{id:'daten_ok',label:'Unterweisung'},{id:'sicherheit_ok',label:'Sicherheit'}]));
+  openM(`<div class="mt">⚙️ Checkliste konfigurieren</div>
+    <div class="ms">Felder die bei jedem Mitarbeiter als Checkbox erscheinen</div>
+    <div id="cl-list">${felder.map((f,i)=>`<div style="display:flex;gap:6px;margin-bottom:6px">
+      <input class="fi" value="${f.label}" id="clf-${i}" style="flex:1;font-size:12px;padding:6px 8px">
+      <input class="fi" value="${f.id}" id="clid-${i}" style="width:120px;font-size:11px;padding:6px 8px" placeholder="field_id">
+      <button onclick="this.closest('div').remove()" class="lb-del">✕</button>
+    </div>`).join('')}</div>
+    <button class="btn b-gh" style="width:100%;justify-content:center;margin:6px 0" onclick="
+      const d=document.getElementById('cl-list');
+      const row=document.createElement('div');row.style.cssText='display:flex;gap:6px;margin-bottom:6px';
+      row.innerHTML='<input class=\"fi\" placeholder=\"Bezeichnung\" style=\"flex:1;font-size:12px;padding:6px 8px\"><input class=\"fi\" placeholder=\"feld_id\" style=\"width:120px;font-size:11px;padding:6px 8px\"><button onclick=\"this.closest('div').remove()\" class=\"lb-del\">✕</button>';
+      d.appendChild(row);row.querySelector('input').focus();
+    ">+ Feld hinzufügen</button>
+    <div class="macts">
+      <button class="mb mb-gh" onclick="closeM()">Abbrechen</button>
+      <button class="mb mb-or" onclick="
+        const rows=document.querySelectorAll('#cl-list>div');
+        const f=[...rows].map((_,i)=>({label:document.getElementById('clf-'+i)?.value||'',id:document.getElementById('clid-'+i)?.value||''})).filter(f=>f.label&&f.id);
+        localStorage.setItem('fess_cl_felder',JSON.stringify(f));
+        toast('✅ Checkliste gespeichert!','ok');closeM();renderMitarbeiter();
+      ">💾 Speichern</button>
+    </div>`);
+}
+
 function handleFreigabe(el){
   const pid=el.dataset.pid;
   const aufId=el.dataset.auf;
@@ -1223,12 +1567,9 @@ function renderMitarbeiter(){
     const bgn = m.erster_arbeitstag||'–';
     const std = m.stunden_monat||'–';
     const rl = m.regionalleiter ? `<span style="background:var(--orl);color:var(--or);border:1px solid var(--orb);border-radius:20px;padding:2px 9px;font-size:10px;font-weight:700;white-space:nowrap">👤 ${m.regionalleiter}</span>` : '<span style="color:var(--mut);font-size:11px">–</span>';
-    const checks = [
-      `<span class="mck ${m.vertrag_ok?'ok':'no'}">${m.vertrag_ok?'✓':'✗'} Vertrag</span>`,
-      `<span class="mck ${m.app_ok?'ok':'no'}">${m.app_ok?'✓':'✗'} App</span>`,
-      `<span class="mck ${m.psa_vorhanden?'ok':'no'}">${m.psa_vorhanden?'✓':'✗'} PSA</span>`,
-      `<span class="mck ${m.daten_ok?'ok':'no'}">${m.daten_ok?'✓':'✗'} Daten</span>`,
-    ].join('');
+    const CHECKLISTE_FELDER = JSON.parse(localStorage.getItem('fess_cl_felder')||
+      JSON.stringify([{id:'vertrag_ok',label:'Vertrag'},{id:'app_ok',label:'App'},{id:'psa_vorhanden',label:'PSA'},{id:'daten_ok',label:'Unterweisung'},{id:'sicherheit_ok',label:'Sicherheit'}]));
+    const checks = CHECKLISTE_FELDER.map(f=>`<span class="mck ${m[f.id]?'ok':'no'}" onclick="toggleCheck('${m.id}','${f.id}',this)" title="${f.label}" style="cursor:pointer">${m[f.id]?'✓':'✗'} ${f.label}</span>`).join('');
     const waNum = (m.telefon||'').replace(/[^0-9]/g,'');
     const mid = m.id;
     return `<tr>
