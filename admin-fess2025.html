@@ -1071,7 +1071,7 @@ function renderMitarbeiter(){
       '<span class="mck '+(m.daten_ok?'ok':'no')+'">'+(m.daten_ok?'✓':'✗')+' Daten</span>'+
     '</div></td>'+
     '<td><div class="ra">'+
-      '<button class="ia" onclick="openEditMA(''+m.id+'')">✏️</button>'+
+      '<button class="ia" data-id="'+m.id+'" onclick="openEditMAById(this)">✏️</button>'+
       '<a href="https://wa.me/'+((m.telefon||'').replace(/[^0-9]/g,''))+'" target="_blank" class="ia ia-g">💬</a>'+
     '</div></td>'+
   '</tr>').join(''):'<tr><td colspan="8" class="empty">Keine Mitarbeiter</td></tr>';
@@ -1121,7 +1121,10 @@ async function saveNewMA(){
   await loadMitarbeiter();
 }
 
+let currentEditId=null;
+function openEditMAById(el){ openEditMA(el.dataset.id); }
 function openEditMA(id){
+  currentEditId=id;
   const m=MITARBEITER.find(x=>x.id===id);if(!m)return;
   openM('<div class="mt">'+m.vorname+' '+m.nachname+'</div>'+
     '<div class="fr2"><div class="fg"><label class="fl">Personalnummer</label><input class="fi" id="em-pnr" value="'+(m.personalnummer||'')+'"></div>'+
@@ -1136,7 +1139,7 @@ function openEditMA(id){
     '<label style="display:flex;align-items:center;gap:6px;font-size:12px;cursor:pointer;color:var(--text)"><input type="checkbox" id="em-psa" '+(m.psa_vorhanden?'checked':'')+' style="accent-color:var(--or)"> PSA</label>'+
     '<label style="display:flex;align-items:center;gap:6px;font-size:12px;cursor:pointer;color:var(--text)"><input type="checkbox" id="em-dok" '+(m.daten_ok?'checked':'')+' style="accent-color:var(--or)"> Daten</label></div>'+
     '<div class="fg"><label class="fl">Notizen</label><textarea class="fta" id="em-not">'+(m.notizen||'')+'</textarea></div>'+
-    '<div class="macts"><button class="mb mb-gh" onclick="closeM()">Abbrechen</button><button class="mb mb-or" onclick="saveEditMA(''+id+'')">Speichern</button></div>');
+    '<div class="macts"><button class="mb mb-gh" onclick="closeM()">Abbrechen</button><button class="mb mb-or" onclick="saveEditMA(currentEditId)">Speichern</button></div>');
 }
 
 async function saveEditMA(id){
