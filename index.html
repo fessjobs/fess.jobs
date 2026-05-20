@@ -837,7 +837,7 @@ function mkForm(evId, evN, evD, evL, isGen){
 </div>
 <div class="modal-title">🎯 Jetzt bewerben</div>
 <div class="modal-sub"><strong>${evN||'Allgemeine Bewerbung'}</strong>${evD?' · '+evD:''}<br>${evL?'📍 '+evL:''}</div>
-<form id="F${eid}" onsubmit="doSub(event,'${(evN||'').replace(/'/g,\"\\\'")}','${evD||''}','${evL||''}','${eid}','${evId||''}')">
+<form id="F${eid}" data-evid="${evId||''}" data-evn="${evN||''}" data-evd="${evD||''}" data-evl="${evL||''}" data-eid="${eid}" onsubmit="doSub(event,this)">
 
 <div class="step on" id="s1${eid}">
   <div class="fr2">
@@ -992,7 +992,12 @@ function goS1(eid){
   document.getElementById('sd0'+eid).classList.replace('done','cur');
 }
 
-async function doSub(e, evN, evD, evL, eid, evId){
+async function doSub(e, formEl){
+  const evN=formEl?.dataset?.evn||'';
+  const evD=formEl?.dataset?.evd||'';
+  const evL=formEl?.dataset?.evl||'';
+  const eid=formEl?.dataset?.eid||'';
+  const evId=formEl?.dataset?.evid||'';
   e.preventDefault();
   // Check signature
   if(!sigDrawn){
