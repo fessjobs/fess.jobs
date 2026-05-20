@@ -648,7 +648,10 @@ function renderDashboard(){
       <div style="flex:1"><div class="tn">${a.name}</div><div class="ts">${fmtD(a)} · ${a.pax_besetzt||0}/${a.pax_gesamt}</div></div>
       <span class="tag to">🔥</span>
     </div>`).join('')||'<div class="empty">Keine dringenden Aufträge</div>';
-  const neu=BEWERBUNGEN.filter(b=>b.status==='eingegangen');
+  // Deduplicate by telefon for count
+  const neuAll=BEWERBUNGEN.filter(b=>b.status==='eingegangen');
+  const neuUniq=neuAll.filter((b,i,a)=>a.findIndex(x=>x.telefon===b.telefon&&x.auftrag_id===b.auftrag_id)===i);
+  const neu=neuUniq;
   const zusagen=BEWERBUNGEN.filter(b=>b.status==='bestaetigt');
   const absagen=BEWERBUNGEN.filter(b=>b.status==='abgelehnt');
   const countEl=document.getElementById('bew-live-count');
@@ -767,67 +770,176 @@ async function openFullDispo(aufId){
 async function loadFullDispoBody(aufId){
   const auf=AUFTRAEGE.find(a=>a.id===aufId);if(!auf)return;
   const el=document.getElementById('full-dispo-body');if(!el)return;
-  const {data:bews}=await sb.from('bewerbungen').select('*').eq('auftrag_id',aufId);
+  el.innerHTML='<div class="empty">⏳ Lade…</div>';
+  
+  const{data:bews}=await sb.from('bewerbungen').select('*').eq('auftrag_id',aufId);
   const confirmed=(bews||[]).filter(b=>b.status==='bestaetigt');
   const pending=(bews||[]).filter(b=>b.status==='eingegangen'||b.status==='reserviert');
   const schichten=auf.schichtzeiten||[];
-  // Build days
+  const ROLLEN=['Stagehand','Staplerfahrer','Spotfahrer','Ansprechpartner','Fahrer','CC','Helfer','Promoter','Hostess','Sonstiges'];
+  
+  // Build days from date range
   const days=[];
   if(auf.datum_von){
     const start=new Date(auf.datum_von);
-    const end=auf.datum_bis?new Date(auf.datum_bis):new Date(auf.datum_von);
-    for(let d=new Date(start);d<=end;d.setDate(d.getDate()+1))days.push(new Date(d));
+    const end2=auf.datum_bis?new Date(auf.datum_bis):new Date(auf.datum_von);
+    for(let d=new Date(start);d<=end2;d.setDate(d.getDate()+1)){days.push(new Date(d));}
   }
-  const ROLLEN=['Stagehand','Staplerfahrer','Spotfahrer','Ansprechpartner','Fahrer','CC','Helfer','Promoter','Hostess','Sonstiges'];
-  const crewBlock=(crew,sch)=>`
-    <div style="display:grid;grid-template-columns:1.4fr 1fr 70px 70px 44px 44px;gap:3px;padding:5px 10px;font-size:9px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--mut);background:#fafafa">
-      <span>Name</span><span>Rolle</span><span>Anreise</span><span>Bemerkung</span><span>WA</span><span>💾</span>
-    </div>
-    ${crew.map(p=>`<div style="display:grid;grid-template-columns:1.4fr 1fr 70px 70px 44px 44px;gap:3px;align-items:center;padding:5px 10px;border-top:1px solid #f3f4f6">
-      <span style="font-size:11px;font-weight:600;color:var(--text)">${p.vorname} ${p.nachname}</span>
-      <select class="ci2" id="r-${p.id}" style="font-size:10px">${ROLLEN.map(r=>`<option ${(p.rolle||p.notiz)===r?'selected':''}>${r}</option>`).join('')}</select>
-      <span style="font-size:10px;color:var(--sub)">${p.anreise||'–'}</span>
-      <input class="ci2" value="${p.notiz2||''}" id="b2-${p.id}" style="font-size:10px">
-      <a href="https://wa.me/${(p.telefon||'').replace(/[^0-9]/g,'')}" target="_blank" class="ia ia-g" style="font-size:9px;padding:2px 5px">💬</a>
-      <button class="ia" style="font-size:9px;padding:2px 5px" onclick="saveFull('${p.id}')">💾</button>
-    </div>`).join('')||'<div style="padding:8px 10px;font-size:11px;color:var(--mut)">Noch keine Crew</div>'}`;
+  if(!days.length) days.push(new Date(auf.datum_von||Date.now()));
   
-  const schichtBlock=(sch)=>`
-    <div style="border:1px solid var(--bdr);border-radius:var(--rs);overflow:hidden;margin-bottom:8px">
-      <div style="padding:7px 10px;background:var(--orl);border-bottom:1px solid var(--orb);display:flex;align-items:center;justify-content:space-between">
-        <span style="font-size:11px;font-weight:700;color:var(--or)">⏰ ${sch}</span>
-        <button class="btn b-gh" style="font-size:9px;padding:2px 7px" onclick="addFromDBInline('${aufId}')">+ Person</button>
-      </div>
-      ${crewBlock(confirmed.filter(b=>!b.schicht||b.schicht===sch||schichten.length<=1),sch)}
-    </div>`;
+  // Build schicht blocks: one per day per schicht
+  let html='';
   
-  el.innerHTML=`
-    <div class="card" style="margin-bottom:10px">
-      <div style="padding:10px 14px;background:#fafafa;border-bottom:1px solid var(--bdr);display:flex;align-items:center;justify-content:space-between">
-        <span style="font-size:11px;font-weight:700">⏰ Schichten (${schichten.length})</span>
-        <div style="display:flex;gap:5px">
-          <button class="btn b-gh" style="font-size:10px;padding:3px 8px" onclick="addSchicht('${aufId}')">+ Schicht</button>
-          <button class="btn b-gh" style="font-size:10px;padding:3px 8px" onclick="loadFullDispoBody('${aufId}')">↻</button>
+  // Schichten verwalten bar
+  html+=`<div style="background:#fafafa;border:1px solid var(--bdr);border-radius:var(--r);padding:10px 14px;margin-bottom:10px;display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+    <span style="font-size:11px;font-weight:700">⏰ Schichten: </span>
+    ${schichten.map((s,i)=>`<span style="background:var(--orl);color:var(--or);border:1px solid var(--orb);border-radius:20px;padding:2px 9px;font-size:11px;font-weight:600">${s}</span>`).join('')}
+    <button class="btn b-gh" style="font-size:10px;padding:3px 9px;margin-left:auto" onclick="addSchicht('${aufId}')">+ Schicht</button>
+    <button class="btn b-gh" style="font-size:10px;padding:3px 9px" onclick="loadFullDispoBody('${aufId}')">↻ Reload</button>
+  </div>`;
+  
+  // For each day × schicht combination
+  days.forEach((day,di)=>{
+    const dateStr=day.toLocaleDateString('de',{weekday:'long',day:'2-digit',month:'2-digit',year:'numeric'});
+    const dateISO=day.toISOString().split('T')[0];
+    
+    (schichten.length?schichten:['Ganztägig']).forEach((sch,si)=>{
+      // Find confirmed crew for this day+schicht
+      const crewForSlot=confirmed.filter(b=>{
+        const matchSchicht=!b.schicht||b.schicht===sch||schichten.length<=1;
+        const matchDate=!b.schicht_datum||b.schicht_datum===dateISO||days.length<=1;
+        return matchSchicht&&matchDate;
+      });
+      
+      // Determine required count - use auf.pax_gesamt / (days*schichten) or manual
+      const totalSlots=Math.ceil((auf.pax_gesamt||5)/(days.length*(schichten.length||1)));
+      const needed=Math.max(totalSlots,crewForSlot.length+1);
+      
+      html+=`<div style="border:1px solid var(--bdr);border-radius:var(--r);overflow:hidden;margin-bottom:12px">
+        <!-- Header -->
+        <div style="padding:10px 14px;background:linear-gradient(135deg,var(--orl),#fff);border-bottom:1px solid var(--orb)">
+          <div style="font-size:13px;font-weight:700;color:var(--text)">${dateStr}</div>
+          <div style="font-size:12px;color:var(--or);font-weight:600;margin-top:2px">${auf.name} · ${auf.location}</div>
+          <div style="font-size:11px;color:var(--sub);margin-top:1px">⏰ ${sch} · ${auf.taetigkeit||'–'} · <strong>${crewForSlot.length}/${needed} Personen</strong></div>
         </div>
-      </div>
-      ${days.length>1?days.map((day,di)=>`
-        <div style="padding:8px 14px;border-bottom:1px solid var(--bdr);background:${di%2===0?'#fafafa':'var(--white)'}">
-          <div style="font-size:11px;font-weight:700;color:var(--text);margin-bottom:8px">📅 Tag ${di+1} – ${day.toLocaleDateString('de',{weekday:'long',day:'2-digit',month:'2-digit',year:'numeric'})}</div>
-          ${schichten.length?schichten.map(sch=>schichtBlock(sch)).join(''):schichtBlock('Ganztägig')}
-        </div>`).join(''):schichten.length?schichten.map(sch=>schichtBlock(sch)).join(`<div style="padding:0 14px">`)+`</div>`:
-        `<div style="padding:14px">${schichtBlock('Alle Schichten')}</div>`}
-    </div>
-    ${pending.length?`<div class="card"><div style="padding:10px 14px;background:var(--yeb);border-bottom:1px solid var(--yebr)">
-      <span style="font-size:10px;font-weight:700;color:var(--ye);text-transform:uppercase;letter-spacing:.07em">⏳ Ausstehend (${pending.length})</span></div>
-      ${pending.map(p=>`<div style="display:flex;align-items:center;gap:8px;padding:7px 14px;border-bottom:1px solid #f3f4f6">
-        <span style="font-size:11px;font-weight:600;flex:1">${p.vorname} ${p.nachname}</span>
+        <!-- Crew table -->
+        <div style="overflow-x:auto">
+          <table style="width:100%;border-collapse:collapse;font-size:11px">
+            <thead>
+              <tr style="background:#fafafa">
+                <th style="padding:6px 12px;text-align:left;font-size:9px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--mut);border-bottom:1px solid var(--bdr)">#</th>
+                <th style="padding:6px 12px;text-align:left;font-size:9px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--mut);border-bottom:1px solid var(--bdr)">Name</th>
+                <th style="padding:6px 12px;text-align:left;font-size:9px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--mut);border-bottom:1px solid var(--bdr)">Rolle</th>
+                <th style="padding:6px 12px;text-align:left;font-size:9px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--mut);border-bottom:1px solid var(--bdr)">Tel</th>
+                <th style="padding:6px 12px;text-align:left;font-size:9px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--mut);border-bottom:1px solid var(--bdr)">Bemerkung</th>
+                <th style="padding:6px 12px;text-align:left;font-size:9px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--mut);border-bottom:1px solid var(--bdr)">Aktion</th>
+              </tr>
+            </thead>
+            <tbody>`;
+      
+      // Confirmed rows
+      crewForSlot.forEach((p,pi)=>{
+        html+=`<tr style="background:var(--grb)">
+          <td style="padding:6px 12px;color:var(--gr);font-weight:700">${pi+1}</td>
+          <td style="padding:6px 12px;font-weight:600;color:var(--text)">${p.vorname} ${p.nachname}</td>
+          <td style="padding:6px 12px"><select class="ci2" id="r-${p.id}" style="font-size:10px;min-width:90px">${ROLLEN.map(r=>`<option ${(p.rolle||p.notiz)===r?'selected':''}>${r}</option>`).join('')}</select></td>
+          <td style="padding:6px 12px"><a href="https://wa.me/${(p.telefon||'').replace(/[^0-9]/g,'')}" target="_blank" style="color:var(--or);font-size:10px">${p.telefon||'–'}</a></td>
+          <td style="padding:6px 12px"><input class="ci2" value="${p.notiz2||''}" id="b2-${p.id}" style="font-size:10px;min-width:80px"></td>
+          <td style="padding:6px 12px;display:flex;gap:4px">
+            <button class="ia" style="font-size:9px;padding:2px 6px" onclick="saveFull('${p.id}')">💾</button>
+            <button class="ia ia-r" style="font-size:9px;padding:2px 6px" onclick="doBewaktion('${p.id}','abgelehnt','${p.vorname}','${aufId}').then(()=>loadFullDispoBody('${aufId}'))">✕</button>
+          </td>
+        </tr>`;
+      });
+      
+      // Empty rows up to needed count
+      for(let i=crewForSlot.length;i<needed;i++){
+        html+=`<tr style="background:var(--reb);opacity:.7">
+          <td style="padding:6px 12px;color:var(--re);font-weight:700">${i+1}</td>
+          <td style="padding:6px 12px" colspan="4">
+            <div style="display:flex;gap:6px;align-items:center">
+              <input class="ci2" placeholder="Name eingeben…" id="man-name-${aufId}-${di}-${si}-${i}" style="font-size:11px;min-width:150px">
+              <select class="ci2" id="man-role-${aufId}-${di}-${si}-${i}" style="font-size:10px;min-width:90px">${ROLLEN.map(r=>`<option>${r}</option>`).join('')}</select>
+              <button class="btn b-gh" style="font-size:9px;padding:3px 8px;white-space:nowrap" onclick="addManualCrewSlot('${aufId}','${sch}','${dateISO}',${di},${si},${i})">+ Eintragen</button>
+              <button class="btn b-gh" style="font-size:9px;padding:3px 8px;white-space:nowrap" onclick="addFromDBSlot('${aufId}','${sch}','${dateISO}')">👥 Auswählen</button>
+            </div>
+          </td>
+          <td style="padding:6px 12px"><span style="font-size:10px;color:var(--re);font-weight:600">⚠️ Offen</span></td>
+        </tr>`;
+      }
+      
+      html+=`</tbody></table></div>
+        <div style="padding:8px 12px;border-top:1px solid var(--bdr);display:flex;gap:6px;flex-wrap:wrap">
+          <button class="btn b-gh" style="font-size:10px;padding:4px 9px" onclick="openAnfrageQuick('${aufId}')">📢 Anfragen</button>
+          <button class="btn b-or" style="font-size:10px;padding:4px 9px" onclick="openStundenLinkFor('${aufId}')">🔗 Stundenlink</button>
+          <button class="btn b-gh" style="font-size:10px;padding:4px 9px" onclick="genDispoPDFFor('${aufId}')">📄 PDF</button>
+        </div>
+      </div>`;
+    });
+  });
+  
+  // Pending section
+  if(pending.length){
+    html+=`<div class="card"><div style="padding:8px 14px;background:var(--yeb);border-bottom:1px solid var(--yebr)">
+      <span style="font-size:10px;font-weight:700;color:var(--ye);text-transform:uppercase">⏳ Ausstehende Bewerbungen (${pending.length})</span></div>
+      ${pending.map(p=>`<div style="display:flex;align-items:center;gap:8px;padding:7px 14px;border-bottom:1px solid #f3f4f6;flex-wrap:wrap">
+        <span style="font-size:11px;font-weight:600;flex:1;min-width:100px">${p.vorname} ${p.nachname}</span>
+        <span style="font-size:10px;color:var(--sub)">${p.schicht||'–'}</span>
         <span class="tag ty" style="font-size:9px">${p.status}</span>
-        <button class="ia ia-g" style="font-size:9px;padding:2px 7px" onclick="doBewaktion('${p.id}','bestaetigt','${p.vorname}','${aufId}')">✓ Best.</button>
-        <a href="https://wa.me/${(p.telefon||'').replace(/[^0-9]/g,'')}" target="_blank" class="ia ia-g" style="font-size:9px;padding:2px 6px">💬</a>
+        <button class="ia ia-g" style="font-size:9px;padding:2px 7px" onclick="doBewaktion('${p.id}','bestaetigt','${p.vorname}','${aufId}').then(()=>loadFullDispoBody('${aufId}'))">✓ Best.</button>
+        <a href="https://wa.me/${(p.telefon||'').replace(/[^0-9]/g,'')}" target="_blank" class="ia" style="font-size:9px;padding:2px 6px">💬</a>
       </div>`).join('')}
-    </div>`:''}
-  `;
+    </div>`;
+  }
+  
+  el.innerHTML=html;
 }
+
+async function addManualCrewSlot(aufId,schicht,datum,di,si,row){
+  const nameEl=document.getElementById(`man-name-${aufId}-${di}-${si}-${row}`);
+  const roleEl=document.getElementById(`man-role-${aufId}-${di}-${si}-${row}`);
+  const name=(nameEl?.value||'').trim();
+  if(!name){toast('Bitte Name eingeben','err');return;}
+  const parts=name.split(' ');
+  const{error}=await sb.from('bewerbungen').insert([{
+    auftrag_id:aufId,vorname:parts[0]||name,nachname:parts.slice(1).join(' ')||'',
+    telefon:'',status:'bestaetigt',schicht:schicht,schicht_datum:datum||null,
+    rolle:roleEl?.value||'Stagehand',notiz:'manuell'
+  }]);
+  if(error){toast('Fehler: '+error.message,'err');return;}
+  const auf=AUFTRAEGE.find(a=>a.id===aufId);
+  if(auf)await sb.from('auftraege').update({pax_besetzt:(auf.pax_besetzt||0)+1}).eq('id',aufId);
+  toast('✅ Eingetragen!','ok');
+  await loadAll();
+  await loadFullDispoBody(aufId);
+}
+
+function addFromDBSlot(aufId,schicht,datum){
+  openM(`<div class="mt">👥 Person auswählen</div>
+    <div class="ms">Wähle aus Mitarbeitern oder Bewerbern</div>
+    <div class="fg"><label class="fl">Mitarbeiter</label>
+      <select class="fsel" id="dbs-sel" multiple style="height:140px">
+        ${MITARBEITER.map(m=>`<option value="${m.id}|${m.vorname}|${m.nachname}|${m.telefon||''}">${m.vorname} ${m.nachname}${m.personalnummer?' · '+m.personalnummer:''}</option>`).join('')}
+      </select>
+    </div>
+    <div class="macts">
+      <button class="mb mb-gh" onclick="closeM()">Abbrechen</button>
+      <button class="mb mb-or" onclick="
+        const sel=[...document.getElementById('dbs-sel').selectedOptions];
+        if(!sel.length){toast('Nichts ausgewählt','err');return;}
+        (async()=>{
+          for(const o of sel){
+            const[mid,vn,nn,tel]=o.value.split('|');
+            const{error}=await sb.from('bewerbungen').insert([{auftrag_id:'${aufId}',vorname:vn,nachname:nn,telefon:tel,status:'bestaetigt',schicht:'${schicht}',schicht_datum:'${datum}'||null,rolle:'Stagehand'}]);
+          }
+          const auf=AUFTRAEGE.find(a=>a.id==='${aufId}');
+          if(auf)await sb.from('auftraege').update({pax_besetzt:(auf.pax_besetzt||0)+sel.length}).eq('id','${aufId}');
+          closeM();toast('✅ Eingeplant!','ok');await loadAll();loadFullDispoBody('${aufId}');
+        })();
+      ">✅ Einplanen</button>
+    </div>`);
+}
+
 
 async function saveFull(bewId){
   const r=document.getElementById('r-'+bewId)?.value||'';

@@ -276,8 +276,8 @@ footer{background:#111827827;border-top:1px solid var(--border);padding:36px 20p
 .hidden{display:none!important;}
 .back-btn{background:#f3f4f6;color:#6b7280;border:none;border-radius:8px;font-size:12px;padding:9px;cursor:pointer;flex:1;font-family:var(--font);}
 /* PSA INFO */
-.psa-info{background:rgba(232,101,26,.08);border:1px solid rgba(232,101,26,.2);border-radius:8px;padding:10px 12px;margin-top:6px;font-size:10px;color:rgba(255,255,255,.85);line-height:1.7;display:none;}
-.psa-info strong{color:var(--or);display:block;margin-bottom:4px;}
+.psa-info{background:rgba(232,101,26,.08);border:1px solid rgba(232,101,26,.2);border-radius:8px;padding:10px 12px;margin-top:6px;font-size:10px;color:#374151;line-height:1.7;display:none;}
+.psa-info strong{color:var(--or);display:block;margin-bottom:4px;font-size:11px;}
 /* CONSENT */
 .consent-block{background:#f3f4f6;border:1px solid #e5e7eb;border-radius:8px;padding:12px;margin-bottom:10px;}
 .consent-row{display:flex;align-items:flex-start;gap:9px;margin-bottom:8px;}
@@ -789,6 +789,8 @@ async function loadInbox(){
   } catch(err){ console.warn('Inbox error:', err.message); }
 }
 
+function toggleMyAppGroup(id){var el=document.getElementById(id);if(el)el.style.display=el.style.display==="none"?"block":"none";}
+
 function openInboxItem(bewId, aufName, status){
   openBewerbungDetail(bewId, aufName, status);
 }
@@ -880,15 +882,26 @@ async function renderMyApps(){
     reserviert:{bg:'#f5f3ff',border:'#ddd6fe',color:'#7c3aed',label:'⏳ Reserviert'},
     eingegangen:{bg:'#fffbeb',border:'#fde68a',color:'#d97706',label:'⏳ Ausstehend'},
   };
-  list.innerHTML=h.map(x=>{
-    const st=statusMap[x.id]||'eingegangen';
-    const sc=stColors[st]||stColors.eingegangen;
-    return`<div class="my-app-chip" onclick="openBewerbungDetail('${x.id}','${x.name.replace(/'/g,"\'")}','${st}')">
-      <div class="mac-dot" style="background:${sc.color}"></div>
-      <span class="mac-name">${x.name}</span>
-      <span class="mac-date">${x.at}</span>
-      <span style="font-size:9px;background:${sc.bg};border:1px solid ${sc.border};color:${sc.color};border-radius:8px;padding:1px 7px;white-space:nowrap;font-weight:700">${sc.label}</span>
-    </div>`;
+    // Group by auftrag, show status dropdown
+  const grouped={};
+  h.forEach(x=>{
+    if(!grouped[x.id]) grouped[x.id]={id:x.id,name:x.name,at:x.at,st:statusMap[x.id]||'eingegangen'};
+    // Take best status
+    const s=statusMap[x.id]||'eingegangen';
+    const rank={bestaetigt:3,reserviert:2,eingegangen:1,abgelehnt:0};
+    if((rank[s]||0)>(rank[grouped[x.id].st]||0)) grouped[x.id].st=s;
+  });
+  list.innerHTML=Object.values(grouped).map(grp=>{
+    const sc=stColors[grp.st]||stColors.eingegangen;
+    return '<div class="my-app-chip" style="flex-direction:column;align-items:flex-start;padding:8px 12px;gap:4px;border-radius:10px" onclick="openBewerbungDetail(\''+grp.id+'\',\''+grp.name.replace(/\'/g,\"\\\'\")+'\'\',\''+grp.st+'\')">'+
+      '<div style="display:flex;align-items:center;gap:6px;width:100%">'+
+        '<div class="mac-dot" style="background:'+sc.color+'"></div>'+
+        '<span class="mac-name">'+grp.name+'</span>'+
+        '<span style="font-size:9px;background:'+sc.bg+';border:1px solid '+sc.border+';color:'+sc.color+';border-radius:8px;padding:1px 7px;font-weight:700;margin-left:auto">'+sc.label+'</span>'+
+      '</div>'+
+      (grp.st==='bestaetigt'?'<div style="font-size:10px;color:var(--gr);font-weight:600;padding-left:14px">✅ Eingeplant – Details ansehen →</div>':'')+
+      (grp.st==='eingegangen'?'<div style="font-size:10px;color:var(--sub);padding-left:14px">⏳ Bewerbung ausstehend</div>':'')+
+    '</div>';
   }).join('');
 }
 
@@ -971,6 +984,12 @@ function upsellHTML(currentId){
         <div class="uc-info">
           <div class="uc-name">${e.n}${e.urg?' 🔥':''}</div>
           <div class="uc-detail">📅 ${fmtD(e)} · 📍 ${e.loc} · 👥 ${e.pax}P</div>
+          ${e.sh?.length?`<div id="upsell-schicht-${e.id}" style="display:none;margin-top:6px;padding:6px;background:#f9fafb;border-radius:6px">
+            <div style="font-size:9px;font-weight:700;color:var(--or);margin-bottom:4px;text-transform:uppercase;letter-spacing:.07em">Schicht wählen:</div>
+            ${e.sh.map(s=>`<label style="display:flex;align-items:center;gap:6px;font-size:11px;color:#111827;cursor:pointer;padding:2px 0">
+              <input type="checkbox" name="upsell_schicht_${e.id}" value="${e.dv||''}__${s}" style="accent-color:var(--or)"> ⏰ ${s}
+            </label>`).join('')}
+          </div>`:''}
         </div>
         <span class="uc-tag" style="background:${KC[e.k]||'#888'}">${e.k}</span>
       </div>`).join('')}
@@ -982,8 +1001,12 @@ function upsellHTML(currentId){
 function toggleUp(id,el){
   el.classList.toggle('sel');
   const chk=document.getElementById('uch'+id);
-  if(el.classList.contains('sel')){upsellSel.add(id);chk.textContent='✓';}
+  const isSel=el.classList.contains('sel');
+  if(isSel){upsellSel.add(id);chk.textContent='✓';}
   else{upsellSel.delete(id);chk.textContent='';}
+  // Show/hide schicht selection
+  const schDiv=document.getElementById('upsell-schicht-'+id);
+  if(schDiv)schDiv.style.display=isSel?'block':'none';
   const cs=document.getElementById('cartSum');
   if(cs){const n=1+upsellSel.size;cs.style.display=n>1?'block':'none';document.getElementById('cartCount').textContent=n;}
 }
@@ -1184,9 +1207,25 @@ function mkForm(evId, evN, evD, evL, isGen, preselectedSchicht){
 function togS(sel,eid){document.getElementById('neu'+eid).classList.toggle('hidden',sel.value!=='Neu');}
 function togA(sel,eid){document.getElementById('abh'+eid).classList.toggle('hidden',sel.value!=='Abholung');}
 function togP(sel,eid){
-  const nein=sel.value==='Nein', teil=sel.value==='Ja (teilweise)';
+  const nein=sel.value==='Nein';
+  const teil=sel.value==='Ja (teilweise)';
+  const ja=sel.value==='Ja (komplett)';
   document.getElementById('psanein'+eid).classList.toggle('hidden',!nein);
-  document.getElementById('psaInfo'+eid).style.display=(nein||teil)?'block':'none';
+  // Show PSA info for all selections, update content
+  const info=document.getElementById('psaInfo'+eid);
+  if(info){
+    info.style.display=sel.value?'block':'none';
+    if(ja){
+      info.style.background='var(--grb)';info.style.borderColor='var(--grbr)';
+      info.innerHTML='<strong style="color:var(--gr);display:block;margin-bottom:4px">✅ PSA vollständig vorhanden</strong><span style="color:#374151">Bitte stelle sicher dass du deine PSA zum Einsatz mitbringst.</span>';
+    } else if(teil){
+      info.style.background='rgba(232,101,26,.08)';info.style.borderColor='var(--orb)';
+      info.innerHTML='<strong style="color:var(--or);display:block;margin-bottom:4px">⚠️ PSA teilweise vorhanden</strong><span style="color:#374151">🥾 Sicherheitsschuhe S3 · ⛑️ Schutzhelm · 🧤 Handschuhe · 🦺 Warnweste</span>';
+    } else if(nein){
+      info.style.background='var(--reb)';info.style.borderColor='var(--rebr)';
+      info.innerHTML='<strong style="color:var(--re);display:block;margin-bottom:4px">❌ PSA fehlt – wird benötigt</strong><span style="color:#374151">🥾 Sicherheitsschuhe S3 (EN ISO 20345)<br>⛑️ Schutzhelm (EN 397)<br>🧤 Handschuhe (EN 388)<br>🦺 Warnweste Klasse 2</span>';
+    }
+  }
 }
 function fillProfile(eid){
   const p=loadProfile();if(!p)return;
@@ -1251,7 +1290,7 @@ async function doSub(e, formEl){
   // Save history
   const mainEv=ALL.find(x=>x.id===evId)||EV.find(x=>x.n===evN);
   if(mainEv) saveToHistory(mainEv.id,mainEv.n,evD);
-  upsellSel.forEach(uid=>{const ue=EV.find(x=>x.id===uid);if(ue)saveToHistory(ue.id,ue.n,fmtD(ue));});
+  upsellSel.forEach(uid=>{const ue=ALL.find(x=>x.id===uid)||EV.find(x=>x.id===uid);if(ue)saveToHistory(ue.id,ue.n,fmtD(ue));});
   // Build all event names
   const allEvNames=[evN,...[...upsellSel].map(uid=>EV.find(x=>x.id===uid)?.n||'')].filter(Boolean);
   // Save to Supabase
@@ -1288,7 +1327,7 @@ async function doSub(e, formEl){
         };
         Object.entries(opt).forEach(([k,v])=>{ if(v) bewData[k]=v; });
         const{error:bewErr}=await sb.from('bewerbungen').insert([bewData]);
-        if(bewErr) console.warn('Supabase insert error:', bewErr.message, JSON.stringify(bewErr));
+        if(bewErr){ console.error('INSERT ERROR:', JSON.stringify(bewErr)); toast('Fehler: '+bewErr.message,'err'); } else console.log('✅ Saved:', schZeit);
         else console.log('✅ Bewerbung gespeichert für Schicht:', schZeit);
       }
     }catch(e){ console.warn('Supabase save error:', e.message); }
