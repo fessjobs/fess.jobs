@@ -255,6 +255,7 @@ nav{flex:1;padding:8px 6px;overflow-y:auto;}
     <div class="urow"><div class="uav">MJ</div><div><div class="uname">Maik Janke</div><div class="urole">Administrator</div></div></div>
     <a href="/" style="display:block;text-align:center;font-size:10px;color:var(--mut);margin-top:6px;text-decoration:none;">← Mitarbeiterseite</a>
     <button onclick="showSQLHint()" style="width:100%;background:none;border:1px solid var(--bdr);border-radius:5px;font-size:10px;color:var(--mut);padding:5px;cursor:pointer;font-family:var(--font);margin-top:5px">📋 SQL Setup</button>
+    <button onclick="manageRL()" style="width:100%;background:none;border:1px solid var(--bdr);border-radius:5px;font-size:10px;color:var(--mut);padding:5px;cursor:pointer;font-family:var(--font);margin-top:4px">👥 Regionalleiter verwalten</button>
   </div>
 </div>
 
@@ -280,7 +281,10 @@ nav{flex:1;padding:8px 6px;overflow-y:auto;}
         <div id="db-urg"><div class="skel"></div><div class="skel"></div></div>
       </div>
       <div class="card">
-        <div class="ch"><div class="ch-title">📥 Neue Bewerbungen</div><span class="ch-link" onclick="P('bewerbungen',document.querySelectorAll('.ni')[3])">Alle →</span></div>
+        <div class="ch">
+          <div class="ch-title">📥 Neue Bewerbungen <span id="bew-live-count" style="background:var(--or);color:#fff;font-size:9px;font-weight:700;padding:1px 7px;border-radius:10px;margin-left:4px">0</span></div>
+          <span class="ch-link" onclick="P('bewerbungen',document.querySelectorAll('.ni')[3])">Alle →</span>
+        </div>
         <div id="db-bew"><div class="skel"></div><div class="skel"></div></div>
       </div>
     </div>
@@ -369,7 +373,7 @@ nav{flex:1;padding:8px 6px;overflow-y:auto;}
     </div>
     <div class="card">
       <table class="tbl">
-        <thead><tr><th>Pers.-Nr.</th><th>Name</th><th>Telefon</th><th>Vertragsart</th><th>Beginn</th><th>Std/Mo</th><th>Checkliste</th><th>Aktionen</th></tr></thead>
+        <thead><tr><th>Pers.-Nr.</th><th>Name</th><th>Telefon</th><th>Regionalleiter</th><th>Vertragsart</th><th>Beginn</th><th>Checkliste</th><th>Aktionen</th></tr></thead>
         <tbody id="maTbody"><tr><td colspan="8"><div class="skel"></div><div class="skel"></div></td></tr></tbody>
       </table>
     </div>
@@ -458,6 +462,11 @@ nav{flex:1;padding:8px 6px;overflow-y:auto;}
 // ── STATE ──
 let AUFTRAEGE=[],BEWERBUNGEN=[],MITARBEITER=[];
 let aufF='alle',bewF='alle',aufQ='',aufSort='datum',maF='alle',maQ='';
+let REGIONALLEITER = JSON.parse(localStorage.getItem('fess_rl')||'["Aghyad","Nick","Cenk","Damian","Maik"]');
+function saveRL(){ localStorage.setItem('fess_rl', JSON.stringify(REGIONALLEITER)); }
+function getRLOptions(selected=''){
+  return '<option value="">– wählen –</option>'+REGIONALLEITER.map(r=>`<option value="${r}" ${r===selected?'selected':''}>${r}</option>`).join('');
+}
 
 // ── HELPERS ──
 function fmtD(a){
@@ -549,18 +558,33 @@ function renderDashboard(){
       <div style="flex:1"><div class="tn">${a.name}</div><div class="ts">${fmtD(a)} · ${a.pax_besetzt||0}/${a.pax_gesamt}</div></div>
       <span class="tag to">🔥</span>
     </div>`).join('')||'<div class="empty">Keine dringenden Aufträge</div>';
-  const neu=BEWERBUNGEN.filter(b=>b.status==='eingegangen').slice(0,4);
-  document.getElementById('db-bew').innerHTML=neu.map(b=>{
+  const neu=BEWERBUNGEN.filter(b=>b.status==='eingegangen');
+  const countEl=document.getElementById('bew-live-count');
+  if(countEl)countEl.textContent=neu.length;
+  document.getElementById('db-bew').innerHTML=neu.length?neu.map(b=>{
     const auf=AUFTRAEGE.find(a=>a.id===b.auftrag_id);
     const ini=(b.vorname?.[0]||'?')+(b.nachname?.[0]||'?');
-    return`<div style="padding:9px 12px;border-bottom:1px solid #f3f4f6;display:flex;align-items:center;gap:8px">
-      <div style="width:26px;height:26px;border-radius:50%;background:linear-gradient(135deg,var(--or),var(--or2));color:#fff;font-size:9px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0">${ini}</div>
-      <div style="flex:1"><div class="tn">${b.vorname} ${b.nachname}</div><div class="ts">${auf?auf.name:'Allgemein'} · ${fmtAt(b.created_at)}</div></div>
-      <div class="ra">
-        <button class="ia ia-g" onclick="bewAction('${b.id}','bestaetigt','${b.vorname} ${b.nachname}')">✓</button>
-        <button class="ia ia-r" onclick="bewAction('${b.id}','abgelehnt','${b.vorname}')">✕</button>
+    return`<div style="padding:10px 14px;border-bottom:1px solid #f3f4f6;cursor:pointer" onclick="openBewDetail('${b.id}')" onmouseover="this.style.background='#fafafa'" onmouseout="this.style.background=''">
+      <div style="display:flex;align-items:center;gap:9px;margin-bottom:5px">
+        <div style="width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,var(--or),var(--or2));color:#fff;font-size:9px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0">${ini}</div>
+        <div style="flex:1">
+          <div class="tn">${b.vorname} ${b.nachname}</div>
+          <div class="ts">${auf?auf.name:'Allgemein'} · ${fmtAt(b.created_at)}</div>
+        </div>
+        <div class="ra" onclick="event.stopPropagation()">
+          <button class="ia ia-g" onclick="bewAction('${b.id}','bestaetigt','${b.vorname} ${b.nachname}')">✓</button>
+          <button class="ia" style="color:var(--pu);border-color:var(--pubr)" onclick="bewAction('${b.id}','reserviert','${b.vorname}')">⏳</button>
+          <button class="ia ia-r" onclick="bewAction('${b.id}','abgelehnt','${b.vorname}')">✕</button>
+        </div>
       </div>
-    </div>`}).join('')||'<div class="empty">Keine neuen Bewerbungen</div>';
+      <div style="display:flex;gap:6px;flex-wrap:wrap;padding-left:37px">
+        ${b.telefon?`<span style="font-size:10px;color:var(--sub)">📞 ${b.telefon}</span>`:''}
+        ${b.wohnort?`<span style="font-size:10px;color:var(--sub)">📍 ${b.wohnort}</span>`:''}
+        ${b.anreise?`<span style="font-size:10px;color:var(--sub)">🚗 ${b.anreise}</span>`:''}
+        ${b.psa?`<span style="font-size:10px;background:${b.psa.includes('Ja')||b.psa.includes('komplett')?'var(--grb)':'var(--yeb)'};color:${b.psa.includes('Ja')||b.psa.includes('komplett')?'var(--gr)':'var(--ye)'};border-radius:6px;padding:1px 6px">🦺 ${b.psa.substring(0,15)}</span>`:''}
+        ${b.regionalleiter?`<span style="font-size:10px;background:var(--orl);color:var(--or);border-radius:6px;padding:1px 6px;font-weight:600">👤 ${b.regionalleiter}</span>`:''}
+      </div>
+    </div>`}).join(''):'<div class="empty">Keine neuen Bewerbungen ✅</div>';
 }
 
 // ── AUFTRÄGE ──
@@ -740,7 +764,7 @@ function renderBewerbungen(){
       <td>${stMap[b.status]||'–'}</td>
       <td style="font-size:11px">${auf?auf.name:'Allg.'}</td>
       <td>${b.psa?`<span class="tag ${b.psa.includes('Ja')||b.psa.includes('komplett')?'tg':'ty'}" style="font-size:9px">${b.psa.substring(0,10)}</span>`:'–'}</td>
-      <td style="font-size:11px">${b.regionalleiter||'–'}</td>
+      <td>${b.regionalleiter?`<span style="background:var(--orl);color:var(--or);border-radius:20px;padding:2px 8px;font-size:10px;font-weight:700">👤 ${b.regionalleiter}</span>`:'–'}</td>
       <td><div class="ra">
         ${b.status==='eingegangen'?`
           <button class="ia ia-g" onclick="bewAction('${b.id}','bestaetigt','${b.vorname} ${b.nachname}')">✓</button>
@@ -1129,6 +1153,7 @@ function renderMitarbeiter(){
     const vart = m.vertragsart ? `<span class="tag tb" style="font-size:9px">${m.vertragsart}</span>` : '–';
     const bgn = m.erster_arbeitstag||'–';
     const std = m.stunden_monat||'–';
+    const rl = m.regionalleiter ? `<span style="background:var(--orl);color:var(--or);border:1px solid var(--orb);border-radius:20px;padding:2px 9px;font-size:10px;font-weight:700;white-space:nowrap">👤 ${m.regionalleiter}</span>` : '<span style="color:var(--mut);font-size:11px">–</span>';
     const checks = [
       `<span class="mck ${m.vertrag_ok?'ok':'no'}">${m.vertrag_ok?'✓':'✗'} Vertrag</span>`,
       `<span class="mck ${m.app_ok?'ok':'no'}">${m.app_ok?'✓':'✗'} App</span>`,
@@ -1141,9 +1166,9 @@ function renderMitarbeiter(){
       <td style="font-size:11px;font-family:monospace;color:var(--sub)">${pnr}</td>
       <td><div class="tn">${name}</div><div class="ts">${m.wohnort||'–'}</div></td>
       <td><a href="tel:${tel}" style="color:var(--or);font-size:11px">${tel}</a></td>
+      <td>${rl}</td>
       <td style="font-size:11px">${vart}</td>
       <td style="font-size:11px;color:var(--sub)">${bgn}</td>
-      <td style="font-size:11px;color:var(--sub)">${std}</td>
       <td><div class="mack">${checks}</div></td>
       <td><div class="ra">
         <button class="ia" data-id="${mid}" onclick="openEditMA(this.dataset.id)">✏️</button>
@@ -1154,6 +1179,31 @@ function renderMitarbeiter(){
 }
 
 
+
+
+function manageRL(){
+  const list = REGIONALLEITER.map((r,i)=>`
+    <div style="display:flex;align-items:center;gap:7px;margin-bottom:6px">
+      <input class="fi" value="${r}" id="rl-${i}" style="flex:1;font-size:12px;padding:6px 9px">
+      <button class="ia ia-r" onclick="REGIONALLEITER.splice(${i},1);saveRL();manageRL()" style="padding:4px 8px">✕</button>
+    </div>`).join('');
+  openM(`<div class="mt">👥 Regionalleiter verwalten</div>
+    <div class="ms">Hier kannst du Regionalleiter hinzufügen, bearbeiten oder entfernen.</div>
+    <div id="rl-list">${list}</div>
+    <button class="btn b-gh" style="width:100%;justify-content:center;margin:8px 0" onclick="
+      REGIONALLEITER.push('Neuer RL');saveRL();manageRL()
+    ">+ Hinzufügen</button>
+    <div class="macts">
+      <button class="mb mb-gh" onclick="closeM()">Schließen</button>
+      <button class="mb mb-or" onclick="
+        document.querySelectorAll('[id^=rl-]').forEach((el,i)=>{if(el.tagName==='INPUT')REGIONALLEITER[parseInt(el.id.split('-')[1])]=el.value.trim();});
+        REGIONALLEITER=REGIONALLEITER.filter(r=>r);
+        saveRL();
+        toast('✅ Regionalleiter gespeichert!','ok');
+        closeM();
+      ">💾 Speichern</button>
+    </div>`);
+}
 
 function showSQLHint(){
   openM(`<div class="mt">📋 SQL für Mitarbeiter-Spalten</div>
@@ -1204,7 +1254,7 @@ function openNeuerMA(){
     <div class="fr2">
       <div class="fg"><label class="fl">Wohnort</label><input class="fi" id="ma-ort"></div>
       <div class="fg"><label class="fl">Regionalleiter</label><select class="fsel" id="ma-rl">
-        <option value="">–</option><option>Aghyad</option><option>Nick</option><option>Cenk</option><option>Damian</option>
+        \${getRLOptions(m?.regionalleiter||'')}
       </select></div>
     </div>
     <div class="fr2">
