@@ -117,7 +117,10 @@ section{padding:60px 20px;}
 .occ-wrap{position:absolute;bottom:8px;right:8px;display:flex;align-items:center;gap:3px;}
 .occ-bg{width:44px;height:4px;background:rgba(255,255,255,.2);border-radius:2px;overflow:hidden;}
 .occ-fill{height:100%;border-radius:2px;}
-.occ-pct{font-size:9px;font-weight:700;color:#111827;text-shadow:0 1px 3px rgba(0,0,0,.9);}
+.occ-pct{font-size:9px;font-weight:700;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.9);}
+.occ-wrap{position:relative;}
+.occ-tip{display:none;position:absolute;bottom:18px;right:0;background:#1f2937;color:#fff;font-size:10px;font-weight:600;padding:5px 8px;border-radius:6px;white-space:nowrap;pointer-events:none;z-index:10;box-shadow:0 2px 8px rgba(0,0,0,.3);}
+.occ-wrap:hover .occ-tip{display:block;}
 .jcard-body{padding:10px 12px 12px;}
 .jcard-name{font-family:'Bitter',serif;font-weight:800;font-size:15px;line-height:1.2;margin-bottom:5px;}
 .jcard-row{display:flex;align-items:flex-start;gap:5px;font-size:11px;color:#6b7280;line-height:1.4;margin-bottom:3px;}
@@ -519,7 +522,7 @@ function jcard(e){
     <div class="jcard-ov"></div>
     ${stTag}
     <div class="jcard-kat" style="background:${col}">${e.k}</div>
-    <div class="occ-wrap"><div class="occ-bg"><div class="occ-fill" style="width:${op}%;background:${bc}"></div></div><span class="occ-pct">${op}%</span></div>
+    <div class="occ-wrap"><div class="occ-tip">${e.pb||0} von ${e.pax} Plätzen besetzt (${op}%)</div><div class="occ-bg"><div class="occ-fill" style="width:${op}%;background:${bc}"></div></div><span class="occ-pct">${op}%</span></div>
   </div>
   <div class="jcard-body">
     <div class="jcard-name">${e.n}</div>
@@ -900,7 +903,7 @@ function doSub(e, evN, evD, evL, eid){
 }
 
 function openModal(id){
-  const e=EV.find(x=>x.id===id);
+  const e=ALL.find(x=>x.id===id)||EV.find(x=>x.id===id);
   if(!e)return;
   document.getElementById('MBody').innerHTML=mkForm(e.id,e.n,fmtD(e),e.loc,false);
   document.getElementById('MB').classList.add('open');
