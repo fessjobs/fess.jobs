@@ -114,12 +114,12 @@ section{padding:60px 20px;}
 .jcard-kat{position:absolute;bottom:8px;left:8px;font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;padding:2px 8px;border-radius:16px;color:#111827;}
 .jcard-st{position:absolute;top:8px;right:8px;font-size:8px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:2px 7px;border-radius:10px;}
 .st-best{background:#ecfdf5;color:#059669;border:1px solid #a7f3d0;}.st-ang{background:#fafafa;color:#6b7280;border:1px solid #e5e7eb;}
-.occ-wrap{position:absolute;bottom:10px;left:10px;display:flex;align-items:center;gap:5px;}
+.occ-wrap{position:absolute;bottom:32px;right:10px;display:flex;align-items:center;gap:5px;}
 .occ-bg{width:56px;height:6px;background:rgba(255,255,255,.25);border-radius:3px;overflow:hidden;}
 .occ-fill{height:100%;border-radius:3px;}
 .occ-pct{font-size:9px;font-weight:700;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.9);}
 .occ-wrap{position:relative;}
-.occ-tip{display:none;position:absolute;bottom:22px;left:0;background:#1f2937;color:#fff;font-size:10px;font-weight:600;padding:5px 8px;border-radius:6px;white-space:nowrap;pointer-events:none;z-index:10;box-shadow:0 2px 8px rgba(0,0,0,.3);}
+.occ-tip{display:none;position:absolute;bottom:18px;right:0;background:#1f2937;color:#fff;font-size:10px;font-weight:600;padding:5px 8px;border-radius:6px;white-space:nowrap;pointer-events:none;z-index:10;box-shadow:0 2px 8px rgba(0,0,0,.3);}
 .occ-wrap:hover .occ-tip{display:block;}
 .jcard-body{padding:10px 12px 12px;}
 .jcard-name{font-family:'Bitter',serif;font-weight:800;font-size:15px;line-height:1.2;margin-bottom:5px;}
@@ -724,14 +724,15 @@ async function loadInbox(){
     
     const items = [];
     bews.forEach(b => {
+      if(b.status === 'abgelehnt') return; // abgelehnte nicht in inbox
       const auf = ALL.find(x=>x.id===b.auftrag_id)||EV.find(x=>x.id===b.auftrag_id);
       const aufName = auf?.n || auf?.name || b.auftrag_id || 'Allgemein';
       if(b.status === 'bestaetigt') {
-        items.push({type:'confirmed', title:'✅ Bestätigt!', sub: aufName, bew: b, auf});
+        items.push({type:'confirmed', title:'✅ Du bist eingeplant!', sub: aufName, bew: b, auf});
       } else if(b.status === 'reserviert') {
-        items.push({type:'invited', title:'⏳ Reserviert', sub: aufName, bew: b, auf});
+        items.push({type:'invited', title:'⏳ Anfrage erhalten', sub: aufName, bew: b, auf});
       } else if(b.status === 'eingegangen') {
-        items.push({type:'invited', title:'📥 Beworben', sub: aufName, bew: b, auf});
+        items.push({type:'invited', title:'📥 Bewerbung eingegangen', sub: aufName, bew: b, auf});
       }
       // Messages for this bew
       const bewMsgs = msgs.filter(m=>m.bewerbung_id===b.id&&!m.gelesen_von_ma);
@@ -749,15 +750,13 @@ async function loadInbox(){
         <div class="inbox-type ${item.type}">${item.title}</div>
         <div class="inbox-name">${item.sub}</div>
         <div class="inbox-sub">${item.bew.vorname} ${item.bew.nachname} · ${new Date(item.bew.created_at).toLocaleDateString('de')}</div>
-        ${item.bew.status==='bestaetigt'?`<div class="inbox-actions">
-          <button class="ia-chat" onclick="event.stopPropagation();openChat('${item.bew.id}','${(item.auf?.n||'Einsatz').replace(/'/g,"\'")}')">💬 Chat</button>
-          <a class="ia-yes" href="https://wa.me/491633626855?text=${encodeURIComponent('Bestätigt für: '+(item.auf?.n||'Einsatz'))}" target="_blank" onclick="event.stopPropagation()">✓ WA Bestätigen</a>
-        </div>`:''}
-        ${item.bew.status==='eingegangen'?`<div class="inbox-actions">
-          <button class="ia-yes" onclick="event.stopPropagation();antwortBewerbung('${item.bew.id}','ja')">✓ Dabei</button>
-          <button class="ia-no" onclick="event.stopPropagation();antwortBewerbung('${item.bew.id}','nein')">✗ Absagen</button>
-          <button class="ia-chat" onclick="event.stopPropagation();openChat('${item.bew.id}','${(item.auf?.n||'Einsatz').replace(/'/g,"\'")}')">💬 Chat</button>
-        </div>`:''}
+        <div class="inbox-actions">
+          <button class="ia-chat" onclick="event.stopPropagation();openChat('${item.bew.id}','${(item.auf?.n||'Einsatz').replace(/'/g,"\'")}')">💬 Frage stellen</button>
+          ${item.bew.status==='bestaetigt'?`<button class="ia-no" onclick="event.stopPropagation();antwortBewerbung('${item.bew.id}','nein')">✗ Absagen</button>`:''}
+          ${item.bew.status==='eingegangen'||item.bew.status==='reserviert'?`
+            <button class="ia-yes" onclick="event.stopPropagation();antwortBewerbung('${item.bew.id}','ja')">✓ Ich bin dabei</button>
+            <button class="ia-no" onclick="event.stopPropagation();antwortBewerbung('${item.bew.id}','nein')">✗ Absagen</button>`:''}
+        </div>
       </div>`).join('');
   } catch(err){ console.warn('Inbox error:', err.message); }
 }
@@ -768,10 +767,24 @@ function openInboxItem(bewId, aufName, status){
 
 async function antwortBewerbung(bewId, antwort){
   if(!sb) return;
-  const status = antwort==='ja' ? 'reserviert' : 'abgelehnt';
+  const status = antwort==='ja' ? 'bestaetigt' : 'abgelehnt';
   await sb.from('bewerbungen').update({status}).eq('id', bewId);
-  toast(antwort==='ja'?'✅ Bestätigt!':'Abgesagt', antwort==='ja'?'ok':'info');
+  if(antwort==='nein'){
+    // Notify admin via nachrichten
+    try{
+      const b = (await sb.from('bewerbungen').select('*').eq('id',bewId).single()).data;
+      await sb.from('nachrichten').insert([{
+        bewerbung_id:bewId, von:'ma', von_name:b?.vorname||'Mitarbeiter',
+        inhalt:'❌ Ich kann leider nicht teilnehmen.',
+        gelesen_von_admin:false
+      }]);
+    }catch(e){}
+    toast('Abgesagt – Admin wurde benachrichtigt','info');
+  } else {
+    toast('✅ Zusage gesendet!','ok');
+  }
   loadInbox();
+  renderMyApps().catch(e=>console.warn(e));
 }
 
 async function openChat(bewId, aufName){

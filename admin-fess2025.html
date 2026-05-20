@@ -176,6 +176,7 @@ nav{flex:1;padding:8px 6px;overflow-y:auto;}
 .sh-hdr{display:grid;grid-template-columns:1.6fr 90px 60px 60px 50px 65px 80px 80px;gap:5px;padding:7px 12px;font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--mut);background:#fafafa;border-bottom:1px solid var(--bdr);}
 .sh-row{display:grid;grid-template-columns:1.6fr 90px 60px 60px 50px 65px 80px 80px;gap:5px;align-items:center;padding:7px 12px;border-bottom:1px solid #f3f4f6;font-size:11px;}
 .sh-row:hover{background:#fafafa;}
+.sh-row.fg-ok{background:#f0fdf4!important;border-left:3px solid var(--gr);}
 
 /* CHECKLIST */
 .cl-row{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-bottom:1px solid #f3f4f6;}
@@ -585,8 +586,12 @@ function renderDashboard(){
       <span class="tag to">🔥</span>
     </div>`).join('')||'<div class="empty">Keine dringenden Aufträge</div>';
   const neu=BEWERBUNGEN.filter(b=>b.status==='eingegangen');
+  const zusagen=BEWERBUNGEN.filter(b=>b.status==='bestaetigt');
+  const absagen=BEWERBUNGEN.filter(b=>b.status==='abgelehnt');
   const countEl=document.getElementById('bew-live-count');
   if(countEl)countEl.textContent=neu.length;
+  const sb2=document.getElementById('bew-stats-bar');
+  if(sb2)sb2.innerHTML='<span style="background:var(--grb);color:var(--gr);border:1px solid var(--grbr);border-radius:20px;padding:2px 8px;font-size:10px;font-weight:700">✓ '+zusagen.length+' Zusagen</span> <span style="background:var(--reb);color:var(--re);border:1px solid var(--rebr);border-radius:20px;padding:2px 8px;font-size:10px;font-weight:700">✕ '+absagen.length+' Absagen</span>';
   document.getElementById('db-bew').innerHTML=neu.length?neu.map(b=>{
     const auf=AUFTRAEGE.find(a=>a.id===b.auftrag_id);
     const ini=(b.vorname?.[0]||'?')+(b.nachname?.[0]||'?');
@@ -657,14 +662,115 @@ function renderDispoList(){
 }
 
 async function toggleDispoCard(aufId){
-  const hdr = document.querySelector(`#dac-${aufId} .dispo-auf-hdr`);
-  const crew = document.getElementById(`dc-${aufId}`);
-  const isOpen = crew.classList.contains('open');
-  if(isOpen){ crew.classList.remove('open'); hdr.classList.remove('open'); return; }
-  hdr.classList.add('open'); crew.classList.add('open');
-  if(crew.dataset.loaded) return;
-  crew.dataset.loaded = '1';
-  await loadDispoInline(aufId);
+  openFullDispo(aufId);
+}
+
+async function openFullDispo(aufId){
+  const auf=AUFTRAEGE.find(a=>a.id===aufId);if(!auf)return;
+  const el=document.getElementById('dispoList');
+  if(!el)return;
+  el.innerHTML=`
+    <button class="btn b-gh" onclick="renderDispoList()" style="margin-bottom:12px">← Alle Aufträge</button>
+    <div class="card" style="margin-bottom:12px">
+      <div style="padding:14px">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:10px">
+          <div>
+            <div style="font-family:'DM Serif Display',serif;font-size:20px;font-weight:700;color:var(--text)">${auf.name}</div>
+            <div style="font-size:12px;color:var(--sub);margin-top:2px">${fmtD(auf)} · ${auf.location} · ${auf.taetigkeit||'–'}</div>
+          </div>
+          <div style="display:flex;gap:5px;flex-wrap:wrap">
+            <button class="btn b-gh" onclick="genDispoPDFFor('${aufId}')">📄 PDF</button>
+            <button class="btn b-or" onclick="openStundenLinkFor('${aufId}')">🔗 Stundenlink</button>
+            <button class="btn b-gh" onclick="openAnfrageQuick('${aufId}')">📢 Anfragen</button>
+          </div>
+        </div>
+        <div style="display:flex;gap:16px;padding:10px 0;border-top:1px solid var(--bdr);flex-wrap:wrap">
+          <div style="text-align:center"><div style="font-size:22px;font-weight:700;color:var(--or)">${auf.pax_besetzt||0}</div><div style="font-size:9px;color:var(--mut);text-transform:uppercase;font-weight:700">Besetzt</div></div>
+          <div style="text-align:center"><div style="font-size:22px;font-weight:700;color:var(--text)">${auf.pax_gesamt}</div><div style="font-size:9px;color:var(--mut);text-transform:uppercase;font-weight:700">Gesamt</div></div>
+          <div style="text-align:center"><div style="font-size:22px;font-weight:700;color:var(--re)">${auf.pax_gesamt-(auf.pax_besetzt||0)}</div><div style="font-size:9px;color:var(--mut);text-transform:uppercase;font-weight:700">Offen</div></div>
+          <div style="flex:1;display:flex;align-items:center;min-width:100px">
+            <div style="width:100%;height:8px;background:#e5e7eb;border-radius:4px;overflow:hidden">
+              <div style="width:${auf.pax_gesamt>0?Math.round((auf.pax_besetzt||0)/auf.pax_gesamt*100):0}%;height:100%;background:${(auf.pax_besetzt||0)>=auf.pax_gesamt?'var(--gr)':'var(--or)'};border-radius:4px"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div id="full-dispo-body"><div class="empty">⏳ Lade…</div></div>
+  `;
+  await loadFullDispoBody(aufId);
+}
+
+async function loadFullDispoBody(aufId){
+  const auf=AUFTRAEGE.find(a=>a.id===aufId);if(!auf)return;
+  const el=document.getElementById('full-dispo-body');if(!el)return;
+  const {data:bews}=await sb.from('bewerbungen').select('*').eq('auftrag_id',aufId);
+  const confirmed=(bews||[]).filter(b=>b.status==='bestaetigt');
+  const pending=(bews||[]).filter(b=>b.status==='eingegangen'||b.status==='reserviert');
+  const schichten=auf.schichtzeiten||[];
+  // Build days
+  const days=[];
+  if(auf.datum_von){
+    const start=new Date(auf.datum_von);
+    const end=auf.datum_bis?new Date(auf.datum_bis):new Date(auf.datum_von);
+    for(let d=new Date(start);d<=end;d.setDate(d.getDate()+1))days.push(new Date(d));
+  }
+  const ROLLEN=['Stagehand','Staplerfahrer','Spotfahrer','Ansprechpartner','Fahrer','CC','Helfer','Promoter','Hostess','Sonstiges'];
+  const crewBlock=(crew,sch)=>`
+    <div style="display:grid;grid-template-columns:1.4fr 1fr 70px 70px 44px 44px;gap:3px;padding:5px 10px;font-size:9px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--mut);background:#fafafa">
+      <span>Name</span><span>Rolle</span><span>Anreise</span><span>Bemerkung</span><span>WA</span><span>💾</span>
+    </div>
+    ${crew.map(p=>`<div style="display:grid;grid-template-columns:1.4fr 1fr 70px 70px 44px 44px;gap:3px;align-items:center;padding:5px 10px;border-top:1px solid #f3f4f6">
+      <span style="font-size:11px;font-weight:600;color:var(--text)">${p.vorname} ${p.nachname}</span>
+      <select class="ci2" id="r-${p.id}" style="font-size:10px">${ROLLEN.map(r=>`<option ${(p.rolle||p.notiz)===r?'selected':''}>${r}</option>`).join('')}</select>
+      <span style="font-size:10px;color:var(--sub)">${p.anreise||'–'}</span>
+      <input class="ci2" value="${p.notiz2||''}" id="b2-${p.id}" style="font-size:10px">
+      <a href="https://wa.me/${(p.telefon||'').replace(/[^0-9]/g,'')}" target="_blank" class="ia ia-g" style="font-size:9px;padding:2px 5px">💬</a>
+      <button class="ia" style="font-size:9px;padding:2px 5px" onclick="saveFull('${p.id}')">💾</button>
+    </div>`).join('')||'<div style="padding:8px 10px;font-size:11px;color:var(--mut)">Noch keine Crew</div>'}`;
+  
+  const schichtBlock=(sch)=>`
+    <div style="border:1px solid var(--bdr);border-radius:var(--rs);overflow:hidden;margin-bottom:8px">
+      <div style="padding:7px 10px;background:var(--orl);border-bottom:1px solid var(--orb);display:flex;align-items:center;justify-content:space-between">
+        <span style="font-size:11px;font-weight:700;color:var(--or)">⏰ ${sch}</span>
+        <button class="btn b-gh" style="font-size:9px;padding:2px 7px" onclick="addFromDBInline('${aufId}')">+ Person</button>
+      </div>
+      ${crewBlock(confirmed.filter(b=>!b.schicht||b.schicht===sch||schichten.length<=1),sch)}
+    </div>`;
+  
+  el.innerHTML=`
+    <div class="card" style="margin-bottom:10px">
+      <div style="padding:10px 14px;background:#fafafa;border-bottom:1px solid var(--bdr);display:flex;align-items:center;justify-content:space-between">
+        <span style="font-size:11px;font-weight:700">⏰ Schichten (${schichten.length})</span>
+        <div style="display:flex;gap:5px">
+          <button class="btn b-gh" style="font-size:10px;padding:3px 8px" onclick="addSchicht('${aufId}')">+ Schicht</button>
+          <button class="btn b-gh" style="font-size:10px;padding:3px 8px" onclick="loadFullDispoBody('${aufId}')">↻</button>
+        </div>
+      </div>
+      ${days.length>1?days.map((day,di)=>`
+        <div style="padding:8px 14px;border-bottom:1px solid var(--bdr);background:${di%2===0?'#fafafa':'var(--white)'}">
+          <div style="font-size:11px;font-weight:700;color:var(--text);margin-bottom:8px">📅 Tag ${di+1} – ${day.toLocaleDateString('de',{weekday:'long',day:'2-digit',month:'2-digit',year:'numeric'})}</div>
+          ${schichten.length?schichten.map(sch=>schichtBlock(sch)).join(''):schichtBlock('Ganztägig')}
+        </div>`).join(''):schichten.length?schichten.map(sch=>schichtBlock(sch)).join(`<div style="padding:0 14px">`)+`</div>`:
+        `<div style="padding:14px">${schichtBlock('Alle Schichten')}</div>`}
+    </div>
+    ${pending.length?`<div class="card"><div style="padding:10px 14px;background:var(--yeb);border-bottom:1px solid var(--yebr)">
+      <span style="font-size:10px;font-weight:700;color:var(--ye);text-transform:uppercase;letter-spacing:.07em">⏳ Ausstehend (${pending.length})</span></div>
+      ${pending.map(p=>`<div style="display:flex;align-items:center;gap:8px;padding:7px 14px;border-bottom:1px solid #f3f4f6">
+        <span style="font-size:11px;font-weight:600;flex:1">${p.vorname} ${p.nachname}</span>
+        <span class="tag ty" style="font-size:9px">${p.status}</span>
+        <button class="ia ia-g" style="font-size:9px;padding:2px 7px" onclick="doBewaktion('${p.id}','bestaetigt','${p.vorname}','${aufId}')">✓ Best.</button>
+        <a href="https://wa.me/${(p.telefon||'').replace(/[^0-9]/g,'')}" target="_blank" class="ia ia-g" style="font-size:9px;padding:2px 6px">💬</a>
+      </div>`).join('')}
+    </div>`:''}
+  `;
+}
+
+async function saveFull(bewId){
+  const r=document.getElementById('r-'+bewId)?.value||'';
+  const b=document.getElementById('b2-'+bewId)?.value||'';
+  await sb.from('bewerbungen').update({rolle:r,notiz2:b}).eq('id',bewId);
+  toast('💾 Gespeichert!','ok');
 }
 
 async function loadDispoInline(aufId){
@@ -1063,7 +1169,7 @@ function renderBewerbungen(){
     const auf=AUFTRAEGE.find(a=>a.id===b.auftrag_id);
     const stMap={eingegangen:'<span class="tag tb">📥 Neu</span>',bestaetigt:'<span class="tag tg">✓ Best.</span>',abgelehnt:'<span class="tag tr">❌</span>',reserviert:'<span class="tag tp">⏳ Res.</span>'};
     return`<tr>
-      <td><div class="tn">${b.vorname} ${b.nachname}</div><div class="ts">${b.wohnort||'–'}</div></td>
+      <td><div class="tn">${b.vorname} ${b.nachname}</div><div class="ts">${b.wohnort||'–'}</div>${b.schicht?'<span class="tag tp" style="font-size:8px">⏰ '+b.schicht+'</span>':''}</td>
       <td><a href="tel:${b.telefon}" style="color:var(--or);font-size:11px">${b.telefon}</a></td>
       <td>${stMap[b.status]||'–'}</td>
       <td style="font-size:11px">${auf?auf.name:'Allg.'}</td>
@@ -1274,7 +1380,7 @@ async function loadStunden(aufId){
       <div id="shRows">
         ${cl.map(p=>{
           const n=`${p.vorname} ${p.nachname}`;const s=shMap[n]||{};
-          return`<div class="sh-row">
+          return`<div class="sh-row ${s.bestaetigt?"fg-ok":""}">
             <span style="font-weight:600;color:var(--text)">${n}</span>
             <input type="date" class="ci" value="${s.datum||''}" id="shd-${p.id}" style="width:100%">
             <input type="time" class="ci" value="${s.beginn||''}" id="shb-${p.id}">
