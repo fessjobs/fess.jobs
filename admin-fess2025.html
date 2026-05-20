@@ -830,10 +830,10 @@ async function loadStunden(aufId){
             <input type="time" class="ci" value="${s.ende||''}" id="she-${p.id}">
             <input type="number" class="ci" value="${s.stunden_gesamt||''}" id="shh-${p.id}" placeholder="–" step="0.5">
             <span class="tag ${s.bestaetigt?'tg':'ty'}">${s.bestaetigt?'✓ OK':'⏳'}</span>
-            <div class="cb ${s.bestaetigt?'chk':''}" onclick="toggleFreigabe(this,'${p.id}','${aufId}','${n.replace(/'/g,"\\'")}')">
+            <div class="cb ${s.bestaetigt?'chk':''}" data-pid="${p.id}" data-auf="${aufId}" data-name="${encodeURIComponent(n)}" onclick="handleFreigabe(this)">
               ${s.bestaetigt?'<svg viewBox="0 0 9 9" fill="none" stroke="white" stroke-width="2"><path d="M1 4.5l2.5 2.5 4.5-4.5"/></svg>':''}
             </div>
-            <button class="ia ia-g" onclick="saveSH('${p.id}','${aufId}','${n.replace(/'/g,"\\'")}')">💾</button>
+            <button class="ia ia-g" data-pid="${p.id}" data-auf="${aufId}" data-name="${encodeURIComponent(n)}" onclick="handleSaveSH(this)">💾</button>
           </div>`}).join('')}
       </div>
     </div>
@@ -896,6 +896,16 @@ async function saveSH(pid,aufId,name){
   if(ex?.length)await sb.from('stundennachweise').update(pl).eq('id',ex[0].id);
   else await sb.from('stundennachweise').insert([pl]);
   toast('💾 Stunden gespeichert!','ok');
+}
+
+function handleSaveSH(el){
+  saveSH(el.dataset.pid, el.dataset.auf, decodeURIComponent(el.dataset.name));
+}
+function handleFreigabe(el){
+  const pid=el.dataset.pid;
+  const aufId=el.dataset.auf;
+  const name=decodeURIComponent(el.dataset.name);
+  toggleFreigabe(el,pid,aufId,name);
 }
 
 async function toggleFreigabe(el,pid,aufId,name){
