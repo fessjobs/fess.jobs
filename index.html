@@ -450,8 +450,6 @@ const ABOUT_FEATS=[
   {icon:"⭐",title:"7+ Jahre Erfahrung",desc:"Von Rock am Ring bis Ninja Warrior."},
 ];
 
-let ALL = EV.slice(); // Will be replaced by Supabase data
-
 // ALL 25 EVENTS from PDF (no cancellations)
 const EV=[
   {id:'1', n:'Boxkampf Mannheim',        k:'Sport',     st:'bestaetigt', urg:false, dv:'2026-05-14', db:'2026-05-15', loc:'SAP Arena Mannheim',             ta:'Shuttlefahrer / Hostess',          pax:22, pb:0,  sh:['14.05. | TBA','15.05. | TBA'],                                              img:'https://images.pexels.com/photos/3622622/pexels-photo-3622622.jpeg?auto=compress&cs=tinysrgb&w=600'},
@@ -480,6 +478,8 @@ const EV=[
   {id:'24',n:'Die Toten Hosen',          k:'Konzert',   st:'angefragt',  urg:true,  dv:'2026-07-16', db:null,         loc:'Köln',                           ta:'Stagehands',                       pax:15, pb:0,  sh:['10–18 Uhr'],                                                                img:'https://images.pexels.com/photos/2747446/pexels-photo-2747446.jpeg?auto=compress&cs=tinysrgb&w=600'},
   {id:'25',n:'Romeo Santos',             k:'Konzert',   st:'angefragt',  urg:true,  dv:'2026-07-18', db:null,         loc:'Lanxess Arena Köln',             ta:'Stagehands',                       pax:18, pb:0,  sh:['Aufbau & Abbau'],                                                           img:'https://images.pexels.com/photos/1616470/pexels-photo-1616470.jpeg?auto=compress&cs=tinysrgb&w=600'},
 ];
+let ALL = EV.slice(); // Will be overwritten by Supabase
+
 
 let CF='alle', CS='datum';
 let upsellSel = new Set();
