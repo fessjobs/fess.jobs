@@ -1016,11 +1016,15 @@ async function doSub(e, evN, evD, evL, eid){
   if(sb){
     try{
       const aufId = eid||null;
-      await sb.from('bewerbungen').insert([{
+      const bewData = {
         auftrag_id: aufId||null,
-        vorname: g('vorname'),
-        nachname: g('nachname'),
-        telefon: g('tel'),
+        vorname: g('vorname')||'',
+        nachname: g('nachname')||'',
+        telefon: g('tel')||'',
+        status: 'eingegangen'
+      };
+      // Add optional fields only if they have values
+      const opt = {
         geburtsdatum: g('geb'),
         wohnort: g('wohnort'),
         berufsstatus: g('status'),
@@ -1031,10 +1035,12 @@ async function doSub(e, evN, evD, evL, eid){
         shirt_groesse: g('shirt'),
         regionalleiter: g('regio'),
         notiz: g('notiz'),
-        sprachen: Array.isArray(langs)?langs.join(', '):langs||'',
-        status: 'eingegangen',
-        created_at: new Date().toISOString()
-      }]);
+        sprachen: Array.isArray(langs)?langs.join(', '):langs||''
+      };
+      Object.entries(opt).forEach(([k,v])=>{ if(v) bewData[k]=v; });
+      const{error:bewErr}=await sb.from('bewerbungen').insert([bewData]);
+      if(bewErr) console.warn('Supabase insert error:', bewErr.message, bewErr.code, JSON.stringify(bewErr));
+      else console.log('✅ Bewerbung gespeichert!');
     }catch(e){ console.warn('Supabase save error:', e.message); }
   }
   const msg=encodeURIComponent(
