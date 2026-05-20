@@ -992,7 +992,7 @@ function goS1(eid){
   document.getElementById('sd0'+eid).classList.replace('done','cur');
 }
 
-function doSub(e, evN, evD, evL, eid){
+async function doSub(e, evN, evD, evL, eid){
   e.preventDefault();
   // Check signature
   if(!sigDrawn){
@@ -1105,7 +1105,9 @@ async function loadEvents(){
         .neq('status','abgesagt')
         .gte('datum_von', today)
         .order('datum_von', {ascending: true});
+      console.log('SB auftraege response:', data?.length, 'error:', error?.message);
       if(!error && data && data.length > 0){
+        console.log('Mapping', data.length, 'events');
         // Map Supabase fields to our format
         ALL = data.map(e => ({
           id: e.id,
@@ -1128,6 +1130,7 @@ async function loadEvents(){
           const pct = e.pax > 0 ? (e.pb/e.pax*100) : 0;
           if(new Date(e.dv) <= in10 && pct < 80) e.urg = true;
         });
+        console.log("ALL populated with", ALL.length, "events");
         renderJobs();
         renderMyApps().catch(e=>console.warn(e));
         return;
