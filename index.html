@@ -1031,7 +1031,7 @@ async function doSub(e, evN, evD, evL, eid){
         shirt_groesse: g('shirt'),
         regionalleiter: g('regio'),
         notiz: g('notiz'),
-        sprachen: langs,
+        sprachen: Array.isArray(langs)?langs.join(', '):langs||'',
         status: 'eingegangen',
         created_at: new Date().toISOString()
       }]);
