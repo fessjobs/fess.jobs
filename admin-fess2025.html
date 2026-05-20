@@ -508,9 +508,13 @@ async function loadAuftraege(){
 
 async function loadBewerbungen(){
   if(!sb)return;
-  const{data,error}=await sb.from('bewerbungen').select('*,auftraege(name)').order('created_at',{ascending:false});
-  if(!error&&data){
-    BEWERBUNGEN=data;renderBewerbungen();
+  const{data,error}=await sb.from('bewerbungen').select('*').order('created_at',{ascending:false});
+  console.log('Bewerbungen:', data?.length, 'error:', error?.message);
+  if(error){ console.error('Bewerbungen Fehler:', error); return; }
+  if(data){
+    BEWERBUNGEN=data;
+    renderBewerbungen();
+    renderDashboard();
     const n=data.filter(b=>b.status==='eingegangen').length;
     const el=document.getElementById('bBadge');el.textContent=n;el.style.display=n?'':'none';
     document.getElementById('st-bew').textContent=n;

@@ -588,7 +588,7 @@ function jcard(e){
   return `<div class="jcard${e.urg?' urg':''}">
   ${e.urg?'<div class="urg-strip">🔥 DRINGEND GESUCHT</div>':''}
   <div class="jcard-img ${gr}" id="ji${e.id}">
-    <img src="${e.img}" alt="${e.n}" loading="lazy" onerror="this.style.display='none';document.getElementById('ji${e.id}').querySelector('.jcard-fb').style.display='flex'">
+    <img src="${e.img}" alt="${e.n}" loading="lazy" onerror="this.style.display='none';const fb=document.getElementById('ji${e.id}')?.querySelector('.jcard-fb');if(fb)fb.style.display='flex'">
     <div class="jcard-fb" style="display:none">${ic}</div>
     <div class="jcard-ov"></div>
     ${stTag}
@@ -1015,7 +1015,7 @@ async function doSub(e, evN, evD, evL, eid){
   // Save to Supabase
   if(sb){
     try{
-      const aufId = evId||null;
+      const aufId = eid||null;
       await sb.from('bewerbungen').insert([{
         auftrag_id: aufId||null,
         vorname: g('vorname'),
