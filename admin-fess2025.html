@@ -653,6 +653,59 @@ function renderAuftraege(){
 function fAuf(f,el){aufF=f;document.querySelectorAll('#pg-auftraege .fp').forEach(b=>b.classList.remove('on'));el.classList.add('on');renderAuftraege();}
 function searchAuf(v){aufQ=v;renderAuftraege();}
 
+
+
+function openAnfrageQuick(aufId){
+  const auf = AUFTRAEGE.find(x=>x.id===aufId); if(!auf) return;
+  openM(`<div class="mt">📢 Mitarbeiter anfragen</div>
+    <div class="ms">${auf.name} · ${fmtD(auf)} · ${auf.location}</div>
+    <div class="fg"><label class="fl">Mitarbeiter auswählen (Mehrfachauswahl möglich)</label>
+      <select class="fsel" id="qa-sel" multiple style="height:120px;font-size:11px">
+        ${MITARBEITER.map(m=>`<option value="${(m.telefon||'').replace(/[^0-9]/g,'')}" data-name="${m.vorname} ${m.nachname}">${m.vorname} ${m.nachname}${m.personalnummer?' · '+m.personalnummer:''}</option>`).join('')}
+      </select>
+    </div>
+    <div style="display:flex;gap:5px;margin-bottom:8px">
+      <button class="btn b-gh" style="flex:1;justify-content:center;font-size:10px" onclick="document.getElementById('qa-sel').querySelectorAll('option').forEach(o=>o.selected=true)">Alle auswählen</button>
+      <button class="btn b-gh" style="flex:1;justify-content:center;font-size:10px" onclick="document.getElementById('qa-sel').querySelectorAll('option').forEach(o=>o.selected=false)">Alle abwählen</button>
+    </div>
+    <div class="fg"><label class="fl">Nachricht</label>
+      <textarea class="fta" id="qa-msg">Hallo! Wir haben einen Einsatz für dich: ${auf.name} am ${fmtD(auf)} in ${auf.location}. Tätigkeit: ${auf.taetigkeit||'–'}. Bist du dabei? Antworte mit JA 👍 oder NEIN 👎</textarea>
+    </div>
+    <div class="macts">
+      <button class="mb mb-gh" onclick="closeM()">Abbrechen</button>
+      <button class="mb mb-or" onclick="
+        const sel=document.getElementById('qa-sel');
+        const msg=document.getElementById('qa-msg').value;
+        const opts=[...sel.selectedOptions];
+        if(!opts.length){toast('Niemand ausgewählt','err');return;}
+        opts.forEach((o,i)=>{
+          const t=o.value;
+          if(t) setTimeout(()=>window.open('https://wa.me/49'+(t.startsWith('0')?t.slice(1):t)+'?text='+encodeURIComponent(msg),'_blank'),i*500);
+        });
+        toast('✅ '+opts.length+' WA geöffnet!','ok');
+        closeM();
+      ">💬 WhatsApp senden (${MITARBEITER.length} MA)</button>
+    </div>`);
+}
+
+function sendeAnfrage(aufId){
+  const sel = document.getElementById('ma-anfrage-sel');
+  const msg = document.getElementById('ma-anfrage-msg')?.value||'';
+  if(!sel) return;
+  const selected = [...sel.selectedOptions];
+  if(!selected.length){ toast('Bitte mindestens einen Mitarbeiter auswählen','err'); return; }
+  // Open WA for each selected MA
+  selected.forEach((opt,i) => {
+    const tel = opt.value.replace(/[^0-9]/g,'');
+    if(!tel){ toast('Kein Telefon für '+opt.dataset.name,'err'); return; }
+    setTimeout(()=>{
+      window.open(`https://wa.me/49${tel.startsWith('0')?tel.slice(1):tel}?text=${encodeURIComponent(msg)}`,'_blank');
+    }, i * 600);
+  });
+  toast(`✅ ${selected.length} WA-Nachrichten geöffnet!`,'ok');
+}
+
+// Also add a "Alle anfragen" button in auftraege row
 async function deleteAuf(id){
   if(!confirm('Auftrag wirklich löschen?'))return;
   await sb.from('auftraege').delete().eq('id',id);
@@ -687,6 +740,18 @@ function openEditAuf(id){
     </div>
     <div class="fg"><label class="fl">Bild-URL</label><input class="fi" id="e-bild" value="${a.bild_url||''}"></div>
     <div class="fg"><label class="fl">Anmerkungen</label><textarea class="fta" id="e-anm">${a.anmerkungen||''}</textarea></div>
+    <div style="background:var(--blb);border:1px solid var(--blbr);border-radius:var(--rs);padding:12px;margin-top:8px">
+      <div style="font-size:11px;font-weight:700;color:var(--bl);margin-bottom:8px">📢 Mitarbeiter für diesen Auftrag anfragen</div>
+      <div class="fg"><label class="fl">Auswahl</label>
+        <select class="fsel" id="ma-anfrage-sel" multiple style="height:100px">
+          ${MITARBEITER.map(m=>`<option value="${m.telefon||''}" data-name="${m.vorname} ${m.nachname}">${m.vorname} ${m.nachname} ${m.personalnummer?'('+m.personalnummer+')':''}</option>`).join('')}
+        </select>
+      </div>
+      <div class="fg"><label class="fl">Nachricht</label>
+        <textarea class="fta" id="ma-anfrage-msg" style="min-height:45px">Hallo! Wir haben einen neuen Einsatz für dich: ${a.name} am ${fmtD(a)} in ${a.location}. Bist du dabei? Antworte mit JA oder NEIN.</textarea>
+      </div>
+      <button class="btn b-gh" style="width:100%;justify-content:center;font-size:11px" onclick="sendeAnfrage('${id}')">💬 Per WhatsApp anfragen</button>
+    </div>
     <div class="macts">
       <button class="mb mb-gh" onclick="closeM()">Abbrechen</button>
       <button class="mb mb-or" onclick="saveEditAuf('${id}')">💾 Speichern & Live</button>
