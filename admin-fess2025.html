@@ -249,6 +249,25 @@ nav{flex:1;padding:8px 6px;overflow-y:auto;}
 .skel{background:linear-gradient(90deg,#f3f4f6 25%,#e9eaeb 50%,#f3f4f6 75%);background-size:200%;animation:sk 1.4s infinite;border-radius:var(--r);height:36px;margin-bottom:4px;}
 @keyframes sk{0%{background-position:200%}100%{background-position:-200%}}
 .empty{text-align:center;padding:32px;color:var(--mut);font-size:12px;}
+
+/* MOBILE ADMIN */
+@media(max-width:768px){
+  .sb{width:64px;overflow:hidden;}
+  .sb-name,.sb-sub,.nav-lbl,.ni span,.uname,.urole{display:none;}
+  .ni{justify-content:center;padding:10px;}
+  .ni svg{width:18px;height:18px;}
+  .main{overflow-x:hidden;}
+  .page{padding:12px 10px;}
+  .stats{grid-template-columns:repeat(2,1fr)!important;}
+  .two{grid-template-columns:1fr!important;}
+  .tbl{font-size:10px;}
+  .tbl th,.tbl td{padding:6px 8px;}
+  .modal-box{border-radius:16px 16px 0 0;max-height:94vh;}
+  .topbar{padding:0 12px;}
+  .tb-title{font-size:13px;}
+  .btn{font-size:10px;padding:5px 9px;}
+  .card{border-radius:8px;}
+}
 </style>
 </head>
 <body>
@@ -266,6 +285,7 @@ nav{flex:1;padding:8px 6px;overflow-y:auto;}
     <button class="ni on" onclick="P('dashboard',this)"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1" y="1" width="6" height="6" rx="1"/><rect x="9" y="1" width="6" height="6" rx="1"/><rect x="1" y="9" width="6" height="6" rx="1"/><rect x="9" y="9" width="6" height="6" rx="1"/></svg>Dashboard</button>
     <div class="nav-lbl">Personal</div>
     <button class="ni" onclick="P('auftraege',this)"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1" y="2" width="14" height="12" rx="1.5"/><path d="M5 6h6M5 9h4"/></svg>Aufträge</button>
+    <button class="ni" onclick="P('verfuegbarkeiten',this)"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1" y="2" width="14" height="12" rx="1.5"/><path d="M5 1v2M11 1v2M1 6h14"/><path d="M5 9l2 2 4-4"/></svg>Verfügbarkeiten</button>
     <button class="ni" onclick="P('bewerbungen',this)"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 1a4 4 0 100 8 4 4 0 000-8zM2 15c0-3.314 2.686-5 6-5s6 1.686 6 5"/></svg>Bewerbungen<span class="nbadge" id="bBadge" style="display:none">0</span></button>
     <button class="ni" onclick="P('dispo',this)"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 4h12M2 8h8M2 12h5"/><circle cx="13" cy="11" r="3"/><path d="M11.5 11h3M13 9.5v3"/></svg>Dispo & Crew</button>
     <button class="ni" onclick="P('stunden',this)"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="7"/><path d="M8 4.5V8l2.5 2.5"/></svg>Stunden</button>
@@ -291,12 +311,7 @@ nav{flex:1;padding:8px 6px;overflow-y:auto;}
 
   <!-- DASHBOARD -->
   <div class="page" id="pg-dashboard">
-    <div class="stats">
-      <div class="sc hl"><div class="sv" id="st-auf">–</div><div class="sl">Aktive Aufträge</div><div class="sbg or">2026</div></div>
-      <div class="sc"><div class="sv" id="st-drg">–</div><div class="sl">🔥 Dringend</div><div class="sbg y">Handeln</div></div>
-      <div class="sc"><div class="sv" id="st-bew">–</div><div class="sl">Neue Bewerbungen</div><div class="sbg y">Offen</div></div>
-      <div class="sc"><div class="sv" id="st-ma">–</div><div class="sl">Mitarbeiter</div><div class="sbg g">Aktiv</div></div>
-    </div>
+
     <div class="two">
       <div class="card">
         <div class="ch"><div class="ch-title">🔥 Dringende Aufträge</div><span class="ch-link" onclick="P('auftraege',document.querySelectorAll('.ni')[2])">Alle →</span></div>
@@ -335,6 +350,24 @@ nav{flex:1;padding:8px 6px;overflow-y:auto;}
       <table class="tbl">
         <thead><tr><th>Auftrag</th><th>Status</th><th>Datum</th><th>Location</th><th>Besetzt</th><th>Aktionen</th></tr></thead>
         <tbody id="aufTbody"><tr><td colspan="6"><div class="skel"></div><div class="skel"></div><div class="skel"></div></td></tr></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- VERFÜGBARKEITEN -->
+  <div class="page hidden" id="pg-verfuegbarkeiten">
+    <div class="fbar">
+      <button class="fp on" onclick="fVerf('alle',this)">Alle</button>
+      <button class="fp" onclick="fVerf('offen',this)">⏳ Offen</button>
+      <button class="fp" onclick="fVerf('bestaetigt',this)">✅ Bestätigt</button>
+      <button class="fp" onclick="fVerf('abgelehnt',this)">❌ Abgelehnt</button>
+      <div class="fsep"></div>
+      <input class="si" placeholder="🔍 Person suchen…" oninput="searchVerf(this.value)" style="width:170px">
+    </div>
+    <div class="card">
+      <table class="tbl">
+        <thead><tr><th>Person</th><th>Auftrag</th><th>Datum</th><th>Schicht</th><th>Tätigkeit</th><th>Status</th><th>Aktionen</th></tr></thead>
+        <tbody id="verfTbody"><tr><td colspan="7"><div class="skel"></div><div class="skel"></div></td></tr></tbody>
       </table>
     </div>
   </div>
@@ -536,6 +569,7 @@ async function loadBewerbungen(){
   if(data){
     BEWERBUNGEN=data;
     renderBewerbungen();
+    renderVerfuegbarkeiten();
     renderDashboard();
     const n=data.filter(b=>b.status==='eingegangen').length;
     const el=document.getElementById('bBadge');el.textContent=n;el.style.display=n?'':'none';
@@ -563,11 +597,12 @@ function P(id,el){
   document.querySelectorAll('.ni').forEach(n=>n.classList.remove('on'));
   document.getElementById('pg-'+id)?.classList.remove('hidden');
   if(el)el.classList.add('on');
-  const T={dashboard:'Dashboard',auftraege:'Aufträge verwalten',bewerbungen:'Bewerbungen',dispo:'Dispo & Crew',stunden:'Stundennachweise',mitarbeiter:'Mitarbeiter',pdf:'Export & PDFs'};
+  const T={dashboard:'Dashboard',auftraege:'Aufträge verwalten',verfuegbarkeiten:'Verfügbarkeiten',bewerbungen:'Bewerbungen',dispo:'Dispo & Crew',stunden:'Stundennachweise',mitarbeiter:'Mitarbeiter',pdf:'Export & PDFs'};
+  if(id==='verfuegbarkeiten')setTimeout(renderVerfuegbarkeiten,50);
   if(id==='dispo')setTimeout(renderDispoList,50);
   document.getElementById('pgTitle').textContent=T[id]||id;
   const A={
-    auftraege:`<button class="btn b-or" onclick="openNewAuf()">+ Neuer Auftrag</button>`,
+    auftraege:`<button class="btn b-gh" onclick="openPDFImport()">📄 PDF importieren</button><button class="btn b-or" onclick="openNewAuf()">+ Neuer Auftrag</button>`,
     mitarbeiter:`<button class="btn b-gh" onclick="configCheckliste()">⚙️ Checkliste</button><button class="btn b-gh" onclick="openImport()">📥 Excel</button><button class="btn b-or" onclick="openNeuerMA()">+ Mitarbeiter</button>`,
     stunden:`<button class="btn b-gh" onclick="exportCSV()">📊 CSV Export</button>`,
     dashboard:`<button class="btn b-gh" onclick="loadAll()">↻ Refresh</button>`,
@@ -576,9 +611,37 @@ function P(id,el){
 }
 
 // ── DASHBOARD ──
+
+async function loadDashboardMsgs(){
+  if(!sb){return;}
+  try{
+    const{data:msgs}=await sb.from('nachrichten')
+      .select('*,bewerbungen(vorname,nachname,auftrag_id)')
+      .eq('von','ma').eq('gelesen_von_admin',false)
+      .order('created_at',{ascending:false}).limit(10);
+    const el=document.getElementById('db-msgs');
+    if(!el)return;
+    if(!msgs?.length){el.innerHTML='<div class="empty">Keine neuen Nachrichten ✅</div>';return;}
+    el.innerHTML=msgs.map(m=>{
+      const name=m.bewerbungen?.vorname+' '+m.bewerbungen?.nachname;
+      const auf=AUFTRAEGE.find(a=>a.id===m.bewerbungen?.auftrag_id);
+      return`<div style="padding:9px 12px;border-bottom:1px solid #f3f4f6;cursor:pointer" onclick="openBewDetail('${m.bewerbung_id}')">
+        <div style="display:flex;align-items:center;gap:7px">
+          <div style="width:22px;height:22px;border-radius:50%;background:var(--bl);color:#fff;font-size:8px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0">💬</div>
+          <div style="flex:1">
+            <div class="tn">${name}</div>
+            <div class="ts">${auf?auf.name:'–'} · ${m.inhalt?.substring(0,40)}…</div>
+          </div>
+        </div>
+      </div>`;
+    }).join('');
+  }catch(e){}
+}
+
 function renderDashboard(){
   const urg=AUFTRAEGE.filter(a=>a.dringend);
   document.getElementById('st-drg').textContent=urg.length;
+  loadDashboardMsgs().catch(e=>console.warn(e));
   document.getElementById('db-urg').innerHTML=urg.slice(0,5).map(a=>`
     <div style="padding:9px 12px;border-bottom:1px solid #f3f4f6;display:flex;align-items:center;gap:9px">
       <div style="width:6px;height:6px;border-radius:50%;background:var(--or);flex-shrink:0"></div>
@@ -1141,6 +1204,157 @@ function openNewAuf(){
     </div>`);
 }
 
+
+function openPDFImport(){
+  openM(`<div class="mt">📄 Aufträge aus PDF importieren</div>
+    <div class="ms">Lade eine PDF mit Auftragsinformationen hoch. Die Jobs werden automatisch erstellt.</div>
+    <div class="fg">
+      <label class="fl">PDF Datei</label>
+      <input type="file" accept=".pdf" class="fi" id="pdfImportFile" onchange="previewPDFImport(this)">
+    </div>
+    <div id="pdfImportPreview" style="max-height:250px;overflow-y:auto;margin-top:8px"></div>
+    <div class="macts">
+      <button class="mb mb-gh" onclick="closeM()">Abbrechen</button>
+      <button class="mb mb-or" id="pdfImportBtn" onclick="executePDFImport()" style="display:none">✅ Aufträge erstellen</button>
+    </div>`);
+}
+
+let IMPORT_JOBS = [];
+
+async function previewPDFImport(input){
+  const file = input.files[0]; if(!file) return;
+  const prev = document.getElementById('pdfImportPreview');
+  prev.innerHTML = '<div style="text-align:center;padding:20px;color:var(--mut)">📖 Lese PDF…</div>';
+  
+  // Read as text (basic PDF text extraction)
+  const reader = new FileReader();
+  reader.onload = async (e) => {
+    const text = e.target.result;
+    // Parse jobs from text - look for patterns
+    IMPORT_JOBS = parsePDFText(text);
+    
+    if(!IMPORT_JOBS.length){
+      prev.innerHTML = '<div style="color:var(--re);padding:10px">❌ Keine Aufträge gefunden. Versuche es mit einer anderen PDF.</div>';
+      return;
+    }
+    
+    prev.innerHTML = `<div style="font-size:11px;font-weight:700;color:var(--text);margin-bottom:8px">✅ ${IMPORT_JOBS.length} Aufträge gefunden:</div>`+
+      IMPORT_JOBS.map((j,i)=>`<div style="background:#f9fafb;border:1px solid var(--bdr);border-radius:7px;padding:8px 10px;margin-bottom:6px">
+        <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px">
+          <input type="checkbox" id="imp-${i}" checked style="accent-color:var(--or)">
+          <span style="font-size:12px;font-weight:700;color:var(--text)">${j.name}</span>
+          <span class="tag to" style="font-size:9px">${j.kategorie}</span>
+        </div>
+        <div style="font-size:10px;color:var(--sub);display:flex;gap:10px;flex-wrap:wrap">
+          <span>📅 ${j.datum_von}${j.datum_bis?' – '+j.datum_bis:''}</span>
+          <span>📍 ${j.location}</span>
+          <span>👷 ${j.taetigkeit}</span>
+          <span>👥 ${j.pax_gesamt} Pers.</span>
+        </div>
+        ${j.schichtzeiten?.length?`<div style="font-size:10px;color:var(--mut);margin-top:3px">${j.schichtzeiten.map(s=>'⏰ '+s).join(' · ')}</div>`:''}
+      </div>`).join('');
+    document.getElementById('pdfImportBtn').style.display='block';
+  };
+  reader.readAsText(file, 'utf-8');
+}
+
+function parsePDFText(text){
+  const jobs = [];
+  // Clean text
+  const lines = text.split(/[\n\r]+/).map(l=>l.trim()).filter(Boolean);
+  const fullText = lines.join(' ');
+  
+  // Stock photos by category
+  const STOCK = {
+    Konzert: 'https://images.pexels.com/photos/1105666/pexels-photo-1105666.jpeg?auto=compress&cs=tinysrgb&w=600',
+    Festival: 'https://images.pexels.com/photos/1540406/pexels-photo-1540406.jpeg?auto=compress&cs=tinysrgb&w=600',
+    Messe: 'https://images.pexels.com/photos/3962285/pexels-photo-3962285.jpeg?auto=compress&cs=tinysrgb&w=600',
+    Promotion: 'https://images.pexels.com/photos/2682543/pexels-photo-2682543.jpeg?auto=compress&cs=tinysrgb&w=600',
+    Sport: 'https://images.pexels.com/photos/3622622/pexels-photo-3622622.jpeg?auto=compress&cs=tinysrgb&w=600',
+    ESL: 'https://images.pexels.com/photos/3962285/pexels-photo-3962285.jpeg?auto=compress&cs=tinysrgb&w=600',
+    Standard: 'https://images.pexels.com/photos/1763075/pexels-photo-1763075.jpeg?auto=compress&cs=tinysrgb&w=600',
+  };
+  
+  // Try to find event blocks - look for date patterns
+  const dateRx = /(\d{1,2})[.\/](\d{1,2})[.\/](\d{2,4})/g;
+  const dates = [...fullText.matchAll(dateRx)];
+  
+  // Simple heuristic: split by known separators
+  let blocks = text.split(/(?=\d{1,2}[.\/]\d{1,2}[.\/]\d{2,4}.*?(?:Konzert|Festival|Messe|Sport|ESL|Promotion|Stagehand|Staplerfahrer|Promotion|Show))/i);
+  if(blocks.length <= 1) blocks = text.split(/\n(?=\s*\d)/);
+  if(blocks.length <= 1) blocks = [text];
+  
+  for(const block of blocks){
+    const b = block.trim(); if(b.length < 20) continue;
+    
+    // Extract name (first meaningful line)
+    const blines = b.split(/[\n\r]+/).map(l=>l.trim()).filter(l=>l.length>3);
+    let name = blines[0]||'Unbekannt';
+    if(name.length > 50) name = name.substring(0,50);
+    
+    // Extract date
+    const dateMatch = b.match(/(\d{1,2})[.\/](\d{1,2})[.\/](\d{2,4})/);
+    let datum_von = '';
+    if(dateMatch){
+      const y = dateMatch[3].length===2?'20'+dateMatch[3]:dateMatch[3];
+      datum_von = y+'-'+dateMatch[2].padStart(2,'0')+'-'+dateMatch[1].padStart(2,'0');
+    }
+    if(!datum_von) continue;
+    
+    // Extract location
+    const locMatch = b.match(/(?:Location|Venue|Ort|Halle|Arena|Park|Ring|in|@)[:\s]+([A-Za-zÄÖÜäöüß\s,]+)/i);
+    const location = locMatch?locMatch[1].trim().substring(0,40):'–';
+    
+    // Detect category
+    let kategorie = 'Konzert';
+    if(/festival|open.air|open air/i.test(b)) kategorie='Festival';
+    else if(/messe|trade|fair/i.test(b)) kategorie='Messe';
+    else if(/sport|boxkampf|fußball|tennis/i.test(b)) kategorie='Sport';
+    else if(/esl|promo|promotion/i.test(b)) kategorie='Promotion';
+    
+    // Detect taetigkeit
+    let taetigkeit = 'Stagehand';
+    if(/staplerfahrer/i.test(b)) taetigkeit='Staplerfahrer';
+    else if(/spotfahrer/i.test(b)) taetigkeit='Spotfahrer';
+    else if(/promoter|promo/i.test(b)) taetigkeit='Promoter';
+    else if(/helfer/i.test(b)) taetigkeit='Helfer';
+    
+    // Extract PAX
+    const paxMatch = b.match(/(\d+)\s*(?:Pers|Person|MA|Mitarbeiter|x)/i);
+    const pax = paxMatch?parseInt(paxMatch[1]):5;
+    
+    // Extract schichten
+    const schRx = /(\d{1,2}:\d{2})[\s–-]+(\d{1,2}:\d{2})/g;
+    const schichten = [...b.matchAll(schRx)].map(m=>m[1]+'–'+m[2]+' Uhr').slice(0,4);
+    
+    jobs.push({
+      name, datum_von, datum_bis: datum_von, location,
+      kategorie, taetigkeit, pax_gesamt:pax, pax_besetzt:0,
+      status:'angefragt', dringend:false,
+      schichtzeiten: schichten,
+      bild_url: STOCK[kategorie]||STOCK.Standard
+    });
+  }
+  
+  return jobs.slice(0,30); // max 30 jobs
+}
+
+async function executePDFImport(){
+  const toImport = IMPORT_JOBS.filter((_,i)=>{
+    const cb = document.getElementById('imp-'+i);
+    return cb?.checked;
+  });
+  if(!toImport.length){toast('Nichts ausgewählt','err');return;}
+  let created=0;
+  for(const job of toImport){
+    const{error}=await sb.from('auftraege').insert([job]);
+    if(!error)created++;
+  }
+  closeM();
+  toast('✅ '+created+' Aufträge erstellt!','ok');
+  await loadAuftraege();
+}
+
 async function saveNewAuf(){
   const name=document.getElementById('n-name').value.trim();
   const dv=document.getElementById('n-dv').value;
@@ -1282,6 +1496,44 @@ async function sendAdminChat(bewId, name){
     inp.value='';
     await openBewDetail(bewId);
   }catch(e){ toast('Fehler','err'); }
+}
+
+
+// ── VERFÜGBARKEITEN ──
+let verfF='alle', verfQ='';
+function fVerf(f,el){verfF=f;document.querySelectorAll('#pg-verfuegbarkeiten .fp').forEach(b=>b.classList.remove('on'));el.classList.add('on');renderVerfuegbarkeiten();}
+function searchVerf(v){verfQ=v;renderVerfuegbarkeiten();}
+
+function renderVerfuegbarkeiten(){
+  let d=BEWERBUNGEN.slice();
+  if(verfF==='offen')d=d.filter(b=>b.status==='eingegangen'||b.status==='reserviert');
+  else if(verfF==='bestaetigt')d=d.filter(b=>b.status==='bestaetigt');
+  else if(verfF==='abgelehnt')d=d.filter(b=>b.status==='abgelehnt');
+  if(verfQ)d=d.filter(b=>(b.vorname+' '+b.nachname).toLowerCase().includes(verfQ.toLowerCase()));
+  // Sort by date, then schicht
+  d.sort((a,b)=>{
+    const da=a.schicht_datum||''; const db2=b.schicht_datum||'';
+    if(da<db2)return -1; if(da>db2)return 1;
+    return (a.schicht||'').localeCompare(b.schicht||'');
+  });
+  const stMap={eingegangen:'<span class="tag tb">📥 Neu</span>',bestaetigt:'<span class="tag tg">✓ Best.</span>',abgelehnt:'<span class="tag tr">❌</span>',reserviert:'<span class="tag tp">⏳ Res.</span>'};
+  document.getElementById('verfTbody').innerHTML=d.length?d.map(b=>{
+    const auf=AUFTRAEGE.find(a=>a.id===b.auftrag_id);
+    const datum=b.schicht_datum?new Date(b.schicht_datum).toLocaleDateString('de',{weekday:'short',day:'2-digit',month:'2-digit'}):'–';
+    return`<tr>
+      <td><div class="tn">${b.vorname} ${b.nachname}</div><div class="ts">${b.telefon||'–'}</div></td>
+      <td style="font-size:11px;font-weight:600">${auf?auf.name:'<span style="color:var(--mut)">Allgemein</span>'}</td>
+      <td style="font-size:11px;color:var(--sub)">${datum}</td>
+      <td style="font-size:11px">${b.schicht||'–'}</td>
+      <td style="font-size:11px;color:var(--sub)">${auf?.taetigkeit||b.notiz||'–'}</td>
+      <td>${stMap[b.status]||'–'}</td>
+      <td><div class="ra">
+        ${b.status==='eingegangen'?`
+          <button class="ia ia-g" onclick="doBewaktion('${b.id}','bestaetigt','${b.vorname} ${b.nachname}','${b.auftrag_id||''}')">✓</button>
+          <button class="ia ia-r" onclick="doBewaktion('${b.id}','abgelehnt','${b.vorname}','${b.auftrag_id||''}')">✕</button>`:''}
+        <button class="ia" onclick="openBewDetail('${b.id}')">👁</button>
+      </div></td>
+    </tr>`}).join(''):`<tr><td colspan="7" class="empty">Keine Verfügbarkeiten</td></tr>`;
 }
 
 // ── DISPO ──

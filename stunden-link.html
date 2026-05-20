@@ -12,453 +12,389 @@
 const SB_URL='https://nojmxfelunqaotqslabk.supabase.co';
 const SB_ANON='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5vam14ZmVsdW5xYW90cXNsYWJrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkyNjg4NzcsImV4cCI6MjA5NDg0NDg3N30.14x_oz0vxPXqbwBCcBeUZmE-s6Eg4QNbBWCorMsvfFo';
 let sb=null;
-try{sb=supabase.createClient(SB_URL,SB_ANON);}catch(e){}
+try{sb=supabase.createClient(SB_URL,SB_ANON);}catch(e){console.error('SB Error:',e);}
 </script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;}
-:root{
-  --or:#E8651A;--or2:#f57332;--orl:#fff6f1;--orb:#ffe0cc;
-  --text:#111827;--sub:#4b5563;--mut:#9ca3af;
-  --bg:#f8f7f5;--white:#fff;--bdr:#e5e7eb;--bdr2:#d1d5db;
-  --gr:#059669;--grb:#ecfdf5;--grbr:#a7f3d0;
-  --re:#dc2626;--reb:#fef2f2;
-  --font:'DM Sans',sans-serif;--r:12px;--rs:7px;
-}
+:root{--or:#E8651A;--or2:#f57332;--orl:#fff6f1;--orb:#ffe0cc;--text:#111827;--sub:#4b5563;--mut:#9ca3af;--bg:#f8f7f5;--white:#fff;--bdr:#e5e7eb;--gr:#059669;--grb:#ecfdf5;--grbr:#a7f3d0;--re:#dc2626;--reb:#fef2f2;--font:'DM Sans',sans-serif;--r:12px;}
 body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100vh;}
-
-/* HEADER */
-.hdr{background:var(--white);border-bottom:1px solid var(--bdr);padding:14px 20px;display:flex;align-items:center;gap:10px;}
-.hdr-mark{width:30px;height:30px;background:var(--or);border-radius:7px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.hdr{background:var(--white);border-bottom:1px solid var(--bdr);padding:14px 20px;display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:100;}
+.hdr-mark{width:32px;height:32px;background:var(--or);border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
 .hdr-mark svg{width:16px;height:16px;}
 .hdr-name{font-family:'DM Serif Display',serif;font-size:16px;}
 .hdr-name span{color:var(--or);}
-.hdr-sub{font-size:10px;color:var(--mut);margin-top:1px;}
-
-/* MAIN */
-.wrap{max-width:680px;margin:0 auto;padding:24px 16px 60px;}
-.auf-card{background:var(--white);border:1px solid var(--bdr);border-radius:var(--r);padding:16px 18px;margin-bottom:20px;box-shadow:0 1px 4px rgba(0,0,0,.06);}
-.auf-tag{font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;background:var(--orl);color:var(--or);border:1px solid var(--orb);border-radius:20px;padding:2px 9px;display:inline-block;margin-bottom:6px;}
-.auf-name{font-family:'DM Serif Display',serif;font-size:22px;margin-bottom:6px;}
-.auf-meta{display:flex;flex-wrap:wrap;gap:10px;font-size:12px;color:var(--sub);}
-.auf-meta-item{display:flex;align-items:center;gap:4px;}
-
-/* SECTION */
-.sec{background:var(--white);border:1px solid var(--bdr);border-radius:var(--r);overflow:hidden;margin-bottom:16px;box-shadow:0 1px 4px rgba(0,0,0,.06);}
+.hdr-sub{font-size:10px;color:var(--mut);}
+.wrap{max-width:720px;margin:0 auto;padding:20px 16px 60px;}
+.auf-card{background:var(--white);border:1px solid var(--bdr);border-radius:var(--r);padding:16px;margin-bottom:18px;box-shadow:0 1px 4px rgba(0,0,0,.06);}
+.auf-name{font-family:'DM Serif Display',serif;font-size:20px;margin-bottom:6px;}
+.auf-meta{font-size:12px;color:var(--sub);display:flex;flex-wrap:wrap;gap:10px;}
+.tabs{display:flex;gap:3px;margin-bottom:16px;background:var(--bg);padding:4px;border-radius:10px;}
+.tab{flex:1;padding:9px;text-align:center;background:transparent;border:none;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;color:var(--sub);transition:all .12s;font-family:var(--font);}
+.tab.on{background:var(--white);color:var(--or);box-shadow:0 1px 4px rgba(0,0,0,.08);}
+.sec{background:var(--white);border:1px solid var(--bdr);border-radius:var(--r);overflow:hidden;margin-bottom:14px;}
 .sec-h{padding:12px 16px;border-bottom:1px solid var(--bdr);background:#fafafa;display:flex;align-items:center;justify-content:space-between;}
-.sec-title{font-size:13px;font-weight:700;color:var(--text);}
-.sec-sub{font-size:11px;color:var(--mut);}
-
-/* MA ROW */
-.ma-row{padding:12px 16px;border-bottom:1px solid #f3f4f6;display:grid;grid-template-columns:1.4fr 90px 65px 65px 55px 50px;gap:8px;align-items:center;font-size:12px;}
-.ma-row:last-child{border-bottom:none;}
-.ma-row.hdr-row{background:#fafafa;border-bottom:1px solid var(--bdr);font-size:9px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--mut);}
-.ma-name{font-weight:600;color:var(--text);}
-.ci{width:100%;background:var(--bg);border:1px solid var(--bdr2);border-radius:5px;padding:5px 7px;font-size:11px;font-family:var(--font);outline:none;color:var(--text);}
-.ci:focus{border-color:var(--or);background:var(--white);}
-
-/* SIGNATURE */
-.sig-wrap{padding:16px;}
-.sig-label{font-size:11px;font-weight:600;color:var(--sub);display:block;margin-bottom:6px;}
-.sig-box{background:var(--bg);border:1.5px solid var(--bdr2);border-radius:var(--rs);position:relative;overflow:hidden;}
-.sig-box canvas{width:100%;height:100px;display:block;cursor:crosshair;touch-action:none;}
-.sig-hint{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:12px;color:var(--mut);pointer-events:none;gap:6px;}
-.sig-clear{background:none;border:none;color:var(--mut);font-size:10px;cursor:pointer;font-family:var(--font);margin-top:4px;padding:2px 0;}
-.sig-clear:hover{color:var(--re);}
-
+.sec-title{font-size:13px;font-weight:700;}
+/* TABLE */
+.sh-tbl{width:100%;border-collapse:collapse;}
+.sh-tbl th{font-size:9px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--mut);padding:8px 12px;text-align:left;background:#fafafa;border-bottom:1px solid var(--bdr);}
+.sh-tbl td{padding:8px 12px;border-bottom:1px solid #f3f4f6;vertical-align:middle;}
+.sh-tbl tr:last-child td{border-bottom:none;}
+.ci{width:100%;background:var(--bg);border:1px solid var(--bdr);border-radius:5px;padding:5px 8px;font-size:12px;font-family:var(--font);outline:none;color:var(--text);}
+.ci:focus{border-color:var(--or);}
 /* BUTTONS */
-.btn{display:inline-flex;align-items:center;gap:5px;padding:10px 18px;border-radius:var(--rs);font-size:12px;font-weight:600;cursor:pointer;border:none;font-family:var(--font);transition:all .12s;}
-.b-or{background:var(--or);color:#fff;width:100%;justify-content:center;font-size:13px;padding:12px;}
+.btn{display:inline-flex;align-items:center;gap:5px;padding:9px 16px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;border:none;font-family:var(--font);transition:all .12s;}
+.b-or{background:var(--or);color:#fff;width:100%;justify-content:center;font-size:13px;}
 .b-or:hover{background:var(--or2);}
-.b-gh{background:var(--white);color:var(--sub);border:1px solid var(--bdr2);width:100%;justify-content:center;}
-
-/* SUCCESS */
-.success{text-align:center;padding:40px 20px;}
-.success-icon{font-size:52px;margin-bottom:12px;}
-.success-title{font-family:'DM Serif Display',serif;font-size:24px;margin-bottom:6px;color:var(--text);}
-.success-sub{font-size:13px;color:var(--sub);line-height:1.6;}
-
-/* STATUS BADGE */
-.status-dot{width:8px;height:8px;border-radius:50%;background:var(--gr);display:inline-block;margin-right:4px;}
-.signed-badge{display:inline-flex;align-items:center;gap:4px;background:var(--grb);color:var(--gr);border:1px solid var(--grbr);border-radius:20px;padding:2px 8px;font-size:10px;font-weight:700;}
-
-/* TABS */
-.tabs{display:flex;gap:2px;margin-bottom:16px;}
-.tab{flex:1;padding:9px;text-align:center;background:var(--white);border:1px solid var(--bdr2);border-radius:var(--rs);font-size:12px;font-weight:600;cursor:pointer;color:var(--sub);transition:all .12s;}
-.tab.on{background:var(--or);color:#fff;border-color:var(--or);}
-
-.toast{position:fixed;bottom:20px;right:20px;color:#fff;border-radius:var(--r);padding:10px 16px;font-size:12px;font-weight:600;z-index:999;transform:translateY(60px);opacity:0;transition:all .25s;box-shadow:0 4px 16px rgba(0,0,0,.15);}
+.b-gh{background:var(--white);color:var(--sub);border:1px solid var(--bdr);width:100%;justify-content:center;}
+.b-gr{background:var(--grb);color:var(--gr);border:1px solid var(--grbr);width:100%;justify-content:center;}
+/* SIGNATURE */
+.sig-box{background:var(--bg);border:1.5px solid var(--bdr);border-radius:8px;position:relative;overflow:hidden;margin-bottom:6px;}
+.sig-box canvas{width:100%;height:90px;display:block;cursor:crosshair;touch-action:none;}
+.sig-hint{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:12px;color:var(--mut);pointer-events:none;}
+.sig-clear{background:none;border:none;color:var(--mut);font-size:10px;cursor:pointer;font-family:var(--font);padding:2px 0;}
+.fg{margin-bottom:10px;}
+.fl{display:block;font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--mut);margin-bottom:4px;}
+.fi,.fta{width:100%;background:var(--bg);border:1px solid var(--bdr);border-radius:7px;color:var(--text);font-family:var(--font);font-size:12px;padding:8px 10px;outline:none;}
+.fi:focus,.fta:focus{border-color:var(--or);}
+.fta{resize:vertical;min-height:60px;}
+/* COPY ALL */
+.copy-all-row{display:flex;align-items:center;gap:8px;padding:8px 12px;background:var(--orl);border-bottom:1px solid var(--orb);}
+.copy-all-row label{font-size:11px;font-weight:600;color:var(--or);}
+/* STATUS */
+.status-tag{display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px;}
+.st-ok{background:var(--grb);color:var(--gr);}
+.st-open{background:var(--orl);color:var(--or);}
+/* TOAST */
+.toast{position:fixed;bottom:20px;right:20px;color:#fff;border-radius:10px;padding:10px 16px;font-size:12px;font-weight:600;z-index:999;transform:translateY(60px);opacity:0;transition:all .25s;box-shadow:0 4px 16px rgba(0,0,0,.15);}
 .toast.show{transform:translateY(0);opacity:1;}
 .toast.ok{background:var(--gr);}
 .toast.err{background:var(--re);}
 .toast.info{background:var(--text);}
-
-.loading{text-align:center;padding:60px;color:var(--mut);font-size:14px;}
+.loading{text-align:center;padding:60px;color:var(--mut);}
 </style>
 </head>
 <body>
-
 <div class="hdr">
   <div class="hdr-mark"><svg viewBox="0 0 18 18" fill="none" stroke="white" stroke-width="1.6"><path d="M9 1L1 5.5l8 4.5 8-4.5L9 1zM1 12.5l8 4.5 8-4.5M1 9l8 4.5L17 9"/></svg></div>
   <div><div class="hdr-name">fess<span>.jobs</span></div><div class="hdr-sub">Stundennachweis</div></div>
 </div>
-
-<div class="wrap" id="content">
-  <div class="loading">⏳ Lade Auftrag…</div>
-</div>
-
+<div class="wrap" id="content"><div class="loading">⏳ Lade…</div></div>
 <div class="toast" id="T"></div>
-
 <script>
-const params = new URLSearchParams(location.search);
-const aufId = params.get('auf');
-let AUF = null;
-let CREW = [];
-let SH_MAP = {};
-let maDrawn = {}, kuDrawn = false;
-let currentView = 'ma'; // 'ma' or 'kunde'
+const params=new URLSearchParams(location.search);
+const aufId=params.get('auf');
+let AUF=null,CREW=[],SH_MAP={},maDrawn={},kuDrawn=false;
+let sigCtxs={},sigDrawing={};
 
-function toast(msg, type='info'){
-  const el=document.getElementById('T');
-  el.textContent=msg;el.className='toast show '+type;
-  setTimeout(()=>el.className='toast',3200);
-}
+function toast(msg,type='info'){const el=document.getElementById('T');el.textContent=msg;el.className='toast show '+type;setTimeout(()=>el.className='toast',3200);}
 
 function fmtD(a){
   if(!a?.datum_von)return'–';
-  const f=d=>{const x=new Date(d);return`${String(x.getDate()).padStart(2,'0')}.${String(x.getMonth()+1).padStart(2,'0')}.${x.getFullYear()}`;};
-  return a.datum_bis?`${f(a.datum_von)}–${f(a.datum_bis)}`:f(a.datum_von);
+  const f=d=>{const x=new Date(d);return String(x.getDate()).padStart(2,'0')+'.'+String(x.getMonth()+1).padStart(2,'0')+'.'+x.getFullYear();};
+  return a.datum_bis&&a.datum_bis!==a.datum_von?f(a.datum_von)+'–'+f(a.datum_bis):f(a.datum_von);
 }
 
 async function init(){
   if(!aufId){
-    document.getElementById('content').innerHTML='<div class="loading">❌ Kein Auftrag angegeben.</div>';
+    document.getElementById('content').innerHTML='<div class="loading">❌ Kein Auftrag angegeben. Bitte über den Admin-Bereich öffnen.</div>';
     return;
   }
-  try {
-    // Load auftrag
+  if(!sb){
+    document.getElementById('content').innerHTML='<div class="loading">❌ Datenbankverbindung fehlgeschlagen.</div>';
+    return;
+  }
+  try{
     const{data:auf,error:e1}=await sb.from('auftraege').select('*').eq('id',aufId).single();
-    if(e1||!auf){document.getElementById('content').innerHTML='<div class="loading">❌ Auftrag nicht gefunden.</div>';return;}
+    if(e1||!auf){document.getElementById('content').innerHTML='<div class="loading">❌ Auftrag nicht gefunden (ID: '+aufId+')</div>';return;}
     AUF=auf;
-
-    // Load crew
-    const{data:crew}=await sb.from('bewerbungen').select('*').eq('auftrag_id',aufId).eq('status','bestaetigt');
+    const{data:crew}=await sb.from('bewerbungen').select('*').eq('auftrag_id',aufId).eq('status','bestaetigt').order('nachname');
     CREW=crew||[];
-
-    // Load existing stunden
     const{data:sh}=await sb.from('stundennachweise').select('*').eq('auftrag_id',aufId);
     (sh||[]).forEach(s=>SH_MAP[s.mitarbeiter_name]=s);
-
     render();
-  } catch(e){
-    document.getElementById('content').innerHTML=`<div class="loading">❌ Fehler: ${e.message}</div>`;
+  }catch(e){
+    document.getElementById('content').innerHTML='<div class="loading">❌ Fehler: '+e.message+'</div>';
   }
 }
 
 function render(){
-  const isSigned = Object.values(SH_MAP).some(s=>s.ma_unterschrift);
+  const schichten=AUF.schichtzeiten||[];
   document.getElementById('content').innerHTML=`
     <div class="auf-card">
-      <div class="auf-tag">Stundennachweis</div>
+      <div style="font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--or);margin-bottom:4px">Stundennachweis</div>
       <div class="auf-name">${AUF.name}</div>
       <div class="auf-meta">
-        <div class="auf-meta-item">📅 ${fmtD(AUF)}</div>
-        <div class="auf-meta-item">📍 ${AUF.location}</div>
-        <div class="auf-meta-item">👷 ${AUF.taetigkeit||'–'}</div>
-        <div class="auf-meta-item">👥 ${CREW.length} Mitarbeiter</div>
+        <span>📅 ${fmtD(AUF)}</span>
+        <span>📍 ${AUF.location}</span>
+        <span>👷 ${AUF.taetigkeit||'–'}</span>
+        <span>👥 ${CREW.length} Mitarbeiter</span>
       </div>
     </div>
-
     <div class="tabs">
-      <div class="tab on" id="tab-ma" onclick="switchTab('ma')">👷 Mitarbeiter-Ansicht</div>
-      <div class="tab" id="tab-ku" onclick="switchTab('kunde')">🏢 Kunden-Ansicht</div>
+      <button class="tab on" id="tab-ma" onclick="switchTab('ma')">👷 Mitarbeiter</button>
+      <button class="tab" id="tab-ku" onclick="switchTab('kunde')">🏢 Kunde</button>
     </div>
-
-    <!-- MITARBEITER VIEW -->
-    <div id="view-ma">
-      <div class="sec">
-        <div class="sec-h">
-          <div class="sec-title">⏱️ Stunden eintragen & bestätigen</div>
-          <div class="sec-sub">${CREW.length} Personen</div>
-        </div>
-        <div class="ma-row hdr-row">
-          <span>Name</span><span>Datum</span><span>Beginn</span><span>Ende</span><span>Std</span><span>OK</span>
-        </div>
-        <div id="sh-rows">
-          ${CREW.map(p=>{
-            const n=`${p.vorname} ${p.nachname}`;
-            const s=SH_MAP[n]||{};
-            return`<div class="ma-row">
-              <div><div class="ma-name">${n}</div><div style="font-size:10px;color:var(--mut)">${p.anreise||''}</div></div>
-              <input type="date" class="ci" id="d-${p.id}" value="${s.datum||''}">
-              <input type="time" class="ci" id="b-${p.id}" value="${s.beginn||''}">
-              <input type="time" class="ci" id="e-${p.id}" value="${s.ende||''}">
-              <input type="number" class="ci" id="h-${p.id}" value="${s.stunden_gesamt||''}" placeholder="–" step="0.5" style="width:50px">
-              <div class="cb-small" id="ok-${p.id}" style="width:20px;height:20px;border-radius:4px;border:1.5px solid var(--bdr2);cursor:pointer;display:flex;align-items:center;justify-content:center;background:${s.bestaetigt?'var(--gr)':'var(--white)'};border-color:${s.bestaetigt?'var(--gr)':'var(--bdr2)'}" onclick="toggleOK(this,'${p.id}')">
-                ${s.bestaetigt?'<svg width="10" height="10" viewBox="0 0 9 9" fill="none" stroke="white" stroke-width="2"><path d="M1 4.5l2.5 2.5 4.5-4.5"/></svg>':''}
-              </div>
-            </div>`;
-          }).join('')}
-        </div>
-        <div style="padding:12px 16px;border-top:1px solid var(--bdr)">
-          <button class="btn b-gh" onclick="saveAll()" style="margin-bottom:8px">💾 Stunden speichern</button>
-        </div>
-      </div>
-
-      <div class="sec">
-        <div class="sec-h"><div class="sec-title">✍️ Unterschrift Mitarbeiter</div>${isSigned?'<span class="signed-badge">✓ Unterschrieben</span>':''}</div>
-        <div class="sig-wrap">
-          <span class="sig-label">Ich bestätige die oben eingetragenen Stunden:</span>
-          <div class="sig-box">
-            <canvas id="sigMA" height="100"></canvas>
-            <div class="sig-hint" id="hintMA">✍️ Hier unterschreiben</div>
-          </div>
-          <button class="sig-clear" onclick="clearSig('sigMA','hintMA')">↺ Löschen</button>
-        </div>
-        <div style="padding:0 16px 16px">
-          <button class="btn b-or" onclick="submitMA()">✅ Stunden bestätigen & unterschreiben</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- KUNDE VIEW -->
-    <div id="view-kunde" style="display:none">
-      <div class="sec">
-        <div class="sec-h"><div class="sec-title">📋 Stunden-Übersicht</div></div>
-        <div id="kunde-overview">
-          <div class="ma-row hdr-row">
-            <span>Name</span><span>Datum</span><span>Beginn</span><span>Ende</span><span>Std</span><span>Status</span>
-          </div>
-          ${CREW.map(p=>{
-            const n=`${p.vorname} ${p.nachname}`;
-            const s=SH_MAP[n]||{};
-            return`<div class="ma-row">
-              <div class="ma-name">${n}</div>
-              <span style="color:var(--sub)">${s.datum||'–'}</span>
-              <span style="color:var(--sub)">${s.beginn||'–'}</span>
-              <span style="color:var(--sub)">${s.ende||'–'}</span>
-              <span style="font-weight:600">${s.stunden_gesamt||'–'}</span>
-              <span>${s.bestaetigt?'<span class="signed-badge">✓</span>':'<span style="font-size:10px;color:var(--mut)">–</span>'}</span>
-            </div>`;
-          }).join('')}
-          <div style="padding:10px 16px;background:#fafafa;border-top:1px solid var(--bdr);font-size:12px;font-weight:700;display:flex;justify-content:space-between">
-            <span>Gesamt Stunden:</span>
-            <span>${CREW.reduce((s,p)=>{const n=`${p.vorname} ${p.nachname}`;return s+(parseFloat(SH_MAP[n]?.stunden_gesamt)||0);},0).toFixed(1)} Std</span>
-          </div>
-        </div>
-      </div>
-
-      <div class="sec">
-        <div class="sec-h"><div class="sec-title">✍️ Unterschrift Auftraggeber / Kunde</div></div>
-        <div class="sig-wrap">
-          <div class="fg" style="margin-bottom:10px">
-            <label style="display:block;font-size:11px;font-weight:600;color:var(--sub);margin-bottom:4px">Name des Unterzeichners</label>
-            <input class="ci" id="ku-name" placeholder="Vor- und Nachname" style="width:100%;background:var(--white)">
-          </div>
-          <div class="fg" style="margin-bottom:10px">
-            <label style="display:block;font-size:11px;font-weight:600;color:var(--sub);margin-bottom:4px">Funktion / Position</label>
-            <input class="ci" id="ku-pos" placeholder="z.B. Produktionsleiter" style="width:100%;background:var(--white)">
-          </div>
-          <span class="sig-label">Ich bestätige die oben aufgeführten Stunden:</span>
-          <div class="sig-box">
-            <canvas id="sigKU" height="100"></canvas>
-            <div class="sig-hint" id="hintKU">✍️ Hier unterschreiben</div>
-          </div>
-          <button class="sig-clear" onclick="clearSig('sigKU','hintKU')">↺ Löschen</button>
-        </div>
-        <div style="padding:0 16px 16px;display:flex;flex-direction:column;gap:8px">
-          <button class="btn b-or" onclick="submitKunde()">✅ Stunden bestätigen (Kundenseite)</button>
-          <button class="btn b-gh" onclick="downloadPDF()">📄 Stundennachweis PDF herunterladen</button>
-        </div>
-      </div>
-    </div>
+    <div id="view-ma">${renderMAView(schichten)}</div>
+    <div id="view-ku" style="display:none">${renderKUView()}</div>
   `;
-
-  // Init signature canvases
   setTimeout(()=>{
-    initSig('sigMA','hintMA','ma');
-    initSig('sigKU','hintKU','ku');
+    CREW.forEach(p=>initSig('sig-'+p.id,'hint-'+p.id,p.id));
+    initSig('sig-ku','hint-ku','ku');
   },100);
 }
 
+function renderMAView(schichten){
+  const groups=schichten.length?schichten:[''];
+  return groups.map(sch=>`
+    <div class="sec">
+      <div class="sec-h">
+        <div class="sec-title">⏱️ ${sch?'Schicht: '+sch:'Stunden eintragen'}</div>
+      </div>
+      <!-- Copy all row -->
+      <div class="copy-all-row">
+        <label>Zeiten für alle übernehmen:</label>
+        <input type="time" id="copy-von-${sch||'all'}" class="ci" style="width:90px">
+        <span style="font-size:12px;color:var(--sub)">–</span>
+        <input type="time" id="copy-bis-${sch||'all'}" class="ci" style="width:90px">
+        <button onclick="copyToAll('${sch||'all'}')" style="background:var(--or);color:#fff;border:none;border-radius:6px;padding:5px 10px;font-size:11px;font-weight:700;cursor:pointer;font-family:var(--font)">Übernehmen</button>
+      </div>
+      <table class="sh-tbl">
+        <thead><tr><th>Mitarbeiter</th><th>Beginn</th><th>Ende</th><th>Std</th><th>Unterschrift</th></tr></thead>
+        <tbody>
+          ${CREW.map(p=>{
+            const n=p.vorname+' '+p.nachname;
+            const s=SH_MAP[n]||{};
+            const signed=!!s.ma_unterschrift;
+            return \`<tr style="background:${signed?'var(--grb)':'var(--white)'}">
+              <td>
+                <div style="font-weight:600;font-size:12px">${n}</div>
+                <div style="font-size:10px;color:var(--mut)">${p.rolle||p.notiz||'–'}</div>
+                ${signed?'<span class="status-tag st-ok">✓ Unterschrieben</span>':''}
+              </td>
+              <td><input type="time" class="ci" id="von-${p.id}" value="${s.beginn||''}"></td>
+              <td><input type="time" class="ci" id="bis-${p.id}" value="${s.ende||''}"></td>
+              <td><input type="number" class="ci" id="std-${p.id}" value="${s.stunden_gesamt||''}" step="0.5" style="width:60px" placeholder="–"></td>
+              <td>
+                ${signed?'<span class="status-tag st-ok">✓</span>':\`
+                  <div class="sig-box" style="min-width:120px">
+                    <canvas id="sig-${p.id}" height="60"></canvas>
+                    <div class="sig-hint" id="hint-${p.id}">✍️ Unterschreiben</div>
+                  </div>
+                  <button class="sig-clear" onclick="clearSig('${p.id}')">↺</button>
+                \`}
+              </td>
+            </tr>\`;
+          }).join('')}
+        </tbody>
+      </table>
+      <div style="padding:12px 16px;display:flex;flex-direction:column;gap:8px">
+        <button class="btn b-gr" onclick="saveAll('${sch||'all'}')">💾 Stunden speichern</button>
+        <button class="btn b-or" onclick="submitMA('${sch||'all'}')">✅ Stunden bestätigen & unterschreiben</button>
+      </div>
+    </div>`).join('');
+}
+
+function renderKUView(){
+  let total=0;
+  CREW.forEach(p=>{
+    const n=p.vorname+' '+p.nachname;
+    total+=(parseFloat(SH_MAP[n]?.stunden_gesamt)||0);
+  });
+  return `
+    <div class="sec">
+      <div class="sec-h"><div class="sec-title">📋 Stunden-Übersicht</div></div>
+      <table class="sh-tbl">
+        <thead><tr><th>Mitarbeiter</th><th>Rolle</th><th>Beginn</th><th>Ende</th><th>Stunden</th></tr></thead>
+        <tbody id="ku-rows">
+          ${CREW.map(p=>{
+            const n=p.vorname+' '+p.nachname;const s=SH_MAP[n]||{};
+            const von=document.getElementById('von-'+p.id)?.value||s.beginn||'–';
+            const bis=document.getElementById('bis-'+p.id)?.value||s.ende||'–';
+            const std=document.getElementById('std-'+p.id)?.value||s.stunden_gesamt||'–';
+            return`<tr>
+              <td style="font-weight:600;font-size:12px">${n}</td>
+              <td style="font-size:11px;color:var(--sub)">${p.rolle||p.notiz||'–'}</td>
+              <td style="font-size:11px">${von}</td>
+              <td style="font-size:11px">${bis}</td>
+              <td style="font-weight:600">${std}</td>
+            </tr>`;
+          }).join('')}
+          <tr style="background:#f9fafb;font-weight:700">
+            <td colspan="4" style="font-size:12px">Gesamt</td>
+            <td style="font-size:13px;color:var(--or)">${total.toFixed(1)} Std</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="sec">
+      <div class="sec-h"><div class="sec-title">✍️ Unterschrift Auftraggeber</div></div>
+      <div style="padding:14px">
+        <div class="fg"><label class="fl">Name *</label><input class="fi" id="ku-name" placeholder="Vor- und Nachname"></div>
+        <div class="fg"><label class="fl">Funktion</label><input class="fi" id="ku-pos" placeholder="z.B. Produktionsleiter"></div>
+        <div class="fg"><label class="fl">Unterschrift</label>
+          <div class="sig-box"><canvas id="sig-ku" height="80"></canvas><div class="sig-hint" id="hint-ku">✍️ Hier unterschreiben</div></div>
+          <button class="sig-clear" onclick="clearSig('ku')">↺ Löschen</button>
+        </div>
+        <div class="fg"><label class="fl">Bemerkungen</label><textarea class="fta" id="ku-bem" placeholder="Besonderheiten, Korrekturen…"></textarea></div>
+        <div style="display:flex;flex-direction:column;gap:8px;margin-top:8px">
+          <button class="btn b-or" onclick="submitKunde()">✅ Stunden bestätigen (Kunde)</button>
+          <button class="btn b-gh" onclick="downloadPDF()">📄 PDF herunterladen</button>
+        </div>
+      </div>
+    </div>`;
+}
+
 function switchTab(tab){
-  currentView=tab;
   document.getElementById('view-ma').style.display=tab==='ma'?'block':'none';
-  document.getElementById('view-kunde').style.display=tab==='kunde'?'block':'none';
+  document.getElementById('view-ku').style.display=tab==='ku'?'block':'none';
   document.getElementById('tab-ma').className='tab'+(tab==='ma'?' on':'');
-  document.getElementById('tab-ku').className='tab'+(tab==='kunde'?' on':'');
-  if(tab==='kunde'){
-    // Refresh kunde overview with latest data
-    const rows=CREW.map(p=>{
-      const n=`${p.vorname} ${p.nachname}`;const s=SH_MAP[n]||{};
-      return`<div class="ma-row">
-        <div class="ma-name">${n}</div>
-        <span style="color:var(--sub)">${s.datum||document.getElementById('d-'+p.id)?.value||'–'}</span>
-        <span style="color:var(--sub)">${s.beginn||document.getElementById('b-'+p.id)?.value||'–'}</span>
-        <span style="color:var(--sub)">${s.ende||document.getElementById('e-'+p.id)?.value||'–'}</span>
-        <span style="font-weight:600">${s.stunden_gesamt||document.getElementById('h-'+p.id)?.value||'–'}</span>
-        <span>${s.bestaetigt?'<span class="signed-badge">✓</span>':'<span style="font-size:10px;color:var(--mut)">–</span>'}</span>
-      </div>`;
+  document.getElementById('tab-ku').className='tab'+(tab==='ku'?' on':'');
+  if(tab==='ku'){
+    // Refresh kunde overview with latest input values
+    document.getElementById('ku-rows').innerHTML=CREW.map(p=>{
+      const n=p.vorname+' '+p.nachname;const s=SH_MAP[n]||{};
+      const von=document.getElementById('von-'+p.id)?.value||s.beginn||'–';
+      const bis=document.getElementById('bis-'+p.id)?.value||s.ende||'–';
+      const std=document.getElementById('std-'+p.id)?.value||s.stunden_gesamt||'–';
+      return`<tr>
+        <td style="font-weight:600;font-size:12px">${n}</td>
+        <td style="font-size:11px;color:var(--sub)">${p.rolle||p.notiz||'–'}</td>
+        <td style="font-size:11px">${von}</td>
+        <td style="font-size:11px">${bis}</td>
+        <td style="font-weight:600">${std}</td>
+      </tr>`;
     }).join('');
-    const total=CREW.reduce((s,p)=>{
-      const n=`${p.vorname} ${p.nachname}`;
-      const val=parseFloat(document.getElementById('h-'+p.id)?.value)||parseFloat(SH_MAP[n]?.stunden_gesamt)||0;
-      return s+val;
-    },0);
-    document.getElementById('kunde-overview').innerHTML=`
-      <div class="ma-row hdr-row"><span>Name</span><span>Datum</span><span>Beginn</span><span>Ende</span><span>Std</span><span>Status</span></div>
-      ${rows}
-      <div style="padding:10px 16px;background:#fafafa;border-top:1px solid var(--bdr);font-size:12px;font-weight:700;display:flex;justify-content:space-between">
-        <span>Gesamt Stunden:</span><span>${total.toFixed(1)} Std</span>
-      </div>`;
-    setTimeout(()=>initSig('sigKU','hintKU','ku'),50);
+    setTimeout(()=>initSig('sig-ku','hint-ku','ku'),50);
   }
 }
 
-function toggleOK(el, pid){
-  const chk=!el.style.background.includes('059669');
-  el.style.background=chk?'var(--gr)':'var(--white)';
-  el.style.borderColor=chk?'var(--gr)':'var(--bdr2)';
-  el.innerHTML=chk?'<svg width="10" height="10" viewBox="0 0 9 9" fill="none" stroke="white" stroke-width="2"><path d="M1 4.5l2.5 2.5 4.5-4.5"/></svg>':'';
+function copyToAll(schicht){
+  const von=document.getElementById('copy-von-'+schicht)?.value;
+  const bis=document.getElementById('copy-bis-'+schicht)?.value;
+  if(!von&&!bis){toast('Bitte Zeiten eingeben','err');return;}
+  CREW.forEach(p=>{
+    if(von&&document.getElementById('von-'+p.id))document.getElementById('von-'+p.id).value=von;
+    if(bis&&document.getElementById('bis-'+p.id))document.getElementById('bis-'+p.id).value=bis;
+    // Auto-calc hours
+    if(von&&bis){
+      const [vh,vm]=von.split(':').map(Number);
+      const [bh,bm]=bis.split(':').map(Number);
+      let h=((bh*60+bm)-(vh*60+vm))/60;
+      if(h<0)h+=24;
+      const stdEl=document.getElementById('std-'+p.id);
+      if(stdEl)stdEl.value=h.toFixed(1);
+    }
+  });
+  toast('✅ Zeiten für alle übernommen!','ok');
 }
 
-async function saveAll(){
-  let saved=0;
+async function saveAll(schicht){
   for(const p of CREW){
-    const n=`${p.vorname} ${p.nachname}`;
-    const d=document.getElementById('d-'+p.id)?.value;
-    const b=document.getElementById('b-'+p.id)?.value;
-    const e=document.getElementById('e-'+p.id)?.value;
-    const h=parseFloat(document.getElementById('h-'+p.id)?.value)||0;
-    const ok=document.getElementById('ok-'+p.id)?.style.background?.includes('059669')||false;
-    const pl={auftrag_id:aufId,mitarbeiter_name:n,datum:d||null,beginn:b||null,ende:e||null,stunden_gesamt:h,bestaetigt:ok};
+    const n=p.vorname+' '+p.nachname;
+    const von=document.getElementById('von-'+p.id)?.value;
+    const bis=document.getElementById('bis-'+p.id)?.value;
+    const std=parseFloat(document.getElementById('std-'+p.id)?.value)||0;
+    const pl={auftrag_id:aufId,mitarbeiter_name:n,datum:AUF.datum_von||null,beginn:von||null,ende:bis||null,stunden_gesamt:std};
     const{data:ex}=await sb.from('stundennachweise').select('id').eq('auftrag_id',aufId).eq('mitarbeiter_name',n);
     if(ex?.length)await sb.from('stundennachweise').update(pl).eq('id',ex[0].id);
-    else await sb.from('stundennachweise').insert([pl]);
+    else{const{data:ins}=await sb.from('stundennachweise').insert([pl]).select();if(ins?.[0])SH_MAP[n]={...SH_MAP[n],...pl,...ins[0]};}
     SH_MAP[n]={...SH_MAP[n],...pl};
-    saved++;
   }
-  toast(`💾 ${saved} Stunden gespeichert!`,'ok');
+  toast('💾 Stunden gespeichert!','ok');
 }
 
-async function submitMA(){
-  if(!maDrawn){toast('Bitte unterschreiben!','err');return;}
-  await saveAll();
-  const sigData=document.getElementById('sigMA')?.toDataURL('image/png');
-  // Save signature to all stunden records for this auftrag
+async function submitMA(schicht){
+  // Check at least one person has hours
+  const anyHours=CREW.some(p=>document.getElementById('std-'+p.id)?.value);
+  if(!anyHours){toast('Bitte erst Stunden eintragen','err');return;}
+  await saveAll(schicht);
+  // Save signatures
   for(const p of CREW){
-    const n=`${p.vorname} ${p.nachname}`;
+    if(!maDrawn[p.id])continue;
+    const canvas=document.getElementById('sig-'+p.id);
+    if(!canvas)continue;
+    const sigData=canvas.toDataURL('image/png');
+    const n=p.vorname+' '+p.nachname;
     const{data:ex}=await sb.from('stundennachweise').select('id').eq('auftrag_id',aufId).eq('mitarbeiter_name',n);
     if(ex?.length)await sb.from('stundennachweise').update({ma_unterschrift:sigData,ma_unterschrift_datum:new Date().toISOString()}).eq('id',ex[0].id);
   }
-  toast('✅ Stunden bestätigt und unterschrieben!','ok');
-  // Show success
-  document.querySelector('.sec:last-of-type #view-ma')?.remove();
-  document.getElementById('view-ma').innerHTML+=`<div class="success">
-    <div class="success-icon">✅</div>
-    <div class="success-title">Danke!</div>
-    <div class="success-sub">Die Stunden wurden bestätigt.<br>Der Auftraggeber kann jetzt ebenfalls unterschreiben.</div>
-    <div style="margin-top:16px"><button class="btn" style="background:var(--or);color:#fff;margin:0 auto" onclick="switchTab('kunde')">Zur Kunden-Ansicht →</button></div>
-  </div>`;
+  toast('✅ Stunden bestätigt!','ok');
+  await init();
 }
 
 async function submitKunde(){
-  if(!kuDrawn){toast('Bitte unterschreiben!','err');return;}
-  const kuName=document.getElementById('ku-name')?.value;
-  const kuPos=document.getElementById('ku-pos')?.value;
-  if(!kuName){toast('Bitte Name eintragen!','err');return;}
-  const sigData=document.getElementById('sigKU')?.toDataURL('image/png');
-  // Save to all stunden for this auftrag
+  const kuName=document.getElementById('ku-name')?.value.trim();
+  if(!kuName){toast('Bitte Name eintragen','err');return;}
+  if(!kuDrawn){toast('Bitte unterschreiben','err');return;}
+  const sigData=document.getElementById('sig-ku')?.toDataURL('image/png');
+  const bem=document.getElementById('ku-bem')?.value||'';
   const{data:sh}=await sb.from('stundennachweise').select('id').eq('auftrag_id',aufId);
-  for(const s of (sh||[])){
-    await sb.from('stundennachweise').update({
-      kunde_unterschrift:sigData,
-      kunde_name:kuName,
-      kunde_position:kuPos,
-      kunde_datum:new Date().toISOString()
-    }).eq('id',s.id);
+  for(const s of(sh||[])){
+    await sb.from('stundennachweise').update({kunde_unterschrift:sigData,kunde_name:kuName,kunde_position:document.getElementById('ku-pos')?.value||'',kunde_datum:new Date().toISOString(),bemerkung:bem}).eq('id',s.id);
   }
   toast('✅ Kundenseitig bestätigt!','ok');
-  setTimeout(downloadPDF, 500);
+  setTimeout(downloadPDF,500);
 }
 
 function downloadPDF(){
   const{jsPDF}=window.jspdf;
   const doc=new jsPDF();
-  // Header
   doc.setFillColor(232,101,26);doc.rect(0,0,210,11,'F');
   doc.setTextColor(255,255,255);doc.setFontSize(8);doc.setFont('helvetica','bold');
   doc.text('FESS JOBS',14,7.5);doc.text('STUNDENNACHWEIS',105,7.5,{align:'center'});doc.text(new Date().toLocaleDateString('de'),196,7.5,{align:'right'});
-  doc.setTextColor(0,0,0);doc.setFontSize(15);doc.setFont('helvetica','bold');doc.text('Stundennachweis',14,21);
+  doc.setTextColor(0,0,0);doc.setFontSize(14);doc.text(AUF.name,14,20);
   doc.setFontSize(9);doc.setFont('helvetica','normal');doc.setTextColor(100,100,100);
-  doc.text(`${AUF.name} | ${fmtD(AUF)} | ${AUF.location}`,14,27);doc.setTextColor(0,0,0);
-  // Table
+  doc.text(fmtD(AUF)+' | '+AUF.location,14,26);doc.setTextColor(0,0,0);
   const rows=CREW.map(p=>{
-    const n=`${p.vorname} ${p.nachname}`;const s=SH_MAP[n]||{};
-    const dv=document.getElementById('d-'+p.id)?.value||s.datum||'';
-    const bv=document.getElementById('b-'+p.id)?.value||s.beginn||'';
-    const ev=document.getElementById('e-'+p.id)?.value||s.ende||'';
-    const hv=document.getElementById('h-'+p.id)?.value||s.stunden_gesamt||'';
-    return[n,dv,bv,ev,String(hv),''];
+    const n=p.vorname+' '+p.nachname;const s=SH_MAP[n]||{};
+    return[n,p.rolle||p.notiz||'–',s.beginn||'–',s.ende||'–',String(s.stunden_gesamt||'–'),''];
   });
-  const total=rows.reduce((s,r)=>s+(parseFloat(r[4])||0),0);
-  doc.autoTable({
-    startY:33,
-    head:[['Mitarbeiter','Datum','Beginn','Ende','Stunden','Unterschrift MA']],
-    body:rows,
-    foot:[['','','','','Gesamt: '+total.toFixed(1),'']],
-    styles:{fontSize:9,cellPadding:4},
-    headStyles:{fillColor:[232,101,26],textColor:255},
-    footStyles:{fontStyle:'bold'},
-    columnStyles:{5:{cellWidth:35}},
-  });
+  const total=CREW.reduce((t,p)=>{const n=p.vorname+' '+p.nachname;return t+(parseFloat(SH_MAP[n]?.stunden_gesamt)||0);},0);
+  doc.autoTable({startY:32,head:[['Mitarbeiter','Rolle','Beginn','Ende','Stunden','Unterschrift']],body:rows,foot:[['','','','','Gesamt: '+total.toFixed(1),'']],styles:{fontSize:9,cellPadding:4},headStyles:{fillColor:[232,101,26],textColor:255},footStyles:{fontStyle:'bold'},columnStyles:{5:{cellWidth:32}}});
   const y=doc.lastAutoTable.finalY+16;
-  doc.setDrawColor(180,180,180);
-  doc.line(14,y,88,y);doc.line(122,y,196,y);
+  doc.setDrawColor(180,180,180);doc.line(14,y,88,y);doc.line(122,y,196,y);
   doc.setFontSize(8);doc.setTextColor(120,120,120);
   const kuName=document.getElementById('ku-name')?.value||'';
-  doc.text('Unterschrift FESS / Bauleiter',14,y+4);
+  doc.text('Unterschrift FESS',14,y+4);
   doc.text('Unterschrift Auftraggeber'+(kuName?' ('+kuName+')':''),122,y+4);
-  doc.text('Datum: '+new Date().toLocaleDateString('de'),14,y+8);
-  doc.text('Datum: '+new Date().toLocaleDateString('de'),122,y+8);
-  doc.save(`FESS_Stundennachweis_${AUF.name.replace(/ /g,'_')}.pdf`);
+  const bem=document.getElementById('ku-bem')?.value||'';
+  if(bem){doc.setFontSize(9);doc.setTextColor(0,0,0);doc.setFont('helvetica','bold');doc.text('Bemerkungen:',14,y+14);doc.setFont('helvetica','normal');doc.text(bem,14,y+19,{maxWidth:182});}
+  doc.save('FESS_Stundennachweis_'+AUF.name.replace(/ /g,'_')+'.pdf');
   toast('📄 PDF heruntergeladen!','ok');
 }
 
-// SIGNATURE
-let sigCtx={ma:null,ku:null};
-let sigDrawing={ma:false,ku:false};
-
-function initSig(canvasId, hintId, key){
+// SIGNATURES
+function initSig(canvasId,hintId,key){
   const c=document.getElementById(canvasId);if(!c)return;
+  if(key!=='ku')maDrawn[key]=false; else kuDrawn=false;
   const ctx=c.getContext('2d');
-  c.width=c.offsetWidth*2;c.height=200;ctx.scale(2,1);
-  sigCtx[key]=ctx;
+  sigCtxs[key]=ctx;
+  c.width=c.offsetWidth*window.devicePixelRatio||600;
+  c.height=c.offsetHeight*window.devicePixelRatio||90;
+  ctx.scale(window.devicePixelRatio||1,window.devicePixelRatio||1);
   function pos(e){
     const r=c.getBoundingClientRect();
     const src=e.touches?e.touches[0]:e;
-    return{x:(src.clientX-r.left)*(c.width/2/r.width),y:(src.clientY-r.top)*(c.height/r.height)};
+    return{x:src.clientX-r.left,y:src.clientY-r.top};
   }
-  c.onmousedown=e=>{sigDrawing[key]=true;const p=pos(e);ctx.beginPath();ctx.moveTo(p.x,p.y);setDrawn(key,hintId);};
-  c.onmousemove=e=>{if(!sigDrawing[key])return;const p=pos(e);ctx.lineWidth=1.5;ctx.lineCap='round';ctx.strokeStyle='#111827';ctx.lineTo(p.x,p.y);ctx.stroke();};
-  c.onmouseup=()=>sigDrawing[key]=false;
-  c.ontouchstart=e=>{e.preventDefault();sigDrawing[key]=true;const p=pos(e);ctx.beginPath();ctx.moveTo(p.x,p.y);setDrawn(key,hintId);};
-  c.ontouchmove=e=>{e.preventDefault();if(!sigDrawing[key])return;const p=pos(e);ctx.lineWidth=1.5;ctx.lineCap='round';ctx.strokeStyle='#111827';ctx.lineTo(p.x,p.y);ctx.stroke();};
-  c.ontouchend=()=>sigDrawing[key]=false;
+  const draw=(e)=>{if(!sigDrawing[key])return;const p=pos(e);ctx.lineWidth=1.8;ctx.lineCap='round';ctx.strokeStyle='#111827';ctx.lineTo(p.x,p.y);ctx.stroke();};
+  const start=(e)=>{sigDrawing[key]=true;const p=pos(e);ctx.beginPath();ctx.moveTo(p.x,p.y);if(key!=='ku')maDrawn[key]=true;else kuDrawn=true;const h=document.getElementById(hintId);if(h)h.style.opacity='0';};
+  const stop=()=>sigDrawing[key]=false;
+  c.onmousedown=start;c.onmousemove=draw;c.onmouseup=stop;c.onmouseleave=stop;
+  c.ontouchstart=e=>{e.preventDefault();start(e);};
+  c.ontouchmove=e=>{e.preventDefault();draw(e);};
+  c.ontouchend=stop;
 }
-
-function setDrawn(key, hintId){
-  if(key==='ma')maDrawn=true;else kuDrawn=true;
-  const h=document.getElementById(hintId);if(h)h.style.opacity='0';
-}
-
-function clearSig(canvasId, hintId){
+function clearSig(key){
+  const isKu=key==='ku';
+  const canvasId=isKu?'sig-ku':'sig-'+key;
+  const hintId=isKu?'hint-ku':'hint-'+key;
   const c=document.getElementById(canvasId);if(!c)return;
-  c.getContext('2d').clearRect(0,0,c.width*2,c.height);
+  c.getContext('2d').clearRect(0,0,c.width,c.height);
+  if(isKu)kuDrawn=false;else maDrawn[key]=false;
   const h=document.getElementById(hintId);if(h)h.style.opacity='1';
-  if(canvasId==='sigMA')maDrawn=false;else kuDrawn=false;
 }
 
-// INIT
 init();
 </script>
 </body>

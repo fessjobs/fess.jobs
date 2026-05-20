@@ -32,8 +32,8 @@ body{background:var(--white);font-family:var(--font);color:#111827;overflow-x:hi
 .lang-btn{background:none;border:1px solid #d1d5db;border-radius:20px;color:#111827;font-size:11px;font-weight:600;padding:4px 10px;cursor:pointer;font-family:var(--font);}
 .lang-btn.on{background:var(--or);border-color:var(--or);color:#111827;}
 .top-socials{display:flex;align-items:center;gap:6px;flex-wrap:wrap;}
-.soc-btn{display:flex;align-items:center;gap:4px;background:#f9fafb;border:1px solid #e5e7eb;border-radius:20px;padding:4px 9px;font-size:10px;font-weight:600;color:rgba(255,255,255,.65);text-decoration:none;transition:background .15s;}
-.soc-btn:hover{background:rgba(255,255,255,.12);color:#111827;}
+.soc-btn{display:flex;align-items:center;gap:4px;background:#f9fafb;border:1px solid #e5e7eb;border-radius:20px;padding:4px 9px;font-size:10px;font-weight:600;color:#111827;text-decoration:none;transition:background .15s;}
+.soc-btn:hover{background:#f3f4f6;color:var(--or);}
 .soc-btn svg{width:12px;height:12px;flex-shrink:0;}
 /* NAV */
 .nav{background:#ffffff;border-bottom:1px solid #e5e7eb;box-shadow:0 1px 4px rgba(0,0,0,.06);padding:0 20px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:300;height:54px;}
@@ -89,7 +89,7 @@ section{padding:60px 20px;}
 /* MONTH ACCORDION */
 .month-group{margin-bottom:6px;border:1px solid var(--border);border-radius:12px;overflow:hidden;}
 .month-toggle{width:100%;background:#ffffff;border:none;color:#111827;padding:12px 16px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;font-family:'Bitter',serif;font-weight:800;font-size:15px;}
-.month-toggle:hover{background:#242424;}
+.month-toggle:hover{background:#f9fafb;}
 .mtag{background:var(--or);color:#ffffff;font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px;margin-right:8px;}
 .marrow{transition:transform .25s;font-size:12px;color:var(--muted);}
 .month-toggle.open .marrow{transform:rotate(180deg);}
@@ -114,17 +114,17 @@ section{padding:60px 20px;}
 .jcard-kat{position:absolute;bottom:8px;left:8px;font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;padding:2px 8px;border-radius:16px;color:#111827;}
 .jcard-st{position:absolute;top:8px;right:8px;font-size:8px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:2px 7px;border-radius:10px;}
 .st-best{background:#ecfdf5;color:#059669;border:1px solid #a7f3d0;}.st-ang{background:#fafafa;color:#6b7280;border:1px solid #e5e7eb;}
-.occ-wrap{position:absolute;bottom:32px;right:10px;display:flex;align-items:center;gap:5px;}
+.occ-wrap{position:absolute;bottom:10px;right:10px;display:flex;align-items:center;gap:5px;}
 .occ-bg{width:56px;height:6px;background:rgba(255,255,255,.25);border-radius:3px;overflow:hidden;}
 .occ-fill{height:100%;border-radius:3px;}
 .occ-pct{font-size:9px;font-weight:700;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.9);}
-.occ-wrap{position:relative;}
+.occ-wrap{}
 .occ-tip{display:none;position:absolute;bottom:18px;right:0;background:#1f2937;color:#fff;font-size:10px;font-weight:600;padding:5px 8px;border-radius:6px;white-space:nowrap;pointer-events:none;z-index:10;box-shadow:0 2px 8px rgba(0,0,0,.3);}
 .occ-wrap:hover .occ-tip{display:block;}
-.jcard-body{padding:10px 12px 12px;}
+.jcard-body{padding:10px 12px 12px;display:flex;flex-direction:column;}
 .jcard-name{font-family:'Bitter',serif;font-weight:800;font-size:15px;line-height:1.2;margin-bottom:5px;}
 .jcard-row{display:flex;align-items:flex-start;gap:5px;font-size:11px;color:#6b7280;line-height:1.4;margin-bottom:3px;}
-.jcard-shifts{display:flex;flex-wrap:wrap;gap:3px;margin-top:4px;}
+.jcard-shifts{display:flex;flex-wrap:wrap;gap:3px;margin-top:4px;flex:1;align-content:flex-start;}
 .jcard-shift{background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;padding:2px 6px;font-size:9px;color:#9ca3af;}
 .gk .jcard-body .jcard-name,.gf .jcard-body .jcard-name{color:#111827;}
 .jcard-body{background:#fff;color:#111827;}
@@ -195,7 +195,7 @@ footer{background:#111827827;border-top:1px solid var(--border);padding:36px 20p
   /* JCARD */
   .jcard-img{height:140px;}
   .jcard-name{font-size:14px;}
-  .jcard-body{padding:10px 12px 12px;}
+  .jcard-body{padding:10px 12px 12px;display:flex;flex-direction:column;}
   .jcard-row{font-size:11px;}
   .jcard-shift{font-size:9px;}
   .jcard-btn{padding:9px;font-size:12px;}
@@ -348,6 +348,17 @@ canvas.sig-canvas{width:100%;height:80px;cursor:crosshair;display:block;touch-ac
 .chat-input{flex:1;background:#fff;border:1px solid #e5e7eb;border-radius:8px;padding:8px 10px;font-size:12px;font-family:var(--font);outline:none;}
 .chat-input:focus{border-color:var(--or);}
 .chat-send{background:var(--or);color:#fff;border:none;border-radius:8px;padding:8px 12px;font-size:12px;cursor:pointer;font-family:var(--font);font-weight:700;}
+
+/* MOBILE FILTER DROPDOWN */
+@media(max-width:768px){
+  .filter-dropdown-mobile{display:block;}
+  .filter-desktop{display:none;}
+}
+@media(min-width:769px){
+  .filter-dropdown-mobile{display:none;}
+  .filter-desktop{display:flex;}
+}
+.filter-dropdown-mobile select{width:100%;background:#f9fafb;border:1px solid #e5e7eb;border-radius:20px;padding:7px 14px;font-size:12px;font-family:var(--font);outline:none;color:#111827;font-weight:600;-webkit-appearance:none;appearance:none;}
 /* COOKIE */
 .cookie-banner{position:fixed;bottom:0;left:0;right:0;background:#ffffff;border-top:1px solid rgba(232,101,26,.3);padding:14px 20px;z-index:900;display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;transform:translateY(100%);transition:transform .4s;}
 .cookie-banner.show{transform:translateY(0);}
@@ -438,7 +449,24 @@ canvas.sig-canvas{width:100%;height:80px;cursor:crosshair;display:block;touch-ac
       <div style="font-size:11px;color:var(--muted);" id="myAppsSubline">Du hast dich bereits beworben für:</div>
       <div class="my-apps-list" id="myAppsList"></div>
     </div>
-    <div class="jobs-controls">
+    <!-- Mobile filter dropdown -->
+    <div class="filter-dropdown-mobile" style="margin-bottom:12px;display:flex;gap:8px">
+      <select onchange="sf(this.value,null)" style="flex:1;background:#f9fafb;border:1px solid #e5e7eb;border-radius:20px;padding:7px 14px;font-size:12px;font-family:var(--font);outline:none;color:#111827;font-weight:600">
+        <option value="alle">🎯 Alle Aufträge</option>
+        <option value="Konzert">🎸 Konzert</option>
+        <option value="Festival">🎪 Festival</option>
+        <option value="Promotion">📣 Promotion</option>
+        <option value="ESL">🏷️ ESL</option>
+        <option value="Sport">🥊 Sport</option>
+        <option value="dringend">🔥 Dringend</option>
+      </select>
+      <select onchange="ss(this.value)" style="background:#f9fafb;border:1px solid #e5e7eb;border-radius:20px;padding:7px 14px;font-size:12px;font-family:var(--font);outline:none;color:#111827;font-weight:600">
+        <option value="datum">↑ Datum</option>
+        <option value="pax">↓ PAX</option>
+        <option value="occ">↓ Besetzt</option>
+      </select>
+    </div>
+    <div class="jobs-controls filter-desktop">
       <span style="font-size:10px;color:var(--muted);font-weight:700;letter-spacing:.08em;text-transform:uppercase">Filter:</span>
       <button class="filter-pill on" onclick="sf('alle',this)">Alle</button>
       <button class="filter-pill" onclick="sf('Konzert',this)">🎸 Konzert</button>
@@ -608,7 +636,7 @@ function mon(e){return new Date(e.dv).getMonth()+1;}
 function occ(e){return e.pax>0?Math.min(Math.round(e.pb/e.pax*100),100):0;}
 function occC(p){return p>=80?'#22c55e':p>=40?'#f59e0b':'#E8651A';}
 
-function sf(f,el){CF=f;document.querySelectorAll('.filter-pill').forEach(b=>b.classList.remove('on'));el.classList.add('on');renderJobs();}
+function sf(f,el){CF=f;document.querySelectorAll('.filter-pill').forEach(b=>b.classList.remove('on'));if(el)el.classList.add('on');renderJobs();}
 function ss(v){CS=v;renderJobs();}
 function fevs(){
   let a=ALL.slice();
@@ -978,11 +1006,11 @@ function initSig(canvasId, hintId){
     return{x:(src.clientX-r.left)*(canvas.width/2/r.width),y:(src.clientY-r.top)*(canvas.height/r.height)};
   }
   canvas.addEventListener('mousedown',e=>{sigDrawing=true;const p=pos(e);ctx.beginPath();ctx.moveTo(p.x,p.y);if(!sigDrawn){sigDrawn=true;const h=document.getElementById(hintId);if(h)h.style.opacity='0';}});
-  canvas.addEventListener('mousemove',e=>{if(!sigDrawing)return;const p=pos(e);ctx.lineWidth=1.5;ctx.lineCap='round';ctx.strokeStyle='rgba(255,255,255,.9)';ctx.lineTo(p.x,p.y);ctx.stroke();});
+  canvas.addEventListener('mousemove',e=>{if(!sigDrawing)return;const p=pos(e);ctx.lineWidth=1.5;ctx.lineCap='round';ctx.strokeStyle='#111827';ctx.lineTo(p.x,p.y);ctx.stroke();});
   canvas.addEventListener('mouseup',()=>sigDrawing=false);
   canvas.addEventListener('mouseleave',()=>sigDrawing=false);
   canvas.addEventListener('touchstart',e=>{e.preventDefault();sigDrawing=true;const p=pos(e);ctx.beginPath();ctx.moveTo(p.x,p.y);if(!sigDrawn){sigDrawn=true;const h=document.getElementById(hintId);if(h)h.style.opacity='0';}},{passive:false});
-  canvas.addEventListener('touchmove',e=>{e.preventDefault();if(!sigDrawing)return;const p=pos(e);ctx.lineWidth=1.5;ctx.lineCap='round';ctx.strokeStyle='rgba(255,255,255,.9)';ctx.lineTo(p.x,p.y);ctx.stroke();},{passive:false});
+  canvas.addEventListener('touchmove',e=>{e.preventDefault();if(!sigDrawing)return;const p=pos(e);ctx.lineWidth=1.5;ctx.lineCap='round';ctx.strokeStyle='#111827';ctx.lineTo(p.x,p.y);ctx.stroke();},{passive:false});
   canvas.addEventListener('touchend',()=>sigDrawing=false);
 }
 function clearSig(canvasId, hintId){
@@ -995,7 +1023,7 @@ function clearSig(canvasId, hintId){
 }
 
 // ── FORM ──
-function mkForm(evId, evN, evD, evL, isGen){
+function mkForm(evId, evN, evD, evL, isGen, preselectedSchicht){
   upsellSel=new Set();
   sigDrawn=false;
   const eid='f'+(evId||'gen').replace(/-/g,'');
@@ -1010,14 +1038,24 @@ function mkForm(evId, evN, evD, evL, isGen){
 
   return `${savedBanner}
 <div class="step-ind" id="si${eid}">
-  <div class="step-dot cur" id="sd0${eid}"></div>
-  <div class="step-dot" id="sd1${eid}"></div>
+  <div class="step-dot ${isGen?'cur':'done'}" id="sd0${eid}"></div>
+  <div class="step-dot ${isGen?'':'cur'}" id="sd1${eid}"></div>
+  <div class="step-dot" id="sd2${eid}"></div>
 </div>
 <div class="modal-title">🎯 Jetzt bewerben</div>
 <div class="modal-sub"><strong>${evN||'Allgemeine Bewerbung'}</strong>${evD?' · '+evD:''}<br>${evL?'📍 '+evL:''}</div>
 <form id="F${eid}" data-evid="${evId||''}" data-evn="${evN||''}" data-evd="${evD||''}" data-evl="${evL||''}" data-eid="${eid}" onsubmit="doSub(event,this)">
 
-<div class="step on" id="s1${eid}">
+<div class="step ${isGen?'hidden':'on'}" id="s0${eid}">
+  <div style="background:var(--orl);border:1px solid var(--orb);border-radius:8px;padding:12px 14px;margin-bottom:12px">
+    <div style="font-size:12px;font-weight:700;color:var(--or);margin-bottom:6px">📅 Für welche Schichten bist du verfügbar?</div>
+    <div style="font-size:11px;color:var(--sub);margin-bottom:10px">Wähle alle Tage und Schichten für die du dich bewerben möchtest:</div>
+    <div id="schichtSel${eid}" style="display:flex;flex-direction:column;gap:6px"></div>
+  </div>
+  <button type="button" class="sub-btn" onclick="goS1from0('${eid}')">Weiter →</button>
+</div>
+
+<div class="step ${isGen?'on':'hidden'}" id="s1${eid}">
   <div class="fr2">
     <div class="fg"><label class="fl">Vorname *</label><input class="fi" name="vorname" placeholder="Max" required></div>
     <div class="fg"><label class="fl">Nachname *</label><input class="fi" name="nachname" placeholder="Mustermann" required></div>
@@ -1046,13 +1084,19 @@ function mkForm(evId, evN, evD, evL, isGen){
   <div class="fg">
     <label class="fl">Sprachkenntnisse</label>
     <div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:7px">
-      ${['🇩🇪 Deutsch','🇬🇧 Englisch','🇸🇦 Arabisch','🇷🇺 Russisch','🇺🇦 Ukrainisch','🇹🇷 Türkisch','🇵🇱 Polnisch','🇷🇴 Rumänisch'].map(l=>`
-      <label style="cursor:pointer;display:flex;align-items:center;gap:3px;background:rgba(255,255,255,.05);border:1px solid #e5e7eb;border-radius:7px;padding:4px 7px;font-size:10px;color:rgba(255,255,255,.85)">
-        <input type="checkbox" name="sprachen" value="${l}" style="width:11px;height:11px;accent-color:var(--or)"> ${l}</label>`).join('')}
+      <label style="cursor:pointer;display:flex;align-items:center;gap:3px;background:#f3f4f6;border:1px solid #e5e7eb;border-radius:7px;padding:4px 8px;font-size:10px;color:#111827;font-weight:500"><input type="checkbox" name="sprachen" value="Deutsch" style="width:11px;height:11px;accent-color:var(--or)"> 🇩🇪 DE</label>
+      <label style="cursor:pointer;display:flex;align-items:center;gap:3px;background:#f3f4f6;border:1px solid #e5e7eb;border-radius:7px;padding:4px 8px;font-size:10px;color:#111827;font-weight:500"><input type="checkbox" name="sprachen" value="Englisch" style="width:11px;height:11px;accent-color:var(--or)"> 🇬🇧 EN</label>
+      <label style="cursor:pointer;display:flex;align-items:center;gap:3px;background:#f3f4f6;border:1px solid #e5e7eb;border-radius:7px;padding:4px 8px;font-size:10px;color:#111827;font-weight:500"><input type="checkbox" name="sprachen" value="Arabisch" style="width:11px;height:11px;accent-color:var(--or)"> 🇸🇦 AR</label>
+      <label style="cursor:pointer;display:flex;align-items:center;gap:3px;background:#f3f4f6;border:1px solid #e5e7eb;border-radius:7px;padding:4px 8px;font-size:10px;color:#111827;font-weight:500"><input type="checkbox" name="sprachen" value="Russisch" style="width:11px;height:11px;accent-color:var(--or)"> 🇷🇺 RU</label>
+      <label style="cursor:pointer;display:flex;align-items:center;gap:3px;background:#f3f4f6;border:1px solid #e5e7eb;border-radius:7px;padding:4px 8px;font-size:10px;color:#111827;font-weight:500"><input type="checkbox" name="sprachen" value="Ukrainisch" style="width:11px;height:11px;accent-color:var(--or)"> 🇺🇦 UK</label>
+      <label style="cursor:pointer;display:flex;align-items:center;gap:3px;background:#f3f4f6;border:1px solid #e5e7eb;border-radius:7px;padding:4px 8px;font-size:10px;color:#111827;font-weight:500"><input type="checkbox" name="sprachen" value="Türkisch" style="width:11px;height:11px;accent-color:var(--or)"> 🇹🇷 TR</label>
+      <label style="cursor:pointer;display:flex;align-items:center;gap:3px;background:#f3f4f6;border:1px solid #e5e7eb;border-radius:7px;padding:4px 8px;font-size:10px;color:#111827;font-weight:500"><input type="checkbox" name="sprachen" value="Polnisch" style="width:11px;height:11px;accent-color:var(--or)"> 🇵🇱 PL</label>
+      <label style="cursor:pointer;display:flex;align-items:center;gap:3px;background:#f3f4f6;border:1px solid #e5e7eb;border-radius:7px;padding:4px 8px;font-size:10px;color:#111827;font-weight:500"><input type="checkbox" name="sprachen" value="Rumänisch" style="width:11px;height:11px;accent-color:var(--or)"> 🇷🇴 RO</label>
     </div>
     <label class="fl">Deutschkenntnisse</label>
     <select class="fsel" name="deutschlevel">
-      <option value="">–</option>
+      <option value="">– Bitte wählen –</option>
+      <option value="keine">Kein Deutsch</option>
       <option value="A1">A1 – Grundkenntnisse</option><option value="A2">A2 – Elementar</option>
       <option value="B1">B1 – Mittelstufe</option><option value="B2">B2 – Gute Kenntnisse</option>
       <option value="C1">C1 – Verhandlungssicher</option><option value="C2">C2 – Muttersprachlich</option>
@@ -1152,22 +1196,34 @@ function fillProfile(eid){
   if(p.status&&f.status){f.status.value=p.status;togS(f.status,eid);}
   document.querySelector('.profile-banner')?.remove();
 }
+function goS1from0(eid){
+  // Collect selected schichten
+  const sels=document.querySelectorAll('#schichtSel'+eid+' input[type="checkbox"]:checked');
+  if(!sels.length){ toast('Bitte mindestens eine Schicht auswählen','err'); return; }
+  document.getElementById('s0'+eid).classList.remove('on');
+  document.getElementById('s1'+eid).classList.remove('hidden');
+  document.getElementById('s1'+eid).classList.add('on');
+  document.getElementById('sd0'+eid).classList.replace('cur','done');
+  document.getElementById('sd1'+eid).classList.add('cur');
+  document.getElementById('MB').querySelector('.modal-box').scrollTop=0;
+}
 function goS2(eid){
   const req=[...document.querySelectorAll('#s1'+eid+' [required]')];
   let ok=true;req.forEach(i=>{const v=!!i.value;i.style.borderColor=v?'':'var(--or)';if(!v)ok=false;});
   if(!ok)return;
   document.getElementById('s1'+eid).classList.remove('on');
   document.getElementById('s2'+eid).classList.add('on');
-  document.getElementById('sd0'+eid).classList.replace('cur','done');
-  document.getElementById('sd1'+eid).classList.add('cur');
+  document.getElementById('sd1'+eid).classList.replace('cur','done');
+  document.getElementById('sd2'+eid).classList.add('cur');
   document.getElementById('MB').querySelector('.modal-box').scrollTop=0;
   setTimeout(()=>initSig('sigC'+eid,'sigH'+eid), 80);
 }
 function goS1(eid){
   document.getElementById('s2'+eid).classList.remove('on');
   document.getElementById('s1'+eid).classList.add('on');
-  document.getElementById('sd1'+eid).classList.remove('cur');
-  document.getElementById('sd0'+eid).classList.replace('done','cur');
+  document.getElementById('sd2'+eid)?.classList.remove('cur');
+  document.getElementById('sd1'+eid).classList.replace('cur','done');
+  document.getElementById('sd1'+eid).classList.replace('done','cur');
 }
 
 async function doSub(e, formEl){
@@ -1189,8 +1245,11 @@ async function doSub(e, formEl){
   const newsletter=f.c_news?.checked?'Ja':'Nein';
   // Save data
   saveProfile({vorname:g('vorname'),nachname:g('nachname'),tel:g('tel'),geb:g('geb'),wohnort:g('wohnort'),status:g('status'),regio:g('regio'),anreise:g('anreise')});
+  // Collect selected schichten
+  const selSchichten=[...f.querySelectorAll('input[name="schicht_sel"]:checked')].map(i=>i.value);
+  const schichtenText=selSchichten.map(s=>s.split('__')[1]||s).join(', ');
   // Save history
-  const mainEv=EV.find(x=>x.n===evN);
+  const mainEv=ALL.find(x=>x.id===evId)||EV.find(x=>x.n===evN);
   if(mainEv) saveToHistory(mainEv.id,mainEv.n,evD);
   upsellSel.forEach(uid=>{const ue=EV.find(x=>x.id===uid);if(ue)saveToHistory(ue.id,ue.n,fmtD(ue));});
   // Build all event names
@@ -1199,31 +1258,39 @@ async function doSub(e, formEl){
   if(sb){
     try{
       const aufId = evId||null;
-      const bewData = {
-        auftrag_id: aufId||null,
-        vorname: g('vorname')||'',
-        nachname: g('nachname')||'',
-        telefon: g('tel')||'',
-        status: 'eingegangen'
-      };
-      // Add optional fields only if they have values
-      const opt = {
-        geburtsdatum: g('geb'),
-        wohnort: g('wohnort'),
-        berufsstatus: g('status'),
-        anreise: g('anreise'),
-        abholort: g('abholort'),
-        psa: g('psa'),
-        schuhgroesse: g('schuh'),
-        shirt_groesse: g('shirt'),
-        regionalleiter: g('regio'),
-        notiz: g('notiz'),
-        sprachen: langs||''
-      };
-      Object.entries(opt).forEach(([k,v])=>{ if(v) bewData[k]=v; });
-      const{error:bewErr}=await sb.from('bewerbungen').insert([bewData]);
-      if(bewErr) console.warn('Supabase insert error:', bewErr.message, bewErr.code, JSON.stringify(bewErr));
-      else console.log('✅ Bewerbung gespeichert!');
+      // Save one entry per selected schicht
+      const schichtenToSave = selSchichten.length ? selSchichten : ['gesamt'];
+      for(const schVal of schichtenToSave){
+        const schParts = schVal.split('__');
+        const schDatum = schParts[0]||'';
+        const schZeit = schParts[1]||schVal;
+        const bewData = {
+          auftrag_id: aufId||null,
+          vorname: g('vorname')||'',
+          nachname: g('nachname')||'',
+          telefon: g('tel')||'',
+          status: 'eingegangen',
+          schicht: schZeit,
+          schicht_datum: schDatum||null,
+        };
+        const opt = {
+          geburtsdatum: g('geb'),
+          wohnort: g('wohnort'),
+          berufsstatus: g('status'),
+          anreise: g('anreise'),
+          abholort: g('abholort'),
+          psa: g('psa'),
+          schuhgroesse: g('schuh'),
+          shirt_groesse: g('shirt'),
+          regionalleiter: g('regio'),
+          notiz: g('notiz'),
+          sprachen: langs||''
+        };
+        Object.entries(opt).forEach(([k,v])=>{ if(v) bewData[k]=v; });
+        const{error:bewErr}=await sb.from('bewerbungen').insert([bewData]);
+        if(bewErr) console.warn('Supabase insert error:', bewErr.message, JSON.stringify(bewErr));
+        else console.log('✅ Bewerbung gespeichert für Schicht:', schZeit);
+      }
     }catch(e){ console.warn('Supabase save error:', e.message); }
   }
   const msg=encodeURIComponent(
@@ -1257,6 +1324,44 @@ function openModal(id){
   if(!e)return;
   document.getElementById('MBody').innerHTML=mkForm(e.id,e.n,fmtD(e),e.loc,false);
   document.getElementById('MB').classList.add('open');
+  // Populate schicht selection
+  const eid='f'+(e.id||'gen').replace(/-/g,'');
+  const container=document.getElementById('schichtSel'+eid);
+  if(container&&e.sh?.length){
+    // Build days from date range
+    const days=[];
+    if(e.dv){
+      const start=new Date(e.dv);
+      const end=e.db?new Date(e.db):new Date(e.dv);
+      for(let d=new Date(start);d<=end;d.setDate(d.getDate()+1))days.push(new Date(d));
+    }
+    if(days.length>1){
+      // Multi-day: show by day
+      container.innerHTML=days.map((day,di)=>`
+        <div style="background:#fff;border:1px solid var(--border);border-radius:7px;padding:8px 10px">
+          <div style="font-size:10px;font-weight:700;color:var(--text);margin-bottom:6px">📅 ${day.toLocaleDateString('de',{weekday:'short',day:'2-digit',month:'2-digit'})}</div>
+          ${e.sh.map(sch=>`<label style="display:flex;align-items:center;gap:7px;font-size:11px;color:#111827;cursor:pointer;padding:3px 0">
+            <input type="checkbox" name="schicht_sel" value="${day.toISOString().split('T')[0]}__${sch}" style="accent-color:var(--or)">
+            <span>⏰ ${sch}</span>
+          </label>`).join('')}
+        </div>`).join('');
+    } else {
+      // Single day: show schichten
+      container.innerHTML=e.sh.map(sch=>`
+        <label style="display:flex;align-items:center;gap:7px;background:#fff;border:1px solid var(--border);border-radius:7px;padding:8px 10px;font-size:12px;color:#111827;cursor:pointer">
+          <input type="checkbox" name="schicht_sel" value="${e.dv||''}__${sch}" style="accent-color:var(--or)">
+          <span>⏰ ${sch}</span>
+        </label>`).join('');
+    }
+  } else if(container){
+    // No schichten defined - just date selection
+    container.innerHTML=`<div style="font-size:11px;color:var(--sub);padding:8px">
+      <label style="display:flex;align-items:center;gap:7px;background:#fff;border:1px solid var(--border);border-radius:7px;padding:8px 10px;cursor:pointer">
+        <input type="checkbox" name="schicht_sel" value="gesamt" checked style="accent-color:var(--or)">
+        <span>📅 ${fmtD(e)} – Ganzer Einsatz</span>
+      </label>
+    </div>`;
+  }
 }
 function openGen(type){
   document.getElementById('MBody').innerHTML=mkForm(null,'Allgemeine Bewerbung – '+type,'','Deutschlandweit',true);
