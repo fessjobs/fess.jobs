@@ -28,8 +28,8 @@ body{background:var(--white);font-family:var(--font);color:#111827;overflow-x:hi
 /* LANG BAR */
 .lang-bar{background:#ffffff;border-bottom:1px solid var(--border);padding:7px 20px;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;}
 .lang-group{display:flex;align-items:center;gap:5px;}
-.lang-label{font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#9ca3af;margin-right:4px;}
-.lang-btn{background:none;border:1px solid #e5e7eb;border-radius:20px;color:#6b7280;font-size:11px;font-weight:600;padding:4px 10px;cursor:pointer;font-family:var(--font);}
+.lang-label{font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#374151;margin-right:4px;}
+.lang-btn{background:none;border:1px solid #d1d5db;border-radius:20px;color:#111827;font-size:11px;font-weight:600;padding:4px 10px;cursor:pointer;font-family:var(--font);}
 .lang-btn.on{background:var(--or);border-color:var(--or);color:#111827;}
 .top-socials{display:flex;align-items:center;gap:6px;flex-wrap:wrap;}
 .soc-btn{display:flex;align-items:center;gap:4px;background:#f9fafb;border:1px solid #e5e7eb;border-radius:20px;padding:4px 9px;font-size:10px;font-weight:600;color:rgba(255,255,255,.65);text-decoration:none;transition:background .15s;}
@@ -42,7 +42,7 @@ body{background:var(--white);font-family:var(--font);color:#111827;overflow-x:hi
 .nav-links{display:flex;align-items:center;gap:2px;}
 .nav-link{font-size:13px;font-weight:600;color:#4b5563;padding:6px 11px;border-radius:8px;cursor:pointer;border:none;background:none;color:#6b7280;}
 .nav-link:hover{color:#111827;background:#f9fafb;}
-.nav-cta{background:var(--or);color:#ffffff827;border:none;border-radius:8px;font-family:'Bitter',serif;font-weight:800;font-size:12px;padding:8px 16px;cursor:pointer;}
+.nav-cta{background:var(--or);color:#ffffff;border:none;border-radius:8px;font-family:'Bitter',serif;font-weight:800;font-size:12px;padding:8px 16px;cursor:pointer;}
 /* HERO */
 .hero{position:relative;min-height:88vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:50px 20px 70px;overflow:hidden;}
 .hero-bg{position:absolute;inset:0;background:radial-gradient(ellipse 80% 60% at 50% 0%,rgba(232,101,26,.08) 0%,transparent 70%),var(--dark);z-index:0;}
@@ -52,7 +52,7 @@ body{background:var(--white);font-family:var(--font);color:#111827;overflow-x:hi
 .hero h1 em{color:var(--or);font-style:normal;}
 .hero p{font-size:clamp(13px,1.8vw,16px);color:#6b7280;max-width:500px;margin:0 auto 32px;line-height:1.65;}
 .hero-btns{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;}
-.btn-primary{background:var(--or);color:#ffffff827;border:none;border-radius:10px;font-family:'Bitter',serif;font-weight:800;font-size:14px;padding:13px 26px;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:7px;}
+.btn-primary{background:var(--or);color:#fff;border:none;border-radius:10px;font-family:'Bitter',serif;font-weight:800;font-size:14px;padding:13px 26px;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:7px;}
 .btn-ghost{background:transparent;color:#111827;border:1px solid rgba(255,255,255,.2);border-radius:10px;font-family:var(--font);font-weight:600;font-size:14px;padding:13px 26px;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:7px;}
 .btn-ghost:hover{border-color:rgba(255,255,255,.5);}
 .hero-stats{display:flex;gap:36px;justify-content:center;margin-top:50px;flex-wrap:wrap;}
@@ -90,7 +90,7 @@ section{padding:60px 20px;}
 .month-group{margin-bottom:6px;border:1px solid var(--border);border-radius:12px;overflow:hidden;}
 .month-toggle{width:100%;background:#ffffff;border:none;color:#111827;padding:12px 16px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;font-family:'Bitter',serif;font-weight:800;font-size:15px;}
 .month-toggle:hover{background:#242424;}
-.mtag{background:var(--or);color:#ffffff827;font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px;margin-right:8px;}
+.mtag{background:var(--or);color:#ffffff;font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px;margin-right:8px;}
 .marrow{transition:transform .25s;font-size:12px;color:var(--muted);}
 .month-toggle.open .marrow{transform:rotate(180deg);}
 .month-body{display:none;grid-template-columns:repeat(auto-fill,minmax(275px,1fr));gap:11px;padding:11px;background:#f8f7f5;}
@@ -99,7 +99,7 @@ section{padding:60px 20px;}
 .jcard{background:#ffffff;border:1px solid var(--border);border-radius:11px;overflow:hidden;transition:transform .18s,box-shadow .18s;}
 .jcard:hover{transform:translateY(-3px);box-shadow:0 12px 40px rgba(0,0,0,.5);}
 .jcard.urg{border-color:var(--or);}
-.urg-strip{background:var(--or);color:#ffffff827;font-size:9px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;text-align:center;padding:3px 0;animation:pu 1.6s infinite;}
+.urg-strip{background:#dc2626;color:#fff;font-size:9px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;text-align:center;padding:3px 0;animation:pu 1.6s infinite;}
 
 .jcard-img{width:100%;height:148px;position:relative;overflow:hidden;}
 .jcard-img img{width:100%;height:100%;object-fit:cover;object-position:center top;display:block;transition:transform .3s;}
@@ -114,12 +114,12 @@ section{padding:60px 20px;}
 .jcard-kat{position:absolute;bottom:8px;left:8px;font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;padding:2px 8px;border-radius:16px;color:#111827;}
 .jcard-st{position:absolute;top:8px;right:8px;font-size:8px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:2px 7px;border-radius:10px;}
 .st-best{background:#ecfdf5;color:#059669;border:1px solid #a7f3d0;}.st-ang{background:#fafafa;color:#6b7280;border:1px solid #e5e7eb;}
-.occ-wrap{position:absolute;bottom:8px;right:8px;display:flex;align-items:center;gap:3px;}
-.occ-bg{width:44px;height:4px;background:rgba(255,255,255,.2);border-radius:2px;overflow:hidden;}
-.occ-fill{height:100%;border-radius:2px;}
+.occ-wrap{position:absolute;bottom:10px;left:10px;display:flex;align-items:center;gap:5px;}
+.occ-bg{width:56px;height:6px;background:rgba(255,255,255,.25);border-radius:3px;overflow:hidden;}
+.occ-fill{height:100%;border-radius:3px;}
 .occ-pct{font-size:9px;font-weight:700;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.9);}
 .occ-wrap{position:relative;}
-.occ-tip{display:none;position:absolute;bottom:18px;right:0;background:#1f2937;color:#fff;font-size:10px;font-weight:600;padding:5px 8px;border-radius:6px;white-space:nowrap;pointer-events:none;z-index:10;box-shadow:0 2px 8px rgba(0,0,0,.3);}
+.occ-tip{display:none;position:absolute;bottom:22px;left:0;background:#1f2937;color:#fff;font-size:10px;font-weight:600;padding:5px 8px;border-radius:6px;white-space:nowrap;pointer-events:none;z-index:10;box-shadow:0 2px 8px rgba(0,0,0,.3);}
 .occ-wrap:hover .occ-tip{display:block;}
 .jcard-body{padding:10px 12px 12px;}
 .jcard-name{font-family:'Bitter',serif;font-weight:800;font-size:15px;line-height:1.2;margin-bottom:5px;}
@@ -161,7 +161,78 @@ section{padding:60px 20px;}
 footer{background:#111827827;border-top:1px solid var(--border);padding:36px 20px 20px;}
 .footer-inner{max-width:1200px;margin:0 auto;}
 .footer-top{display:grid;grid-template-columns:2fr 1fr 1fr;gap:36px;margin-bottom:28px;}
-@media(max-width:600px){.footer-top{grid-template-columns:1fr;}}
+@media(max-width:768px){
+  /* NAV */
+  .nav{padding:0 14px;}
+  .nav-links{display:none;}
+  .nav-right .social-links{display:none;}
+
+  /* HERO */
+  .hero{padding:36px 16px 40px;}
+  .hero-eyebrow{font-size:9px;}
+  .hero-h1{font-size:28px;}
+  .hero-sub{font-size:13px;}
+  .hero-stats{gap:16px;flex-wrap:wrap;}
+  .stat-num{font-size:22px;}
+  .hero-btns{flex-direction:column;}
+  .hero-btns .btn-primary,.hero-btns .btn-ghost{width:100%;justify-content:center;}
+
+  /* LANG BAR */
+  .lang-bar{padding:6px 14px;gap:7px;flex-wrap:nowrap;overflow-x:auto;}
+  .lang-label{display:none;}
+  .lang-group{gap:4px;}
+  .lang-btn{padding:3px 8px;font-size:10px;}
+
+  /* JOBS */
+  .jobs-section{padding:28px 14px;}
+  .jobs-controls{gap:5px;overflow-x:auto;flex-wrap:nowrap;padding-bottom:4px;}
+  .filter-pill{flex-shrink:0;padding:5px 11px;font-size:11px;}
+  .month-body{grid-template-columns:1fr!important;gap:10px;padding:10px;}
+  .month-toggle{padding:11px 14px;font-size:13px;}
+
+  /* JCARD */
+  .jcard-img{height:140px;}
+  .jcard-name{font-size:14px;}
+  .jcard-body{padding:10px 12px 12px;}
+  .jcard-row{font-size:11px;}
+  .jcard-shift{font-size:9px;}
+  .jcard-btn{padding:9px;font-size:12px;}
+
+  /* MY APPS */
+  .my-apps-bar{padding:12px 14px;}
+  .my-app-chip{flex-wrap:wrap;gap:4px;padding:8px 10px;}
+
+  /* ABOUT */
+  .about-grid{grid-template-columns:1fr;gap:28px;}
+  .about-img{display:none;}
+  .section-inner{padding:0 14px;}
+  .section-title{font-size:22px;}
+  .features-grid{grid-template-columns:1fr;}
+
+  /* PROCESS */
+  .process-grid{grid-template-columns:repeat(2,1fr)!important;}
+  .proc-card{padding:14px 12px;}
+
+  /* FOOTER */
+  .footer-top{grid-template-columns:1fr 1fr;}
+  .footer-inner{padding:0 14px;}
+
+  /* MODAL */
+  .modal-bg{align-items:flex-end;padding:0;}
+  .modal-box{border-radius:18px 18px 0 0;max-height:92vh;padding:20px 16px 24px;}
+  .fr2{grid-template-columns:1fr!important;}
+  .modal-title{font-size:17px;}
+  .lang-checkboxes{gap:4px;}
+
+  /* STATS */
+  .stats-bar{gap:16px;}
+  .stat-item{gap:4px;}
+}
+@media(max-width:600px){
+  .footer-top{grid-template-columns:1fr;}
+  .hero-h1{font-size:24px;}
+  .process-grid{grid-template-columns:1fr!important;}
+}
 .footer-logo{font-family:'Bitter',serif;font-weight:900;font-size:20px;margin-bottom:6px;}
 .footer-logo span{color:var(--or);}
 .footer-tagline{font-size:11px;color:rgba(255,255,255,.5);line-height:1.6;max-width:240px;}
@@ -184,7 +255,7 @@ footer{background:#111827827;border-top:1px solid var(--border);padding:36px 20p
 .profile-banner p{font-size:12px;color:#111827;line-height:1.4;}
 .profile-banner strong{color:var(--or);}
 .pb-btn{font-size:11px;font-weight:700;padding:5px 10px;border-radius:6px;border:none;cursor:pointer;font-family:var(--font);}
-.pb-use{background:var(--or);color:#ffffff827;}
+.pb-use{background:var(--or);color:#ffffff;}
 .pb-clear{background:rgba(255,255,255,.1);color:#6b7280;}
 /* FORM */
 .fg{margin-bottom:10px;}
@@ -195,7 +266,7 @@ footer{background:#111827827;border-top:1px solid var(--border);padding:36px 20p
 .fsel option{background:#ffffff;}
 .fta{resize:vertical;min-height:60px;}
 .fr2{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
-.sub-btn{width:100%;background:var(--or);color:#ffffff827;border:none;border-radius:8px;font-family:'Bitter',serif;font-weight:800;font-size:13px;padding:11px 0;cursor:pointer;}
+.sub-btn{width:100%;background:var(--or);color:#ffffff;border:none;border-radius:8px;font-family:'Bitter',serif;font-weight:800;font-size:13px;padding:11px 0;cursor:pointer;}
 .step{display:none;}.step.on{display:block;}
 .step-ind{display:flex;gap:5px;margin-bottom:14px;}
 .step-dot{flex:1;height:3px;border-radius:2px;background:rgba(255,255,255,.12);}
@@ -218,7 +289,7 @@ footer{background:#111827827;border-top:1px solid var(--border);padding:36px 20p
 .sig-label{display:block;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#9ca3af;margin-bottom:6px;}
 .sig-canvas-wrap{position:relative;background:#f3f4f6;border:1px solid #e5e7eb;border-radius:8px;overflow:hidden;}
 canvas.sig-canvas{width:100%;height:80px;cursor:crosshair;display:block;touch-action:none;}
-.sig-hint{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:11px;color:#9ca3af;pointer-events:none;}
+.sig-hint{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:12px;color:#6b7280;pointer-events:none;}
 .sig-err{color:var(--or) !important;opacity:1 !important;}
 .sig-clear-btn{background:none;border:none;color:#9ca3af;font-size:10px;cursor:pointer;padding:3px 0;margin-top:4px;font-family:var(--font);}
 /* UPSELL */
@@ -251,7 +322,7 @@ canvas.sig-canvas{width:100%;height:80px;cursor:crosshair;display:block;touch-ac
 .cookie-text{font-size:11px;color:rgba(255,255,255,.85);line-height:1.5;flex:1;}
 .cookie-text a{color:var(--or);text-decoration:none;}
 .cookie-btns{display:flex;gap:8px;}
-.c-accept{background:var(--or);color:#ffffff827;border:none;border-radius:7px;font-family:'Bitter',serif;font-weight:700;font-size:12px;padding:8px 16px;cursor:pointer;}
+.c-accept{background:var(--or);color:#ffffff;border:none;border-radius:7px;font-family:'Bitter',serif;font-weight:700;font-size:12px;padding:8px 16px;cursor:pointer;}
 .c-decline{background:#f3f4f6;color:#6b7280;border:1px solid #e5e7eb;border-radius:7px;font-size:12px;padding:8px 12px;cursor:pointer;font-family:var(--font);}
 @media(max-width:600px){.nav-links{display:none;}}
 </style>
@@ -522,7 +593,7 @@ function jcard(e){
     <div class="jcard-ov"></div>
     ${stTag}
     <div class="jcard-kat" style="background:${col}">${e.k}</div>
-    <div class="occ-wrap"><div class="occ-tip">${e.pb||0} von ${e.pax} Plätzen besetzt (${op}%)</div><div class="occ-bg"><div class="occ-fill" style="width:${op}%;background:${bc}"></div></div><span class="occ-pct">${op}%</span></div>
+    <div class="occ-wrap"><div class="occ-tip">${e.pb||0} von ${e.pax} besetzt (${op}%)</div><div class="occ-bg"><div class="occ-fill" style="width:${op}%;background:${bc}"></div></div><span class="occ-pct" style="color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.8)">${op}%</span></div>
   </div>
   <div class="jcard-body">
     <div class="jcard-name">${e.n}</div>
@@ -579,7 +650,7 @@ function clearAllData(){
     renderMyApps();
   }
 }
-function renderMyApps(){
+async function renderMyApps(){
   const p=loadProfile(), h=loadHistory(), bar=document.getElementById('myAppsBar');
   if(!bar)return;
   if(!p&&!h.length){bar.style.display='none';return;}
@@ -587,15 +658,80 @@ function renderMyApps(){
   if(p) document.getElementById('myAppsGreeting').textContent='Hallo, '+p.vorname+'!';
   const sub=document.getElementById('myAppsSubline');
   const list=document.getElementById('myAppsList');
-  if(!h.length){sub.textContent='Noch keine Bewerbungen – such dir einen Einsatz aus!';list.innerHTML='';return;}
-  sub.textContent='Du hast dich bereits beworben für ('+h.length+'):';
-  list.innerHTML=h.map(x=>`<div class="my-app-chip" onclick="openModal('${x.id}')">
-    <div class="mac-dot"></div>
-    <span class="mac-name">${x.name}</span>
-    <span class="mac-date">${x.at}</span>
-    <span style="font-size:9px;background:rgba(251,191,36,.15);border:1px solid rgba(251,191,36,.3);color:#fbbf24;border-radius:8px;padding:1px 6px;white-space:nowrap">⏳ ausstehend</span>
-    <span class="mac-again">↻</span>
-  </div>`).join('');
+  if(!h.length){sub.textContent='Noch keine Bewerbungen.';list.innerHTML='';return;}
+  sub.textContent='Meine Bewerbungen ('+h.length+'):';
+  // Fetch real status from Supabase
+  let statusMap={};
+  if(sb&&p?.telefon){
+    try{
+      const{data}=await sb.from('bewerbungen').select('auftrag_id,status').eq('telefon',p.telefon);
+      (data||[]).forEach(b=>statusMap[b.auftrag_id]=b.status);
+    }catch(e){}
+  }
+  const stColors={
+    bestaetigt:{bg:'#ecfdf5',border:'#a7f3d0',color:'#059669',label:'✓ Bestätigt'},
+    abgelehnt:{bg:'#fef2f2',border:'#fecaca',color:'#dc2626',label:'✕ Abgelehnt'},
+    reserviert:{bg:'#f5f3ff',border:'#ddd6fe',color:'#7c3aed',label:'⏳ Reserviert'},
+    eingegangen:{bg:'#fffbeb',border:'#fde68a',color:'#d97706',label:'⏳ Ausstehend'},
+  };
+  list.innerHTML=h.map(x=>{
+    const st=statusMap[x.id]||'eingegangen';
+    const sc=stColors[st]||stColors.eingegangen;
+    return`<div class="my-app-chip" onclick="openBewerbungDetail('${x.id}','${x.name.replace(/'/g,"\'")}','${st}')">
+      <div class="mac-dot" style="background:${sc.color}"></div>
+      <span class="mac-name">${x.name}</span>
+      <span class="mac-date">${x.at}</span>
+      <span style="font-size:9px;background:${sc.bg};border:1px solid ${sc.border};color:${sc.color};border-radius:8px;padding:1px 7px;white-space:nowrap;font-weight:700">${sc.label}</span>
+    </div>`;
+  }).join('');
+}
+
+// ── BEWERBUNG DETAIL ──
+function openBewerbungDetail(aufId, aufName, status){
+  const auf = ALL.find(x=>x.id===aufId)||EV.find(x=>x.id===aufId);
+  const stColors={
+    bestaetigt:{bg:'#ecfdf5',color:'#059669',label:'✓ Bestätigt! Du bist dabei.'},
+    abgelehnt:{bg:'#fef2f2',color:'#dc2626',label:'✕ Leider abgelehnt.'},
+    reserviert:{bg:'#f5f3ff',color:'#7c3aed',label:'⏳ Du bist auf der Reserveliste.'},
+    eingegangen:{bg:'#fffbeb',color:'#d97706',label:'⏳ Bewerbung eingegangen – wir melden uns!'},
+  };
+  const sc=stColors[status]||stColors.eingegangen;
+  const MB=document.getElementById('MB');
+  document.getElementById('MBody').innerHTML=`
+    <div class="modal-title" style="color:#111827">📋 ${aufName}</div>
+    <div style="background:${sc.bg};border-radius:8px;padding:10px 14px;margin-bottom:14px;font-size:13px;font-weight:600;color:${sc.color}">${sc.label}</div>
+    ${auf?`<div style="font-size:12px;color:#4b5563;display:flex;flex-direction:column;gap:5px;margin-bottom:16px">
+      <div>📅 ${fmtD(auf)}</div>
+      <div>📍 ${auf.loc||auf.location||''}</div>
+      <div>👷 ${auf.ta||auf.taetigkeit||''}</div>
+      <div>👥 ${auf.pax||auf.pax_gesamt||''} Personen</div>
+    </div>`:''}
+    <div style="display:flex;flex-direction:column;gap:8px">
+      <a href="https://wa.me/491633626855?text=${encodeURIComponent('Hallo, ich habe mich beworben für: '+aufName+' – Bewerbungs-ID: '+aufId)}" target="_blank"
+        style="display:flex;align-items:center;justify-content:center;gap:8px;background:#25D366;color:#fff;border:none;border-radius:8px;padding:11px;font-size:13px;font-weight:600;text-decoration:none;cursor:pointer">
+        💬 Support kontaktieren (WhatsApp)
+      </a>
+      ${status==='bestaetigt'?`<a href="https://wa.me/491633626855?text=${encodeURIComponent('Infos zu meinem Einsatz: '+aufName)}" target="_blank"
+        style="display:flex;align-items:center;justify-content:center;gap:8px;background:#eff6ff;color:#2563eb;border:1px solid #bfdbfe;border-radius:8px;padding:11px;font-size:13px;font-weight:600;text-decoration:none">
+        ℹ️ Einsatz-Infos anfragen
+      </a>`:''}
+      <button onclick="cancelBewerbung('${aufId}','${aufName}')"
+        style="background:#fef2f2;color:#dc2626;border:1px solid #fecaca;border-radius:8px;padding:11px;font-size:13px;font-weight:600;cursor:pointer;font-family:var(--font)">
+        ✕ Bewerbung absagen
+      </button>
+      <button onclick="closeM()" style="background:#f3f4f6;color:#6b7280;border:none;border-radius:8px;padding:10px;font-size:12px;cursor:pointer;font-family:var(--font)">Schließen</button>
+    </div>`;
+  MB.classList.add('open');
+}
+
+function cancelBewerbung(aufId, name){
+  if(!confirm('Bewerbung für "'+name+'" wirklich absagen?'))return;
+  const h=loadHistory().filter(x=>x.id!==aufId);
+  localStorage.setItem('fess_history',JSON.stringify(h));
+  closeM();
+  renderMyApps().catch(e=>console.warn(e));
+  renderJobs();
+  toast('Bewerbung abgesagt','ok');
 }
 
 // ── UPSELL ──
@@ -787,19 +923,19 @@ function mkForm(evId, evN, evD, evL, isGen){
   <div class="consent-block">
     <div class="consent-row">
       <input type="checkbox" class="consent-cb" id="cb1${eid}" name="c_dsgvo" required>
-      <label class="consent-lbl" for="cb1${eid}">
+      <label class="consent-lbl" style="color:#111827" for="cb1${eid}">
         <strong>Datenschutz *</strong> Ich habe die <a href="https://fess-recruitment.de/datenschutz" target="_blank">Datenschutzerklärung</a> gelesen und stimme der Verarbeitung meiner Daten durch FESS Recruitment zur Personalvermittlung zu. <span class="consent-req">✦ Pflicht</span>
       </label>
     </div>
     <div class="consent-row">
       <input type="checkbox" class="consent-cb" id="cb2${eid}" name="c_agb" required>
-      <label class="consent-lbl" for="cb2${eid}">
+      <label class="consent-lbl" style="color:#111827" for="cb2${eid}">
         <strong>AGB *</strong> Ich stimme den <a href="https://fess-recruitment.de/agb" target="_blank">Allgemeinen Geschäftsbedingungen</a> von FESS zu. <span class="consent-req">✦ Pflicht</span>
       </label>
     </div>
     <div class="consent-row">
       <input type="checkbox" class="consent-cb" id="cb3${eid}" name="c_news">
-      <label class="consent-lbl" for="cb3${eid}">
+      <label class="consent-lbl" style="color:#111827" for="cb3${eid}">
         <strong>Updates (optional)</strong> Ich möchte per WhatsApp über neue Einsätze informiert werden.
       </label>
     </div>
@@ -876,6 +1012,31 @@ function doSub(e, evN, evD, evL, eid){
   upsellSel.forEach(uid=>{const ue=EV.find(x=>x.id===uid);if(ue)saveToHistory(ue.id,ue.n,fmtD(ue));});
   // Build all event names
   const allEvNames=[evN,...[...upsellSel].map(uid=>EV.find(x=>x.id===uid)?.n||'')].filter(Boolean);
+  // Save to Supabase
+  if(sb){
+    try{
+      const aufId = evId||null;
+      await sb.from('bewerbungen').insert([{
+        auftrag_id: aufId||null,
+        vorname: g('vorname'),
+        nachname: g('nachname'),
+        telefon: g('tel'),
+        geburtsdatum: g('geb'),
+        wohnort: g('wohnort'),
+        berufsstatus: g('status'),
+        anreise: g('anreise'),
+        abholort: g('abholort'),
+        psa: g('psa'),
+        schuhgroesse: g('schuh'),
+        shirt_groesse: g('shirt'),
+        regionalleiter: g('regio'),
+        notiz: g('notiz'),
+        sprachen: langs,
+        status: 'eingegangen',
+        created_at: new Date().toISOString()
+      }]);
+    }catch(e){ console.warn('Supabase save error:', e.message); }
+  }
   const msg=encodeURIComponent(
     `🎯 FESS Bewerbung\n📌 ${allEvNames.join(' + ')}\n📅 ${evD||'–'}\n📍 ${evL||'–'}\n────────\n`+
     `👤 ${g('vorname')} ${g('nachname')}\n📞 ${g('tel')}\n🎂 ${g('geb')}\n🏠 ${g('wohnort')}\n`+
@@ -968,7 +1129,7 @@ async function loadEvents(){
           if(new Date(e.dv) <= in10 && pct < 80) e.urg = true;
         });
         renderJobs();
-        renderMyApps();
+        renderMyApps().catch(e=>console.warn(e));
         return;
       }
     }
@@ -976,13 +1137,13 @@ async function loadEvents(){
   // Fallback to local data
   ALL = EV.slice();
   renderJobs();
-  renderMyApps();
+  renderMyApps().catch(e=>console.warn(e));
 }
 
 loadEvents();
 renderProcess();
 renderAbout();
-renderMyApps();
+renderMyApps().catch(e=>console.warn(e));
 checkCookies();
 
 // Auto-refresh alle 30 Sekunden
