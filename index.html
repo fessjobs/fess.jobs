@@ -837,6 +837,845 @@ function mkForm(evId, evN, evD, evL, isGen){
 </div>
 <div class="modal-title">🎯 Jetzt bewerben</div>
 <div class="modal-sub"><strong>${evN||'Allgemeine Bewerbung'}</strong>${evD?' · '+evD:''}<br>${evL?'📍 '+evL:''}</div>
+<form id="F${eid}" onsubmit="doSub(event,'${(evN||'').replace(/'/g,\"\\\'")}','${evD||''}','${evL||''}','${eid}','${evId||''}')">!DOCTYPE html>
+<!-- FESS v3.0 - Supabase Live -->
+<html lang="de" dir="ltr">
+<head>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script>
+const SB_URL = 'https://nojmxfelunqaotqslabk.supabase.co';
+const SB_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5vam14ZmVsdW5xYW90cXNsYWJrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkyNjg4NzcsImV4cCI6MjA5NDg0NDg3N30.14x_oz0vxPXqbwBCcBeUZmE-s6Eg4QNbBWCorMsvfFo';
+let sb = null;
+try {
+  sb = supabase.createClient(SB_URL, SB_ANON);
+  console.log('✅ Supabase OK');
+} catch(e) {
+  console.error('❌ Supabase:', e);
+  sb = null;
+}
+</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>FESS Jobs – Dein Einstieg in die Eventbranche</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Bitter:wght@700;800;900&family=Barlow:wght@400;500;600;700&family=Noto+Sans+Arabic:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+:root{--or:#E8651A;--dark:#f8f7f5;--card:#ffffff;--card2:#f4f3f1;--border:#e5e7eb;--muted:#6b7280;--font:'Barlow',sans-serif;}
+html{scroll-behavior:smooth;}
+body{background:var(--white);font-family:var(--font);color:#111827;overflow-x:hidden;}
+/* LANG BAR */
+.lang-bar{background:#ffffff;border-bottom:1px solid var(--border);padding:7px 20px;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;}
+.lang-group{display:flex;align-items:center;gap:5px;}
+.lang-label{font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#374151;margin-right:4px;}
+.lang-btn{background:none;border:1px solid #d1d5db;border-radius:20px;color:#111827;font-size:11px;font-weight:600;padding:4px 10px;cursor:pointer;font-family:var(--font);}
+.lang-btn.on{background:var(--or);border-color:var(--or);color:#111827;}
+.top-socials{display:flex;align-items:center;gap:6px;flex-wrap:wrap;}
+.soc-btn{display:flex;align-items:center;gap:4px;background:#f9fafb;border:1px solid #e5e7eb;border-radius:20px;padding:4px 9px;font-size:10px;font-weight:600;color:rgba(255,255,255,.65);text-decoration:none;transition:background .15s;}
+.soc-btn:hover{background:rgba(255,255,255,.12);color:#111827;}
+.soc-btn svg{width:12px;height:12px;flex-shrink:0;}
+/* NAV */
+.nav{background:#ffffff;border-bottom:1px solid #e5e7eb;box-shadow:0 1px 4px rgba(0,0,0,.06);padding:0 20px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:300;height:54px;}
+.nav-logo{color:#111827;font-family:'Bitter',serif;font-weight:900;font-size:20px;color:#111827;cursor:pointer;}
+.nav-logo span{color:var(--or);}
+.nav-links{display:flex;align-items:center;gap:2px;}
+.nav-link{font-size:13px;font-weight:600;color:#4b5563;padding:6px 11px;border-radius:8px;cursor:pointer;border:none;background:none;color:#6b7280;}
+.nav-link:hover{color:#111827;background:#f9fafb;}
+.nav-cta{background:var(--or);color:#ffffff;border:none;border-radius:8px;font-family:'Bitter',serif;font-weight:800;font-size:12px;padding:8px 16px;cursor:pointer;}
+/* HERO */
+.hero{position:relative;min-height:88vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:50px 20px 70px;overflow:hidden;}
+.hero-bg{position:absolute;inset:0;background:radial-gradient(ellipse 80% 60% at 50% 0%,rgba(232,101,26,.08) 0%,transparent 70%),var(--dark);z-index:0;}
+.hero-content{position:relative;z-index:1;max-width:720px;}
+.hero-tag{display:inline-flex;align-items:center;gap:6px;background:rgba(232,101,26,.1);border:1px solid rgba(232,101,26,.25);border-radius:20px;padding:5px 14px;font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--or);margin-bottom:22px;}
+.hero h1{font-family:'Bitter',serif;font-weight:900;font-size:clamp(30px,5.5vw,58px);line-height:1.08;margin-bottom:18px;}
+.hero h1 em{color:var(--or);font-style:normal;}
+.hero p{font-size:clamp(13px,1.8vw,16px);color:#6b7280;max-width:500px;margin:0 auto 32px;line-height:1.65;}
+.hero-btns{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;}
+.btn-primary{background:var(--or);color:#fff;border:none;border-radius:10px;font-family:'Bitter',serif;font-weight:800;font-size:14px;padding:13px 26px;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:7px;}
+.btn-ghost{background:transparent;color:#111827;border:1px solid rgba(255,255,255,.2);border-radius:10px;font-family:var(--font);font-weight:600;font-size:14px;padding:13px 26px;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:7px;}
+.btn-ghost:hover{border-color:rgba(255,255,255,.5);}
+.hero-stats{display:flex;gap:36px;justify-content:center;margin-top:50px;flex-wrap:wrap;}
+.stat-n{font-family:'Bitter',serif;font-weight:900;font-size:30px;color:var(--or);}
+.stat-l{font-size:11px;color:var(--muted);margin-top:2px;font-weight:600;}
+.scroll-hint{position:absolute;bottom:20px;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:5px;z-index:1;animation:bob 2s infinite;}
+@keyframes bob{0%,100%{transform:translateX(-50%) translateY(0)}50%{transform:translateX(-50%) translateY(6px)}}
+.scroll-hint span{font-size:9px;color:#d1d5db;letter-spacing:.1em;text-transform:uppercase;}
+/* SECTION */
+section{padding:60px 20px;}
+.section-inner{max-width:1200px;margin:0 auto;}
+.section-tag{font-size:10px;font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:var(--or);margin-bottom:8px;}
+.section-title{color:#111827;font-family:'Bitter',serif;font-weight:900;font-size:clamp(22px,3.5vw,36px);line-height:1.15;margin-bottom:10px;}
+.section-sub{font-size:14px;color:#6b7280;max-width:500px;line-height:1.6;}
+.section-header{margin-bottom:36px;}
+/* MY APPS BAR */
+.my-apps-bar{background:linear-gradient(135deg,rgba(232,101,26,.06),rgba(232,101,26,.03));border:1px solid rgba(232,101,26,.2);border-radius:12px;padding:14px 18px;margin-bottom:20px;display:none;}
+.my-apps-bar-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;}
+.my-apps-bar-title{font-family:'Bitter',serif;font-weight:800;font-size:14px;color:#111827;}
+.my-apps-bar-clear{font-size:10px;color:var(--muted);background:none;border:1px solid #e5e7eb;border-radius:8px;padding:3px 8px;cursor:pointer;font-family:var(--font);}
+.my-apps-list{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;}
+.my-app-chip{display:flex;align-items:center;gap:6px;background:#f9fafb;border:1px solid #e5e7eb;border-radius:20px;padding:5px 12px;font-size:11px;cursor:pointer;transition:border-color .15s;}
+.my-app-chip:hover{border-color:var(--or);}
+.mac-dot{width:6px;height:6px;border-radius:50%;background:var(--or);}
+.mac-name{font-weight:600;color:#111827;}
+.mac-date{color:var(--muted);font-size:10px;}
+.mac-again{font-size:10px;color:var(--or);font-weight:700;}
+/* JOBS */
+.jobs-controls{display:flex;align-items:center;gap:7px;margin-bottom:20px;flex-wrap:wrap;}
+.filter-pill{background:#f9fafb;border:1px solid #e5e7eb;color:#6b7280;border-radius:20px;padding:5px 13px;font-size:12px;font-weight:600;cursor:pointer;font-family:var(--font);}
+.filter-pill.on{background:var(--or);border-color:var(--or);color:#111827;}
+.jobs-sort{margin-left:auto;background:#f9fafb;border:1px solid #e5e7eb;color:rgba(255,255,255,.85);border-radius:20px;padding:5px 11px;font-size:12px;cursor:pointer;outline:none;font-family:var(--font);}
+.jobs-sort option{background:#ffffff;}
+/* MONTH ACCORDION */
+.month-group{margin-bottom:6px;border:1px solid var(--border);border-radius:12px;overflow:hidden;}
+.month-toggle{width:100%;background:#ffffff;border:none;color:#111827;padding:12px 16px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;font-family:'Bitter',serif;font-weight:800;font-size:15px;}
+.month-toggle:hover{background:#242424;}
+.mtag{background:var(--or);color:#ffffff;font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px;margin-right:8px;}
+.marrow{transition:transform .25s;font-size:12px;color:var(--muted);}
+.month-toggle.open .marrow{transform:rotate(180deg);}
+.month-body{display:none;grid-template-columns:repeat(auto-fill,minmax(275px,1fr));gap:11px;padding:11px;background:#f8f7f5;}
+.month-body.open{display:grid;}
+/* JOB CARD */
+.jcard{background:#ffffff;border:1px solid var(--border);border-radius:11px;overflow:hidden;transition:transform .18s,box-shadow .18s;}
+.jcard:hover{transform:translateY(-3px);box-shadow:0 12px 40px rgba(0,0,0,.5);}
+.jcard.urg{border-color:var(--or);}
+.urg-strip{background:#dc2626;color:#fff;font-size:9px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;text-align:center;padding:3px 0;animation:pu 1.6s infinite;}
+
+.jcard-img{width:100%;height:148px;position:relative;overflow:hidden;}
+.jcard-img img{width:100%;height:100%;object-fit:cover;object-position:center top;display:block;transition:transform .3s;}
+.jcard:hover .jcard-img img{transform:scale(1.05);}
+.jcard-ov{position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.6),transparent 55%);}
+.jcard-fb{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:44px;opacity:.35;}
+.gk{background:linear-gradient(135deg,#1a0505,#5a0f0f);}
+.gf{background:linear-gradient(135deg,#0b180b,#1a4d1a);}
+.gp{background:linear-gradient(135deg,#120520,#2d1060);}
+.ge{background:linear-gradient(135deg,#00101f,#003060);}
+.gs{background:linear-gradient(135deg,#1a1200,#4d3800);}
+.jcard-kat{position:absolute;bottom:8px;left:8px;font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;padding:2px 8px;border-radius:16px;color:#111827;}
+.jcard-st{position:absolute;top:8px;right:8px;font-size:8px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:2px 7px;border-radius:10px;}
+.st-best{background:#ecfdf5;color:#059669;border:1px solid #a7f3d0;}.st-ang{background:#fafafa;color:#6b7280;border:1px solid #e5e7eb;}
+.occ-wrap{position:absolute;bottom:10px;left:10px;display:flex;align-items:center;gap:5px;}
+.occ-bg{width:56px;height:6px;background:rgba(255,255,255,.25);border-radius:3px;overflow:hidden;}
+.occ-fill{height:100%;border-radius:3px;}
+.occ-pct{font-size:9px;font-weight:700;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.9);}
+.occ-wrap{position:relative;}
+.occ-tip{display:none;position:absolute;bottom:22px;left:0;background:#1f2937;color:#fff;font-size:10px;font-weight:600;padding:5px 8px;border-radius:6px;white-space:nowrap;pointer-events:none;z-index:10;box-shadow:0 2px 8px rgba(0,0,0,.3);}
+.occ-wrap:hover .occ-tip{display:block;}
+.jcard-body{padding:10px 12px 12px;}
+.jcard-name{font-family:'Bitter',serif;font-weight:800;font-size:15px;line-height:1.2;margin-bottom:5px;}
+.jcard-row{display:flex;align-items:flex-start;gap:5px;font-size:11px;color:#6b7280;line-height:1.4;margin-bottom:3px;}
+.jcard-shifts{display:flex;flex-wrap:wrap;gap:3px;margin-top:4px;}
+.jcard-shift{background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;padding:2px 6px;font-size:9px;color:#9ca3af;}
+.jcard-btn{margin-top:8px;width:100%;background:var(--or);color:#ffffff;border:none;border-radius:7px;font-family:'Bitter',serif;font-weight:700;font-size:11px;padding:8px 0;cursor:pointer;}
+/* PROCESS */
+.process-section{background:#0d0d0d;border-top:1px solid var(--border);border-bottom:1px solid var(--border);}
+.process-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px;}
+.proc-card{background:#ffffff;border:1px solid var(--border);border-radius:12px;padding:18px 16px;transition:border-color .2s;}
+.proc-card:hover{border-color:var(--or);}
+.proc-num{font-family:'Bitter',serif;font-weight:900;font-size:32px;color:rgba(232,101,26,.25);line-height:1;margin-bottom:8px;}
+.proc-icon{font-size:20px;margin-bottom:7px;}
+.proc-title{color:#111827;font-family:'Bitter',serif;font-weight:800;font-size:13px;margin-bottom:4px;}
+.proc-desc{font-size:11px;color:#6b7280;line-height:1.5;}
+/* ABOUT */
+.about-grid{display:grid;grid-template-columns:1fr 1fr;gap:44px;align-items:center;}
+@media(max-width:680px){.about-grid{grid-template-columns:1fr;}}
+.about-img-wrap{position:relative;}
+.about-img-wrap img{width:100%;border-radius:14px;object-fit:cover;max-height:400px;}
+.about-badge{position:absolute;bottom:-14px;right:-14px;background:var(--or);border-radius:10px;padding:14px 18px;text-align:center;}
+.about-badge .bn{font-family:'Bitter',serif;font-weight:900;font-size:26px;color:#111827;}
+.about-badge .bl{font-size:10px;color:rgba(255,255,255,.8);font-weight:600;}
+.about-features{display:flex;flex-direction:column;gap:14px;margin-top:24px;}
+.feat{display:flex;gap:11px;align-items:flex-start;}
+.feat-icon{width:34px;height:34px;background:rgba(232,101,26,.1);border-radius:8px;border:1px solid rgba(232,101,26,.15);display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;}
+.feat-text strong{font-family:'Bitter',serif;font-weight:800;font-size:13px;display:block;margin-bottom:2px;}
+.feat-text span{font-size:11px;color:#6b7280;line-height:1.5;}
+/* CTA */
+.cta-section{background:var(--or);padding:60px 20px;}
+.cta-inner{max-width:680px;margin:0 auto;text-align:center;}
+.cta-inner h2{font-family:'Bitter',serif;font-weight:900;font-size:clamp(24px,4.5vw,40px);color:#111827;margin-bottom:10px;}
+.cta-inner p{font-size:14px;color:rgba(255,255,255,.85);margin-bottom:28px;line-height:1.6;}
+.cta-btns{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;}
+.btn-white{background:#fff;color:var(--or);border:none;border-radius:10px;font-family:'Bitter',serif;font-weight:800;font-size:13px;padding:13px 24px;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:6px;}
+.btn-outline-white{background:transparent;color:#111827;border:2px solid rgba(255,255,255,.5);border-radius:10px;font-family:var(--font);font-weight:600;font-size:13px;padding:12px 22px;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:6px;}
+/* FOOTER */
+footer{background:#111827827;border-top:1px solid var(--border);padding:36px 20px 20px;}
+.footer-inner{max-width:1200px;margin:0 auto;}
+.footer-top{display:grid;grid-template-columns:2fr 1fr 1fr;gap:36px;margin-bottom:28px;}
+@media(max-width:768px){
+  /* NAV */
+  .nav{padding:0 14px;}
+  .nav-links{display:none;}
+  .nav-right .social-links{display:none;}
+
+  /* HERO */
+  .hero{padding:36px 16px 40px;}
+  .hero-eyebrow{font-size:9px;}
+  .hero-h1{font-size:28px;}
+  .hero-sub{font-size:13px;}
+  .hero-stats{gap:16px;flex-wrap:wrap;}
+  .stat-num{font-size:22px;}
+  .hero-btns{flex-direction:column;}
+  .hero-btns .btn-primary,.hero-btns .btn-ghost{width:100%;justify-content:center;}
+
+  /* LANG BAR */
+  .lang-bar{padding:6px 14px;gap:7px;flex-wrap:nowrap;overflow-x:auto;}
+  .lang-label{display:none;}
+  .lang-group{gap:4px;}
+  .lang-btn{padding:3px 8px;font-size:10px;}
+
+  /* JOBS */
+  .jobs-section{padding:28px 14px;}
+  .jobs-controls{gap:5px;overflow-x:auto;flex-wrap:nowrap;padding-bottom:4px;}
+  .filter-pill{flex-shrink:0;padding:5px 11px;font-size:11px;}
+  .month-body{grid-template-columns:1fr!important;gap:10px;padding:10px;}
+  .month-toggle{padding:11px 14px;font-size:13px;}
+
+  /* JCARD */
+  .jcard-img{height:140px;}
+  .jcard-name{font-size:14px;}
+  .jcard-body{padding:10px 12px 12px;}
+  .jcard-row{font-size:11px;}
+  .jcard-shift{font-size:9px;}
+  .jcard-btn{padding:9px;font-size:12px;}
+
+  /* MY APPS */
+  .my-apps-bar{padding:12px 14px;}
+  .my-app-chip{flex-wrap:wrap;gap:4px;padding:8px 10px;}
+
+  /* ABOUT */
+  .about-grid{grid-template-columns:1fr;gap:28px;}
+  .about-img{display:none;}
+  .section-inner{padding:0 14px;}
+  .section-title{font-size:22px;}
+  .features-grid{grid-template-columns:1fr;}
+
+  /* PROCESS */
+  .process-grid{grid-template-columns:repeat(2,1fr)!important;}
+  .proc-card{padding:14px 12px;}
+
+  /* FOOTER */
+  .footer-top{grid-template-columns:1fr 1fr;}
+  .footer-inner{padding:0 14px;}
+
+  /* MODAL */
+  .modal-bg{align-items:flex-end;padding:0;}
+  .modal-box{border-radius:18px 18px 0 0;max-height:92vh;padding:20px 16px 24px;}
+  .fr2{grid-template-columns:1fr!important;}
+  .modal-title{font-size:17px;}
+  .lang-checkboxes{gap:4px;}
+
+  /* STATS */
+  .stats-bar{gap:16px;}
+  .stat-item{gap:4px;}
+}
+@media(max-width:600px){
+  .footer-top{grid-template-columns:1fr;}
+  .hero-h1{font-size:24px;}
+  .process-grid{grid-template-columns:1fr!important;}
+}
+.footer-logo{font-family:'Bitter',serif;font-weight:900;font-size:20px;margin-bottom:6px;}
+.footer-logo span{color:var(--or);}
+.footer-tagline{font-size:11px;color:rgba(255,255,255,.5);line-height:1.6;max-width:240px;}
+.footer-col h4{font-family:'Bitter',serif;font-weight:800;font-size:12px;color:#9ca3af;letter-spacing:.08em;text-transform:uppercase;margin-bottom:10px;}
+.footer-col a,.footer-col p{font-size:11px;color:#9ca3af;display:block;margin-bottom:6px;text-decoration:none;}
+.footer-col a:hover{color:var(--or);}
+.footer-bottom{border-top:1px solid rgba(255,255,255,.1);padding-top:16px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+.footer-bottom p{font-size:10px;color:rgba(255,255,255,.5);}
+/* MODAL */
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.88);backdrop-filter:blur(10px);z-index:1000;display:flex;align-items:center;justify-content:center;padding:14px;opacity:0;pointer-events:none;transition:opacity .2s;}
+.modal-bg.open{opacity:1;pointer-events:all;}
+.modal-box{background:#ffffff;border:1px solid #e5e7eb;border-radius:16px;padding:24px 22px 20px;width:100%;max-width:460px;max-height:92vh;overflow-y:auto;transform:translateY(16px) scale(.97);transition:transform .2s;position:relative;}
+.modal-bg.open .modal-box{transform:translateY(0) scale(1);}
+.modal-close{position:absolute;top:12px;right:12px;background:#f3f4f6;border:none;width:26px;height:26px;border-radius:50%;color:#111827;font-size:12px;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+.modal-title{color:#111827;font-family:'Bitter',serif;font-weight:900;font-size:17px;color:#111827;margin-bottom:3px;padding-right:30px;}
+.modal-sub{font-size:11px;color:var(--muted);margin-bottom:14px;line-height:1.5;}
+.modal-sub strong{color:var(--or);}
+/* SAVED PROFILE BANNER */
+.profile-banner{background:rgba(232,101,26,.12);border:1px solid rgba(232,101,26,.3);border-radius:10px;padding:10px 14px;margin-bottom:14px;display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;}
+.profile-banner p{font-size:12px;color:#111827;line-height:1.4;}
+.profile-banner strong{color:var(--or);}
+.pb-btn{font-size:11px;font-weight:700;padding:5px 10px;border-radius:6px;border:none;cursor:pointer;font-family:var(--font);}
+.pb-use{background:var(--or);color:#ffffff;}
+.pb-clear{background:rgba(255,255,255,.1);color:#6b7280;}
+/* FORM */
+.fg{margin-bottom:10px;}
+.fl{display:block;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#9ca3af;margin-bottom:4px;}
+.fi,.fsel,.fta{width:100%;background:#f9fafb;border:1px solid #e5e7eb;border-radius:7px;color:#111827;font-family:var(--font);font-size:12px;padding:8px 10px;outline:none;transition:border-color .15s;-webkit-appearance:none;appearance:none;}
+.fi:focus,.fsel:focus,.fta:focus{border-color:var(--or);}
+.fi::placeholder,.fta::placeholder{color:#e5e7eb;}
+.fsel option{background:#ffffff;}
+.fta{resize:vertical;min-height:60px;}
+.fr2{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.sub-btn{width:100%;background:var(--or);color:#ffffff;border:none;border-radius:8px;font-family:'Bitter',serif;font-weight:800;font-size:13px;padding:11px 0;cursor:pointer;}
+.step{display:none;}.step.on{display:block;}
+.step-ind{display:flex;gap:5px;margin-bottom:14px;}
+.step-dot{flex:1;height:3px;border-radius:2px;background:rgba(255,255,255,.12);}
+.step-dot.done{background:var(--or);}.step-dot.cur{background:var(--or);}
+.hidden{display:none!important;}
+.back-btn{background:#f3f4f6;color:#6b7280;border:none;border-radius:8px;font-size:12px;padding:9px;cursor:pointer;flex:1;font-family:var(--font);}
+/* PSA INFO */
+.psa-info{background:rgba(232,101,26,.08);border:1px solid rgba(232,101,26,.2);border-radius:8px;padding:10px 12px;margin-top:6px;font-size:10px;color:rgba(255,255,255,.85);line-height:1.7;display:none;}
+.psa-info strong{color:var(--or);display:block;margin-bottom:4px;}
+/* CONSENT */
+.consent-block{background:#f3f4f6;border:1px solid #e5e7eb;border-radius:8px;padding:12px;margin-bottom:10px;}
+.consent-row{display:flex;align-items:flex-start;gap:9px;margin-bottom:8px;}
+.consent-row:last-child{margin-bottom:0;}
+.consent-cb{width:15px;height:15px;flex-shrink:0;margin-top:2px;accent-color:var(--or);cursor:pointer;}
+.consent-lbl{font-size:11px;color:rgba(255,255,255,.85);line-height:1.5;cursor:pointer;}
+.consent-lbl a{color:var(--or);text-decoration:none;}
+.consent-req{color:var(--or);}
+/* SIGNATURE */
+.sig-wrap{margin-top:10px;}
+.sig-label{display:block;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#9ca3af;margin-bottom:6px;}
+.sig-canvas-wrap{position:relative;background:#f3f4f6;border:1px solid #e5e7eb;border-radius:8px;overflow:hidden;}
+canvas.sig-canvas{width:100%;height:80px;cursor:crosshair;display:block;touch-action:none;}
+.sig-hint{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:12px;color:#6b7280;pointer-events:none;}
+.sig-err{color:var(--or) !important;opacity:1 !important;}
+.sig-clear-btn{background:none;border:none;color:#9ca3af;font-size:10px;cursor:pointer;padding:3px 0;margin-top:4px;font-family:var(--font);}
+/* UPSELL */
+.upsell-section{margin-top:14px;padding-top:12px;border-top:1px solid rgba(255,255,255,.08);}
+.upsell-title{font-family:'Bitter',serif;font-weight:800;font-size:13px;margin-bottom:4px;color:#111827;}
+.upsell-title span{color:var(--or);}
+.upsell-cat-label{font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--or);margin:8px 0 4px;}
+.upsell-card{display:flex;align-items:center;gap:9px;background:#f3f4f6;border:1px solid var(--border);border-radius:9px;padding:8px 10px;margin-bottom:5px;cursor:pointer;transition:border-color .15s;}
+.upsell-card:hover,.upsell-card.sel{border-color:var(--or);background:rgba(232,101,26,.08);}
+.uc-check{width:16px;height:16px;border-radius:4px;border:1.5px solid rgba(255,255,255,.2);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:9px;}
+.upsell-card.sel .uc-check{background:var(--or);border-color:var(--or);}
+.uc-info{flex:1;}
+.uc-name{font-size:12px;font-weight:700;color:#111827;}
+.uc-detail{font-size:10px;color:var(--muted);}
+.uc-tag{font-size:9px;font-weight:700;padding:2px 7px;border-radius:10px;color:#111827;flex-shrink:0;}
+.cart-sum{background:rgba(232,101,26,.1);border:1px solid rgba(232,101,26,.3);border-radius:8px;padding:8px 12px;margin-top:8px;font-size:11px;color:rgba(255,255,255,.8);display:none;}
+.cart-sum strong{color:var(--or);}
+/* SUCCESS */
+.succ{text-align:center;padding:12px 0 4px;}
+.succ .si{font-size:42px;margin-bottom:8px;}
+.succ .st{font-family:'Bitter',serif;font-weight:900;font-size:18px;color:#111827;margin-bottom:4px;}
+.succ .sd{font-size:11px;color:var(--muted);line-height:1.7;}
+.soc-row{display:flex;gap:7px;justify-content:center;margin-top:12px;flex-wrap:wrap;}
+.soc-pill{display:flex;align-items:center;gap:5px;padding:7px 12px;border-radius:18px;font-size:11px;font-weight:700;text-decoration:none;color:#111827;}
+.wa-pill{background:#25D366;}.ig-pill{background:linear-gradient(135deg,#f09433,#dc2743,#bc1888);}
+.wa-btn{display:flex;align-items:center;justify-content:center;gap:6px;margin-top:10px;background:#25D366;color:#111827;font-family:'Bitter',serif;font-weight:800;font-size:12px;padding:11px;border-radius:8px;text-decoration:none;width:100%;}
+/* COOKIE */
+.cookie-banner{position:fixed;bottom:0;left:0;right:0;background:#ffffff;border-top:1px solid rgba(232,101,26,.3);padding:14px 20px;z-index:900;display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;transform:translateY(100%);transition:transform .4s;}
+.cookie-banner.show{transform:translateY(0);}
+.cookie-text{font-size:11px;color:rgba(255,255,255,.85);line-height:1.5;flex:1;}
+.cookie-text a{color:var(--or);text-decoration:none;}
+.cookie-btns{display:flex;gap:8px;}
+.c-accept{background:var(--or);color:#ffffff;border:none;border-radius:7px;font-family:'Bitter',serif;font-weight:700;font-size:12px;padding:8px 16px;cursor:pointer;}
+.c-decline{background:#f3f4f6;color:#6b7280;border:1px solid #e5e7eb;border-radius:7px;font-size:12px;padding:8px 12px;cursor:pointer;font-family:var(--font);}
+@media(max-width:600px){.nav-links{display:none;}}
+</style>
+
+
+</head>
+<body>
+
+<div class="lang-bar">
+  <div class="lang-group">
+    <span class="lang-label">Sprache:</span>
+    <button class="lang-btn on" onclick="setLang('de',this)">🇩🇪 DE</button>
+    <button class="lang-btn" onclick="setLang('en',this)">🇬🇧 EN</button>
+    <button class="lang-btn" onclick="setLang('ar',this)">🇸🇦 AR</button>
+    <button class="lang-btn" onclick="setLang('ru',this)">🇷🇺 RU</button>
+    <button class="lang-btn" onclick="setLang('uk',this)">🇺🇦 UK</button>
+  </div>
+  <div class="top-socials">
+    <a class="soc-btn" href="https://chat.whatsapp.com/BdG0V6isJZCCnmGqSWxeNh" target="_blank"><svg viewBox="0 0 24 24" fill="#25D366"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>Community</a>
+    <a class="soc-btn" href="https://wa.me/491633626855" target="_blank"><svg viewBox="0 0 24 24" fill="#25D366"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>Support</a>
+    <a class="soc-btn" href="https://instagram.com/fess.jobs" target="_blank"><svg viewBox="0 0 24 24"><defs><linearGradient id="ig" x1="0%" y1="100%" x2="100%" y2="0%"><stop offset="0%" stop-color="#f09433"/><stop offset="50%" stop-color="#dc2743"/><stop offset="100%" stop-color="#bc1888"/></linearGradient></defs><path fill="url(#ig)" d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>@fess.jobs</a>
+    <a class="soc-btn" href="https://fess-recruitment.de" target="_blank"><svg viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.6)" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 010 20M12 2a15.3 15.3 0 000 20"/></svg>Website</a>
+  </div>
+</div>
+
+<nav class="nav">
+  <div class="nav-logo" onclick="window.scrollTo({top:0,behavior:'smooth'})">fess<span>.jobs</span></div>
+  <div class="nav-links">
+    <button class="nav-link" onclick="document.getElementById('jobs').scrollIntoView({behavior:'smooth'})">Aufträge</button>
+    <button class="nav-link" onclick="document.getElementById('process').scrollIntoView({behavior:'smooth'})">Ablauf</button>
+    <button class="nav-link" onclick="document.getElementById('about').scrollIntoView({behavior:'smooth'})">Über uns</button>
+  </div>
+  <button class="nav-cta" onclick="openGen('Stagehands')">Jetzt bewerben</button>
+</nav>
+
+<div class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-content">
+    <div class="hero-tag">🎪 Deutschlands Event-Crew</div>
+    <h1>Dein Job.<br>Dein <em>Event.</em><br>Dein Team.</h1>
+    <p>Wir bringen dich auf die großen Bühnen Deutschlands. FESS vermittelt zuverlässiges Personal für Events, Konzerte und Messen.</p>
+    <div class="hero-btns">
+      <button class="btn-primary" onclick="document.getElementById('jobs').scrollIntoView({behavior:'smooth'})">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        Aufträge ansehen
+      </button>
+      <a class="btn-ghost" href="https://wa.me/491633626855" target="_blank">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="rgba(255,255,255,.8)"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+        WhatsApp Kontakt
+      </a>
+    </div>
+    <div class="hero-stats">
+      <div><div class="stat-n">7+</div><div class="stat-l">Jahre Erfahrung</div></div>
+      <div><div class="stat-n">1.000+</div><div class="stat-l">Mitarbeiter</div></div>
+      <div><div class="stat-n">120+</div><div class="stat-l">Kunden</div></div>
+      <div><div class="stat-n">6</div><div class="stat-l">Regionale Hubs</div></div>
+    </div>
+  </div>
+  <div class="scroll-hint"><span>SCROLL</span><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.25)" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg></div>
+</div>
+
+<section id="jobs" style="background:var(--white);">
+  <div class="section-inner">
+    <div class="section-header">
+      <div class="section-tag">Verfügbare Aufträge</div>
+      <h2 class="section-title">Aktuelle Einsätze 2026</h2>
+      <p class="section-sub">Wähle deinen Einsatz, bewerbe dich in Sekunden und werde Teil unserer Crew.</p>
+    </div>
+    <div class="my-apps-bar" id="myAppsBar">
+      <div class="my-apps-bar-header">
+        <div class="my-apps-bar-title">👤 <span id="myAppsGreeting">Hallo!</span></div>
+        <button class="my-apps-bar-clear" onclick="clearAllData()">Profil löschen</button>
+      </div>
+      <div style="font-size:11px;color:var(--muted);" id="myAppsSubline">Du hast dich bereits beworben für:</div>
+      <div class="my-apps-list" id="myAppsList"></div>
+    </div>
+    <div class="jobs-controls">
+      <span style="font-size:10px;color:var(--muted);font-weight:700;letter-spacing:.08em;text-transform:uppercase">Filter:</span>
+      <button class="filter-pill on" onclick="sf('alle',this)">Alle</button>
+      <button class="filter-pill" onclick="sf('Konzert',this)">🎸 Konzert</button>
+      <button class="filter-pill" onclick="sf('Festival',this)">🎪 Festival</button>
+      <button class="filter-pill" onclick="sf('Promotion',this)">📣 Promotion</button>
+      <button class="filter-pill" onclick="sf('ESL',this)">🏷️ ESL</button>
+      <button class="filter-pill" onclick="sf('Sport',this)">🥊 Sport</button>
+      <button class="filter-pill" onclick="sf('dringend',this)" style="border-color:var(--or);color:var(--or)">🔥 Dringend</button>
+      <select class="jobs-sort" onchange="ss(this.value)">
+        <option value="datum">↑ Datum</option>
+        <option value="pax">↓ Personenbedarf</option>
+        <option value="occ">↓ Besetzung</option>
+      </select>
+    </div>
+    <div id="jobsList"></div>
+  </div>
+</section>
+
+<section class="process-section" id="process">
+  <div class="section-inner">
+    <div class="section-header">
+      <div class="section-tag">So einfach geht's</div>
+      <h2 class="section-title">Dein Weg zum Einsatz</h2>
+      <p class="section-sub">Von der Bewerbung bis zur Abrechnung – Schritt für Schritt.</p>
+    </div>
+    <div class="process-grid" id="processGrid"></div>
+  </div>
+</section>
+
+<section id="about" style="background:var(--white);">
+  <div class="section-inner">
+    <div class="about-grid">
+      <div class="about-img-wrap">
+        <img src="https://images.pexels.com/photos/1763075/pexels-photo-1763075.jpeg?auto=compress&cs=tinysrgb&w=800" alt="FESS">
+        <div class="about-badge"><div class="bn">24h</div><div class="bl">Bereitstellung</div></div>
+      </div>
+      <div>
+        <div class="section-tag">Über FESS</div>
+        <h2 class="section-title">Mehr als eine Personalagentur</h2>
+        <p style="font-size:13px;color:var(--muted);line-height:1.7;margin-bottom:20px">FESS ist ein junges, dynamisches Team das die Personalvermittlung in der Eventbranche revolutioniert. Wir stellen kurzfristig qualifiziertes Personal bereit – flexibel, rechtssicher und zuverlässig.</p>
+        <div class="about-features" id="aboutFeatures"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="cta-section">
+  <div class="cta-inner">
+    <h2>Bereit für deinen ersten Einsatz?</h2>
+    <p>Jetzt bewerben und Teil der FESS-Familie werden. Stagehands, Promoter, Staplerfahrer – wir haben den richtigen Job.</p>
+    <div class="cta-btns">
+      <button class="btn-white" onclick="openGen('Stagehands')">⚒️ Als Stagehand bewerben</button>
+      <button class="btn-white" onclick="openGen('Promoter / Hostess')">📣 Als Promoter bewerben</button>
+      <a class="btn-outline-white" href="https://wa.me/491633626855" target="_blank">💬 Direkt schreiben</a>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <div class="footer-inner">
+    <div class="footer-top">
+      <div>
+        <div class="footer-logo">fess<span>.jobs</span></div>
+        <p class="footer-tagline">Zuverlässiges Eventpersonal deutschlandweit.</p>
+      </div>
+      <div class="footer-col">
+        <h4>Kontakt</h4>
+        <a href="tel:+4917644266658">+49 176 44266658</a>
+        <a href="mailto:info.fio@fess-recruitment.de">info.fio@fess-recruitment.de</a>
+        <p>John-F.-Kennedy Str. 9, 55743 Idar-Oberstein</p>
+      </div>
+      <div class="footer-col">
+        <h4>Links</h4>
+        <a href="https://fess-recruitment.de" target="_blank">fess-recruitment.de</a>
+        <a href="https://instagram.com/fess.jobs" target="_blank">Instagram @fess.jobs</a>
+        <a href="https://chat.whatsapp.com/BdG0V6isJZCCnmGqSWxeNh" target="_blank">WA Community</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>© 2026 FESS Jobs · Teil der incub.live Gruppe</p>
+      <p>Alle Rechte vorbehalten</p>
+    </div>
+  </div>
+</footer>
+
+<div class="modal-bg" id="MB" onclick="if(event.target.id==='MB')closeM()">
+  <div class="modal-box"><button class="modal-close" onclick="closeM()">✕</button><div id="MBody"></div></div>
+</div>
+
+<div class="cookie-banner" id="cookieBanner">
+  <div class="cookie-text">🍪 Wir nutzen Cookies & lokalen Speicher um deine Daten zu speichern. <a href="https://fess-recruitment.de/datenschutz" target="_blank">Datenschutz</a></div>
+  <div class="cookie-btns">
+    <button class="c-decline" onclick="cookieSet('minimal')">Nur notwendige</button>
+    <button class="c-accept" onclick="cookieSet('all')">✓ Alle akzeptieren</button>
+  </div>
+</div>
+
+<script>
+// ══ DATA ══
+const KC={Konzert:"#E8651A",Festival:"#c45a14",Promotion:"#7c3aed",ESL:"#0891b2",Sport:"#d4a017"};
+const KG={Konzert:"gk",Festival:"gf",Promotion:"gp",ESL:"ge",Sport:"gs"};
+const KI={Konzert:"🎸",Festival:"🎪",Promotion:"📣",ESL:"🏷️",Sport:"🥊"};
+const MO=["","Januar","Februar","März","April","Mai","Juni","Juli","August","September","Oktober","November","Dezember"];
+const PROC_STEPS=[
+  {icon:"🔍",title:"Event aussuchen",desc:"Alle aktuellen Aufträge ansehen und passenden Einsatz wählen."},
+  {icon:"💬",title:"Per WhatsApp bewerben",desc:"KI-Chatbot führt durch die Bewerbung. Schnell, einfach, 24/7."},
+  {icon:"📋",title:"Profil & Setcard",desc:"Dein digitales Profil wird automatisch im System angelegt."},
+  {icon:"✅",title:"Bestätigung",desc:"Du erhältst eine WhatsApp-Nachricht mit allen Event-Details."},
+  {icon:"🦺",title:"PSA erhalten",desc:"Sicherheitsschuhe S3, Helm & Handschuhe – wir koordinieren das."},
+  {icon:"✍️",title:"Digital unterschreiben",desc:"Vertrag per DocuSign – rechtssicher und papierlos."},
+  {icon:"📱",title:"FESS App einrichten",desc:"CrewBrain App für Schichten, Zeiten und Treffpunkte."},
+  {icon:"👥",title:"WhatsApp-Gruppe",desc:"Aufnahme in die Crew-Gruppe für Auftrags- & Reiseplanung."},
+  {icon:"🎉",title:"Spaß beim Event",desc:"An Deutschlands größten Bühnen dabei sein."},
+  {icon:"⏱️",title:"Stundenerfassung",desc:"Digitale Erfassung – transparent und einfach."},
+  {icon:"💰",title:"Abrechnung zum 15.",desc:"Zahlung pünktlich zum 15. des Folgemonats."},
+  {icon:"🤖",title:"Support: KI-Chatbot",desc:"Bei Rückfragen: +49 163 3626855 – jederzeit, 24/7."},
+];
+const ABOUT_FEATS=[
+  {icon:"⚡",title:"24h Bereitstellung",desc:"Kurzfristiger Personaleinsatz innerhalb von 24 Stunden."},
+  {icon:"🛡️",title:"Rechtssicher",desc:"AÜG-konforme Arbeitnehmerüberlassung."},
+  {icon:"🌍",title:"Deutschlandweit",desc:"6 regionale Hubs – immer nah, immer verfügbar."},
+  {icon:"⭐",title:"7+ Jahre Erfahrung",desc:"Von Rock am Ring bis Ninja Warrior."},
+];
+
+// ALL 25 EVENTS from PDF (no cancellations)
+const EV=[
+  {id:'1', n:'Boxkampf Mannheim',        k:'Sport',     st:'bestaetigt', urg:false, dv:'2026-05-14', db:'2026-05-15', loc:'SAP Arena Mannheim',             ta:'Shuttlefahrer / Hostess',          pax:22, pb:0,  sh:['14.05. | TBA','15.05. | TBA'],                                              img:'https://images.pexels.com/photos/3622622/pexels-photo-3622622.jpeg?auto=compress&cs=tinysrgb&w=600'},
+  {id:'2', n:'Madison Beer',             k:'Konzert',   st:'bestaetigt', urg:true,  dv:'2026-05-15', db:null,         loc:'Düsseldorf',                     ta:'Stagehands',                       pax:10, pb:0,  sh:['Aufbau','Abbau'],                                                            img:'https://images.pexels.com/photos/1105666/pexels-photo-1105666.jpeg?auto=compress&cs=tinysrgb&w=600'},
+  {id:'3', n:'Nikos Vertis',             k:'Konzert',   st:'bestaetigt', urg:true,  dv:'2026-05-29', db:null,         loc:'Schleyerhalle Stuttgart',        ta:'Stagehands / Spotfahrer',          pax:29, pb:17, sh:['5:00–13:00 Uhr','18:30–23:00 Uhr (Spot)','23:00–05:00 Uhr'],              img:'https://upload.wikimedia.org/wikipedia/commons/thumb/4/48/Nikos_Vertis_-_October_2021.jpg/640px-Nikos_Vertis_-_October_2021.jpg'},
+  {id:'4', n:'Rock am Ring',             k:'Festival',  st:'bestaetigt', urg:false, dv:'2026-05-29', db:'2026-05-31', loc:'Nürburgring',                    ta:'Staplerfahrer / Stagehand',        pax:12, pb:10, sh:['29.05. | 8–20 Uhr','30.05. | 8–20 Uhr','31.05. | 16–24 & 18–05 Uhr'],    img:'https://www.rock-am-ring.com/assets/img/poster/RAR2026_preview_1200.jpg'},
+  {id:'5', n:'Rock am Ring – Crew',      k:'Festival',  st:'bestaetigt', urg:true,  dv:'2026-06-02', db:'2026-06-08', loc:'Nürburgring',                    ta:'Stagehand / Staplerfahrer / CC',   pax:34, pb:27, sh:['02.06. | 8–19 Uhr','07.06. | 23–07 Uhr 🔥','08.06. | 00:30–09 Uhr 🔥'],  img:'https://www.rock-am-ring.com/assets/img/poster/RAR2026_preview_1200.jpg'},
+  {id:'6', n:'Rock am Ring – Promo',     k:'Festival',  st:'bestaetigt', urg:false, dv:'2026-06-02', db:'2026-06-07', loc:'Nürburgring',                    ta:'Promotion LID',                    pax:50, pb:50, sh:['02.06. | Schulung','03.–07.06. | Tagschicht'],                             img:'https://www.rock-am-ring.com/assets/img/poster/RAR2026_preview_1200.jpg'},
+  {id:'7', n:'Rock im Park – Promo',     k:'Festival',  st:'bestaetigt', urg:false, dv:'2026-06-03', db:'2026-06-07', loc:'Nürnberg',                       ta:'Promotion LID',                    pax:16, pb:16, sh:['03.06. | Schulung','04.–07.06. | Tagschicht'],                             img:'https://www.rock-im-park.com/assets/img/poster/RIP2026_preview_1200.jpg'},
+  {id:'8', n:'VOLVO Frankfurt',          k:'Promotion', st:'bestaetigt', urg:false, dv:'2026-06-05', db:'2026-06-14', loc:'Frankfurt',                      ta:'Promotion Volvo',                  pax:1,  pb:1,  sh:['TBA'],                                                                      img:'https://images.pexels.com/photos/120049/pexels-photo-120049.jpeg?auto=compress&cs=tinysrgb&w=600'},
+  {id:'9', n:'Preisschilder tauschen',   k:'ESL',       st:'bestaetigt', urg:true,  dv:'2026-06-09', db:'2026-06-11', loc:'Appenweier / Karlsruhe / St. Ingbert', ta:'Helfer',               pax:30, pb:9,  sh:['8–16 Uhr'],                                                                  img:'https://images.pexels.com/photos/3962285/pexels-photo-3962285.jpeg?auto=compress&cs=tinysrgb&w=600'},
+  {id:'10',n:'SSIO',                     k:'Konzert',   st:'angefragt',  urg:true,  dv:'2026-06-12', db:null,         loc:'Westfalenhalle Dortmund',        ta:'Stagehands',                       pax:5,  pb:0,  sh:['Aufbau & Abbau'],                                                           img:'https://images.pexels.com/photos/1763075/pexels-photo-1763075.jpeg?auto=compress&cs=tinysrgb&w=600'},
+  {id:'11',n:'Die Toten Hosen',          k:'Konzert',   st:'angefragt',  urg:true,  dv:'2026-06-13', db:null,         loc:'Wasen Stuttgart',               ta:'Stagehands',                       pax:5,  pb:0,  sh:['ab 21:00 Uhr'],                                                             img:'https://images.pexels.com/photos/1540406/pexels-photo-1540406.jpeg?auto=compress&cs=tinysrgb&w=600'},
+  {id:'12',n:'BERQ',                     k:'Konzert',   st:'angefragt',  urg:true,  dv:'2026-06-13', db:null,         loc:'Westfalenhalle Dortmund',        ta:'Stagehands',                       pax:5,  pb:0,  sh:['Aufbau & Abbau'],                                                           img:'https://images.pexels.com/photos/2747446/pexels-photo-2747446.jpeg?auto=compress&cs=tinysrgb&w=600'},
+  {id:'13',n:'Helena Fischer',           k:'Konzert',   st:'bestaetigt', urg:true,  dv:'2026-06-15', db:null,         loc:'MHP Arena Stuttgart',            ta:'Stagehands',                       pax:17, pb:0,  sh:['8–19 Uhr','11–22 Uhr'],                                                    img:'https://images.pexels.com/photos/1190298/pexels-photo-1190298.jpeg?auto=compress&cs=tinysrgb&w=600'},
+  {id:'14',n:'Preisschilder tauschen',   k:'ESL',       st:'bestaetigt', urg:true,  dv:'2026-06-16', db:'2026-06-18', loc:'Bad Neustadt / Bayreuth / Michelfeld', ta:'Helfer',              pax:24, pb:7,  sh:['8–16 Uhr'],                                                                  img:'https://images.pexels.com/photos/3962285/pexels-photo-3962285.jpeg?auto=compress&cs=tinysrgb&w=600'},
+  {id:'15',n:'Helene Fischer',           k:'Konzert',   st:'angefragt',  urg:true,  dv:'2026-06-17', db:'2026-06-20', loc:'Deutsche Bank Park Frankfurt',   ta:'Stagehands / Staplerfahrer',       pax:40, pb:0,  sh:['17.06. | TBA','18.06. | TBA','20.06. | TBA'],                              img:'https://images.pexels.com/photos/1616470/pexels-photo-1616470.jpeg?auto=compress&cs=tinysrgb&w=600'},
+  {id:'16',n:'Zucchero',                 k:'Konzert',   st:'angefragt',  urg:true,  dv:'2026-06-20', db:null,         loc:'Festhalle Frankfurt',            ta:'Stagehands',                       pax:20, pb:0,  sh:['6:45–14:45 Uhr','21:00–03:00 Uhr'],                                        img:'https://images.pexels.com/photos/1763075/pexels-photo-1763075.jpeg?auto=compress&cs=tinysrgb&w=600'},
+  {id:'17',n:'Preisschilder tauschen',   k:'ESL',       st:'bestaetigt', urg:true,  dv:'2026-06-23', db:'2026-06-24', loc:'Weilheim / Renningen',           ta:'Helfer',                           pax:16, pb:5,  sh:['8–16 Uhr'],                                                                 img:'https://images.pexels.com/photos/3962285/pexels-photo-3962285.jpeg?auto=compress&cs=tinysrgb&w=600'},
+  {id:'18',n:'Clueso',                   k:'Konzert',   st:'angefragt',  urg:true,  dv:'2026-06-27', db:null,         loc:'Dortmund',                       ta:'Stagehands',                       pax:5,  pb:0,  sh:['Aufbau & langer Abbau'],                                                    img:'https://images.pexels.com/photos/167491/pexels-photo-167491.jpeg?auto=compress&cs=tinysrgb&w=600'},
+  {id:'19',n:'Mark Forster',             k:'Konzert',   st:'angefragt',  urg:true,  dv:'2026-06-28', db:null,         loc:'Dortmund',                       ta:'Stagehands',                       pax:5,  pb:0,  sh:['Aufbau & Abbau'],                                                           img:'https://images.pexels.com/photos/2682543/pexels-photo-2682543.jpeg?auto=compress&cs=tinysrgb&w=600'},
+  {id:'20',n:'Böhse Onkelz',             k:'Konzert',   st:'angefragt',  urg:true,  dv:'2026-06-30', db:null,         loc:'Deutsche Bank Park Frankfurt',   ta:'Stagehands',                       pax:20, pb:0,  sh:['8–16 Uhr','14–22 Uhr'],                                                    img:'https://images.pexels.com/photos/1540406/pexels-photo-1540406.jpeg?auto=compress&cs=tinysrgb&w=600'},
+  {id:'21',n:'Böhse Onkelz',             k:'Konzert',   st:'angefragt',  urg:true,  dv:'2026-07-01', db:'2026-07-05', loc:'Deutsche Bank Park Frankfurt',   ta:'Stagehands',                       pax:80, pb:0,  sh:['01.07. | 8–19/14–22 Uhr','04.07. | 22–04 Uhr','05.07. | 8–19 Uhr'],      img:'https://images.pexels.com/photos/1105666/pexels-photo-1105666.jpeg?auto=compress&cs=tinysrgb&w=600'},
+  {id:'22',n:'Böhse Onkelz',             k:'Konzert',   st:'angefragt',  urg:true,  dv:'2026-07-09', db:null,         loc:'Gelsenkirchen',                  ta:'Stagehands',                       pax:5,  pb:0,  sh:['7–17 Uhr'],                                                                 img:'https://images.pexels.com/photos/1763075/pexels-photo-1763075.jpeg?auto=compress&cs=tinysrgb&w=600'},
+  {id:'23',n:'AnneMayKantereit',         k:'Konzert',   st:'angefragt',  urg:true,  dv:'2026-07-10', db:null,         loc:'Dortmund',                       ta:'Stagehands',                       pax:15, pb:0,  sh:['Aufbau & Abbau'],                                                           img:'https://images.pexels.com/photos/1190297/pexels-photo-1190297.jpeg?auto=compress&cs=tinysrgb&w=600'},
+  {id:'24',n:'Die Toten Hosen',          k:'Konzert',   st:'angefragt',  urg:true,  dv:'2026-07-16', db:null,         loc:'Köln',                           ta:'Stagehands',                       pax:15, pb:0,  sh:['10–18 Uhr'],                                                                img:'https://images.pexels.com/photos/2747446/pexels-photo-2747446.jpeg?auto=compress&cs=tinysrgb&w=600'},
+  {id:'25',n:'Romeo Santos',             k:'Konzert',   st:'angefragt',  urg:true,  dv:'2026-07-18', db:null,         loc:'Lanxess Arena Köln',             ta:'Stagehands',                       pax:18, pb:0,  sh:['Aufbau & Abbau'],                                                           img:'https://images.pexels.com/photos/1616470/pexels-photo-1616470.jpeg?auto=compress&cs=tinysrgb&w=600'},
+];
+let ALL = EV.slice(); // Will be overwritten by Supabase
+
+
+let CF='alle', CS='datum';
+let upsellSel = new Set();
+let sigDrawn = false;
+let sigCtx = null, sigDrawing = false;
+
+function fmtD(e){
+  const d1=new Date(e.dv),d2=e.db?new Date(e.db):null;
+  const f=d=>`${String(d.getDate()).padStart(2,'0')}.${String(d.getMonth()+1).padStart(2,'0')}.${d.getFullYear()}`;
+  return d2?`${f(d1)}–${f(d2)}`:f(d1);
+}
+function mon(e){return new Date(e.dv).getMonth()+1;}
+function occ(e){return e.pax>0?Math.min(Math.round(e.pb/e.pax*100),100):0;}
+function occC(p){return p>=80?'#22c55e':p>=40?'#f59e0b':'#E8651A';}
+
+function sf(f,el){CF=f;document.querySelectorAll('.filter-pill').forEach(b=>b.classList.remove('on'));el.classList.add('on');renderJobs();}
+function ss(v){CS=v;renderJobs();}
+function fevs(){
+  let a=ALL.slice();
+  if(CF==='dringend') a=a.filter(e=>e.urg);
+  else if(CF!=='alle') a=a.filter(e=>e.k===CF);
+  if(CS==='datum') a.sort((a,b)=>a.dv.localeCompare(b.dv));
+  else if(CS==='pax') a.sort((a,b)=>b.pax-a.pax);
+  else a.sort((a,b)=>occ(b)-occ(a));
+  return a;
+}
+
+function jcard(e){
+  const col=KC[e.k]||'#E8651A',gr=KG[e.k]||'gk',ic=KI[e.k]||'🎵';
+  const op=occ(e),bc=occC(op);
+  const stTag=e.st==='bestaetigt'?'<span class="jcard-st st-best">✓ Bestätigt</span>':'<span class="jcard-st st-ang">? Angefragt</span>';
+  return `<div class="jcard${e.urg?' urg':''}">
+  ${e.urg?'<div class="urg-strip">🔥 DRINGEND GESUCHT</div>':''}
+  <div class="jcard-img ${gr}" id="ji${e.id}">
+    <img src="${e.img}" alt="${e.n}" loading="lazy" onerror="this.style.display='none';const fb=document.getElementById('ji${e.id}')?.querySelector('.jcard-fb');if(fb)fb.style.display='flex'">
+    <div class="jcard-fb" style="display:none">${ic}</div>
+    <div class="jcard-ov"></div>
+    ${stTag}
+    <div class="jcard-kat" style="background:${col}">${e.k}</div>
+    <div class="occ-wrap"><div class="occ-tip">${e.pb||0} von ${e.pax} besetzt (${op}%)</div><div class="occ-bg"><div class="occ-fill" style="width:${op}%;background:${bc}"></div></div><span class="occ-pct" style="color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.8)">${op}%</span></div>
+  </div>
+  <div class="jcard-body">
+    <div class="jcard-name">${e.n}</div>
+    <div class="jcard-row"><span>📅</span><span>${fmtD(e)}</span></div>
+    <div class="jcard-row"><span>📍</span><span>${e.loc}</span></div>
+    <div class="jcard-row"><span>👷</span><span>${e.ta}</span></div>
+    <div class="jcard-row"><span>👥</span><span>${e.pax} Personen</span></div>
+    <div class="jcard-shifts">${e.sh.map(s=>`<span class="jcard-shift">⏰ ${s}</span>`).join('')}</div>
+    <button class="jcard-btn" onclick="openModal('${e.id}')">Jetzt bewerben</button>
+  </div></div>`;
+}
+
+function renderJobs(){
+  const evs=fevs();
+  const months=[...new Set(evs.map(e=>mon(e)))].sort((a,b)=>a-b);
+  if(!evs.length){document.getElementById('jobsList').innerHTML='<div style="text-align:center;padding:40px;color:var(--muted)">Keine Treffer.</div>';return;}
+  document.getElementById('jobsList').innerHTML=months.map(m=>{
+    const me=evs.filter(e=>mon(e)===m);
+    return `<div class="month-group">
+      <button class="month-toggle open" onclick="this.classList.toggle('open');this.nextElementSibling.classList.toggle('open')">
+        <div><span class="mtag">${MO[m]}</span>${MO[m]} 2026</div>
+        <div style="display:flex;align-items:center;gap:8px"><span style="font-size:11px;color:var(--muted)">${me.length} Einsätze</span><span class="marrow">▼</span></div>
+      </button>
+      <div class="month-body open">${me.map(jcard).join('')}</div>
+    </div>`;
+  }).join('');
+}
+
+function renderProcess(){
+  document.getElementById('processGrid').innerHTML=PROC_STEPS.map((s,i)=>`
+    <div class="proc-card"><div class="proc-num">${String(i+1).padStart(2,'0')}</div>
+    <div class="proc-icon">${s.icon}</div><div class="proc-title">${s.title}</div>
+    <div class="proc-desc">${s.desc}</div></div>`).join('');
+}
+
+function renderAbout(){
+  document.getElementById('aboutFeatures').innerHTML=ABOUT_FEATS.map(f=>`
+    <div class="feat"><div class="feat-icon">${f.icon}</div>
+    <div class="feat-text"><strong>${f.title}</strong><span>${f.desc}</span></div></div>`).join('');
+}
+
+// ── STORAGE ──
+function ls(k,v){try{if(v===undefined)return JSON.parse(localStorage.getItem(k));localStorage.setItem(k,JSON.stringify(v));}catch(e){return null;}}
+function saveProfile(d){ls('fess_profile',d);}
+function loadProfile(){return ls('fess_profile');}
+function loadHistory(){return ls('fess_history')||[];}
+function saveToHistory(id,name,date){
+  const h=loadHistory();
+  if(!h.find(x=>x.id===id)){h.unshift({id,name,date,at:new Date().toLocaleDateString('de')});ls('fess_history',h.slice(0,20));}
+}
+function clearAllData(){
+  if(confirm('Profil und Bewerbungshistorie löschen?')){
+    try{localStorage.removeItem('fess_profile');localStorage.removeItem('fess_history');}catch(e){}
+    renderMyApps();
+  }
+}
+async function renderMyApps(){
+  const p=loadProfile(), h=loadHistory(), bar=document.getElementById('myAppsBar');
+  if(!bar)return;
+  if(!p&&!h.length){bar.style.display='none';return;}
+  bar.style.display='block';
+  if(p) document.getElementById('myAppsGreeting').textContent='Hallo, '+p.vorname+'!';
+  const sub=document.getElementById('myAppsSubline');
+  const list=document.getElementById('myAppsList');
+  if(!h.length){sub.textContent='Noch keine Bewerbungen.';list.innerHTML='';return;}
+  sub.textContent='Meine Bewerbungen ('+h.length+'):';
+  // Fetch real status from Supabase
+  let statusMap={};
+  if(sb&&p?.telefon){
+    try{
+      const{data}=await sb.from('bewerbungen').select('auftrag_id,status').eq('telefon',p.telefon);
+      (data||[]).forEach(b=>statusMap[b.auftrag_id]=b.status);
+    }catch(e){}
+  }
+  const stColors={
+    bestaetigt:{bg:'#ecfdf5',border:'#a7f3d0',color:'#059669',label:'✓ Bestätigt'},
+    abgelehnt:{bg:'#fef2f2',border:'#fecaca',color:'#dc2626',label:'✕ Abgelehnt'},
+    reserviert:{bg:'#f5f3ff',border:'#ddd6fe',color:'#7c3aed',label:'⏳ Reserviert'},
+    eingegangen:{bg:'#fffbeb',border:'#fde68a',color:'#d97706',label:'⏳ Ausstehend'},
+  };
+  list.innerHTML=h.map(x=>{
+    const st=statusMap[x.id]||'eingegangen';
+    const sc=stColors[st]||stColors.eingegangen;
+    return`<div class="my-app-chip" onclick="openBewerbungDetail('${x.id}','${x.name.replace(/'/g,"\'")}','${st}')">
+      <div class="mac-dot" style="background:${sc.color}"></div>
+      <span class="mac-name">${x.name}</span>
+      <span class="mac-date">${x.at}</span>
+      <span style="font-size:9px;background:${sc.bg};border:1px solid ${sc.border};color:${sc.color};border-radius:8px;padding:1px 7px;white-space:nowrap;font-weight:700">${sc.label}</span>
+    </div>`;
+  }).join('');
+}
+
+// ── BEWERBUNG DETAIL ──
+function openBewerbungDetail(aufId, aufName, status){
+  const auf = ALL.find(x=>x.id===aufId)||EV.find(x=>x.id===aufId);
+  const stColors={
+    bestaetigt:{bg:'#ecfdf5',color:'#059669',label:'✓ Bestätigt! Du bist dabei.'},
+    abgelehnt:{bg:'#fef2f2',color:'#dc2626',label:'✕ Leider abgelehnt.'},
+    reserviert:{bg:'#f5f3ff',color:'#7c3aed',label:'⏳ Du bist auf der Reserveliste.'},
+    eingegangen:{bg:'#fffbeb',color:'#d97706',label:'⏳ Bewerbung eingegangen – wir melden uns!'},
+  };
+  const sc=stColors[status]||stColors.eingegangen;
+  const MB=document.getElementById('MB');
+  document.getElementById('MBody').innerHTML=`
+    <div class="modal-title" style="color:#111827">📋 ${aufName}</div>
+    <div style="background:${sc.bg};border-radius:8px;padding:10px 14px;margin-bottom:14px;font-size:13px;font-weight:600;color:${sc.color}">${sc.label}</div>
+    ${auf?`<div style="font-size:12px;color:#4b5563;display:flex;flex-direction:column;gap:5px;margin-bottom:16px">
+      <div>📅 ${fmtD(auf)}</div>
+      <div>📍 ${auf.loc||auf.location||''}</div>
+      <div>👷 ${auf.ta||auf.taetigkeit||''}</div>
+      <div>👥 ${auf.pax||auf.pax_gesamt||''} Personen</div>
+    </div>`:''}
+    <div style="display:flex;flex-direction:column;gap:8px">
+      <a href="https://wa.me/491633626855?text=${encodeURIComponent('Hallo, ich habe mich beworben für: '+aufName+' – Bewerbungs-ID: '+aufId)}" target="_blank"
+        style="display:flex;align-items:center;justify-content:center;gap:8px;background:#25D366;color:#fff;border:none;border-radius:8px;padding:11px;font-size:13px;font-weight:600;text-decoration:none;cursor:pointer">
+        💬 Support kontaktieren (WhatsApp)
+      </a>
+      ${status==='bestaetigt'?`<a href="https://wa.me/491633626855?text=${encodeURIComponent('Infos zu meinem Einsatz: '+aufName)}" target="_blank"
+        style="display:flex;align-items:center;justify-content:center;gap:8px;background:#eff6ff;color:#2563eb;border:1px solid #bfdbfe;border-radius:8px;padding:11px;font-size:13px;font-weight:600;text-decoration:none">
+        ℹ️ Einsatz-Infos anfragen
+      </a>`:''}
+      <button onclick="cancelBewerbung('${aufId}','${aufName}')"
+        style="background:#fef2f2;color:#dc2626;border:1px solid #fecaca;border-radius:8px;padding:11px;font-size:13px;font-weight:600;cursor:pointer;font-family:var(--font)">
+        ✕ Bewerbung absagen
+      </button>
+      <button onclick="closeM()" style="background:#f3f4f6;color:#6b7280;border:none;border-radius:8px;padding:10px;font-size:12px;cursor:pointer;font-family:var(--font)">Schließen</button>
+    </div>`;
+  MB.classList.add('open');
+}
+
+function cancelBewerbung(aufId, name){
+  if(!confirm('Bewerbung für "'+name+'" wirklich absagen?'))return;
+  const h=loadHistory().filter(x=>x.id!==aufId);
+  localStorage.setItem('fess_history',JSON.stringify(h));
+  closeM();
+  renderMyApps().catch(e=>console.warn(e));
+  renderJobs();
+  toast('Bewerbung abgesagt','ok');
+}
+
+// ── UPSELL ──
+function getSuggested(currentId){
+  const cur=EV.find(e=>e.id===currentId);
+  const history=loadHistory().map(x=>x.id);
+  if(!cur) return EV.filter(e=>e.id!==currentId&&!history.includes(e.id)&&e.urg).slice(0,8);
+  return EV.filter(e=>e.id!==currentId&&!history.includes(e.id)).map(e=>{
+    let s=0;
+    if(e.k===cur.k)s+=4;
+    if(e.urg)s+=3;
+    const dd=Math.abs(new Date(e.dv)-new Date(cur.dv))/(24*3600*1000);
+    if(dd<14)s+=2; else if(dd<30)s+=1;
+    if(e.loc===cur.loc)s+=2;
+    return{e,s};
+  }).sort((a,b)=>b.s-a.s).map(x=>x.e);
+}
+
+function upsellHTML(currentId){
+  const suggested=getSuggested(currentId);
+  if(!suggested.length) return '<div style="font-size:11px;color:var(--muted);margin-top:12px;text-align:center">🎉 Alle passenden Events bereits ausgewählt!</div>';
+  const groups={};
+  suggested.forEach(e=>{if(!groups[e.k])groups[e.k]=[];groups[e.k].push(e);});
+  return `<div class="upsell-section">
+    <div class="upsell-title">🛒 Weitere passende Events dazu buchen:</div>
+    <div style="font-size:10px;color:var(--muted);margin-bottom:8px">Alle ausgewählten Events werden in einer Nachricht gebündelt.</div>
+    ${Object.entries(groups).map(([kat,evs])=>`
+      <div class="upsell-cat-label">${kat}</div>
+      ${evs.map(e=>`<div class="upsell-card" id="uc${e.id}" onclick="toggleUp('${e.id}',this)">
+        <div class="uc-check" id="uch${e.id}"></div>
+        <div class="uc-info">
+          <div class="uc-name">${e.n}${e.urg?' 🔥':''}</div>
+          <div class="uc-detail">📅 ${fmtD(e)} · 📍 ${e.loc} · 👥 ${e.pax}P</div>
+        </div>
+        <span class="uc-tag" style="background:${KC[e.k]||'#888'}">${e.k}</span>
+      </div>`).join('')}
+    `).join('')}
+    <div class="cart-sum" id="cartSum"><strong>🛒</strong> <span id="cartCount">1</span> Events ausgewählt</div>
+  </div>`;
+}
+
+function toggleUp(id,el){
+  el.classList.toggle('sel');
+  const chk=document.getElementById('uch'+id);
+  if(el.classList.contains('sel')){upsellSel.add(id);chk.textContent='✓';}
+  else{upsellSel.delete(id);chk.textContent='';}
+  const cs=document.getElementById('cartSum');
+  if(cs){const n=1+upsellSel.size;cs.style.display=n>1?'block':'none';document.getElementById('cartCount').textContent=n;}
+}
+
+// ── SIGNATURE ──
+function initSig(canvasId, hintId){
+  const canvas=document.getElementById(canvasId);
+  if(!canvas)return;
+  sigDrawn=false;
+  const ctx=canvas.getContext('2d');
+  sigCtx=ctx;
+  // Scale for retina
+  const rect=canvas.getBoundingClientRect();
+  canvas.width=canvas.offsetWidth*2||800;
+  canvas.height=160;
+  ctx.scale(2,1);
+  function pos(e){
+    const r=canvas.getBoundingClientRect();
+    const src=e.touches?e.touches[0]:e;
+    return{x:(src.clientX-r.left)*(canvas.width/2/r.width),y:(src.clientY-r.top)*(canvas.height/r.height)};
+  }
+  canvas.addEventListener('mousedown',e=>{sigDrawing=true;const p=pos(e);ctx.beginPath();ctx.moveTo(p.x,p.y);if(!sigDrawn){sigDrawn=true;const h=document.getElementById(hintId);if(h)h.style.opacity='0';}});
+  canvas.addEventListener('mousemove',e=>{if(!sigDrawing)return;const p=pos(e);ctx.lineWidth=1.5;ctx.lineCap='round';ctx.strokeStyle='rgba(255,255,255,.9)';ctx.lineTo(p.x,p.y);ctx.stroke();});
+  canvas.addEventListener('mouseup',()=>sigDrawing=false);
+  canvas.addEventListener('mouseleave',()=>sigDrawing=false);
+  canvas.addEventListener('touchstart',e=>{e.preventDefault();sigDrawing=true;const p=pos(e);ctx.beginPath();ctx.moveTo(p.x,p.y);if(!sigDrawn){sigDrawn=true;const h=document.getElementById(hintId);if(h)h.style.opacity='0';}},{passive:false});
+  canvas.addEventListener('touchmove',e=>{e.preventDefault();if(!sigDrawing)return;const p=pos(e);ctx.lineWidth=1.5;ctx.lineCap='round';ctx.strokeStyle='rgba(255,255,255,.9)';ctx.lineTo(p.x,p.y);ctx.stroke();},{passive:false});
+  canvas.addEventListener('touchend',()=>sigDrawing=false);
+}
+function clearSig(canvasId, hintId){
+  const canvas=document.getElementById(canvasId);
+  if(!canvas)return;
+  canvas.getContext('2d').clearRect(0,0,canvas.width*2,canvas.height);
+  sigDrawn=false;
+  const h=document.getElementById(hintId);
+  if(h){h.style.opacity='1';h.classList.remove('sig-err');h.textContent='✍️ Hier unterschreiben';}
+}
+
+// ── FORM ──
+function mkForm(evId, evN, evD, evL, isGen){
+  upsellSel=new Set();
+  sigDrawn=false;
+  const eid='f'+(evId||'gen').replace(/-/g,'');
+  const profile=loadProfile();
+  const savedBanner=profile?`<div class="profile-banner">
+    <div><p><strong>Willkommen zurück, ${profile.vorname}!</strong><br>Deine Daten sind gespeichert. Schnell bewerben?</p></div>
+    <div style="display:flex;gap:6px">
+      <button class="pb-btn pb-use" onclick="fillProfile('${eid}')">Daten verwenden</button>
+      <button class="pb-btn pb-clear" onclick="this.closest('.profile-banner').remove()">✕</button>
+    </div>
+  </div>`:'';
+
+  return `${savedBanner}
+<div class="step-ind" id="si${eid}">
+  <div class="step-dot cur" id="sd0${eid}"></div>
+  <div class="step-dot" id="sd1${eid}"></div>
+</div>
+<div class="modal-title">🎯 Jetzt bewerben</div>
+<div class="modal-sub"><strong>${evN||'Allgemeine Bewerbung'}</strong>${evD?' · '+evD:''}<br>${evL?'📍 '+evL:''}</div>
 <form id="F${eid}" onsubmit="doSub(event,'${(evN||'').replace(/'/g,"\\'")}','${evD||''}','${evL||''}','${eid}')">
 
 <div class="step on" id="s1${eid}">
@@ -992,7 +1831,7 @@ function goS1(eid){
   document.getElementById('sd0'+eid).classList.replace('done','cur');
 }
 
-async function doSub(e, evN, evD, evL, eid){
+async function doSub(e, evN, evD, evL, eid, evId){
   e.preventDefault();
   // Check signature
   if(!sigDrawn){
@@ -1015,7 +1854,7 @@ async function doSub(e, evN, evD, evL, eid){
   // Save to Supabase
   if(sb){
     try{
-      const aufId = eid||null;
+      const aufId = evId||null;
       const bewData = {
         auftrag_id: aufId||null,
         vorname: g('vorname')||'',
@@ -1035,7 +1874,7 @@ async function doSub(e, evN, evD, evL, eid){
         shirt_groesse: g('shirt'),
         regionalleiter: g('regio'),
         notiz: g('notiz'),
-        sprachen: Array.isArray(langs)?langs.join(', '):langs||''
+        sprachen: langs||''
       };
       Object.entries(opt).forEach(([k,v])=>{ if(v) bewData[k]=v; });
       const{error:bewErr}=await sb.from('bewerbungen').insert([bewData]);
