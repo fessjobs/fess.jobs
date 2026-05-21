@@ -301,197 +301,8 @@ canvas.sig-canvas{width:100%;height:80px;cursor:crosshair;display:block;touch-ac
 .c-accept{background:var(--or);color:#ffffff;border:none;border-radius:7px;font-family:'Bitter',serif;font-weight:700;font-size:12px;padding:8px 16px;cursor:pointer;}
 .c-decline{background:#f3f4f6;color:#6b7280;border:1px solid #e5e7eb;border-radius:7px;font-size:12px;padding:8px 12px;cursor:pointer;font-family:var(--font);}
 </style>
-</head>
-<body>
-
-<div class="lang-bar">
-  <div class="lang-group">
-    <span class="lang-label">Sprache:</span>
-    <button class="lang-btn on" onclick="setLang('de',this)">🇩🇪 DE</button>
-    <button class="lang-btn" onclick="setLang('en',this)">🇬🇧 EN</button>
-    <button class="lang-btn" onclick="setLang('ar',this)">🇸🇦 AR</button>
-    <button class="lang-btn" onclick="setLang('ru',this)">🇷🇺 RU</button>
-    <button class="lang-btn" onclick="setLang('uk',this)">🇺🇦 UK</button>
-  </div>
-  <div class="top-socials">
-    <a class="soc-btn" href="https://chat.whatsapp.com/BdG0V6isJZCCnmGqSWxeNh" target="_blank"><svg viewBox="0 0 24 24" fill="#25D366"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>Community</a>
-    <a class="soc-btn" href="https://wa.me/491633626855" target="_blank"><svg viewBox="0 0 24 24" fill="#25D366"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>Support</a>
-    <a class="soc-btn" href="https://instagram.com/fess.jobs" target="_blank"><svg viewBox="0 0 24 24"><defs><linearGradient id="ig" x1="0%" y1="100%" x2="100%" y2="0%"><stop offset="0%" stop-color="#f09433"/><stop offset="50%" stop-color="#dc2743"/><stop offset="100%" stop-color="#bc1888"/></linearGradient></defs><path fill="url(#ig)" d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>@fess.jobs</a>
-    <a class="soc-btn" href="https://fess-recruitment.de" target="_blank"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 010 20M12 2a15.3 15.3 0 000 20"/></svg>Website</a>
-  </div>
-</div>
-
-<nav class="nav">
-  <div class="nav-logo" onclick="window.scrollTo({top:0,behavior:'smooth'})">fess<span>.jobs</span></div>
-  <div class="nav-links">
-    <button class="nav-link" onclick="document.getElementById('jobs').scrollIntoView({behavior:'smooth'})" data-i18n="nav_jobs">Aufträge</button>
-    <button class="nav-link" onclick="document.getElementById('process').scrollIntoView({behavior:'smooth'})" data-i18n="nav_process">Ablauf</button>
-    <button class="nav-link" onclick="document.getElementById('about').scrollIntoView({behavior:'smooth'})" data-i18n="nav_about">Über uns</button>
-  </div>
-  <button class="nav-cta" onclick="openGen('Stagehands')" data-i18n="nav_apply">Jetzt bewerben</button>
-</nav>
-
-<div class="hero">
-  <div class="hero-bg"></div>
-  <div class="hero-content">
-    <div class="hero-tag" data-i18n="hero_tag">🎪 Deutschlands Event-Crew</div>
-    <h1 data-i18n="hero_h1">Dein Job.<br>Dein <em>Event.</em><br>Dein Team.</h1>
-    <p data-i18n="hero_p">Wir bringen dich auf die großen Bühnen Deutschlands. FESS vermittelt zuverlässiges Personal für Events, Konzerte und Messen.</p>
-    <div class="hero-btns">
-      <button class="btn-primary" onclick="document.getElementById('jobs').scrollIntoView({behavior:'smooth'})">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-        Aufträge ansehen
-      </button>
-      <a class="btn-ghost" href="https://wa.me/491633626855" target="_blank">💬 WhatsApp Kontakt</a>
-    </div>
-    <div class="hero-stats">
-      <div><div class="stat-n">7+</div><div class="stat-l" data-i18n="stat1_l">Jahre Erfahrung</div></div>
-      <div><div class="stat-n">1.000+</div><div class="stat-l" data-i18n="stat2_l">Mitarbeiter</div></div>
-      <div><div class="stat-n">120+</div><div class="stat-l" data-i18n="stat3_l">Kunden</div></div>
-      <div><div class="stat-n">6</div><div class="stat-l" data-i18n="stat4_l">Regionale Hubs</div></div>
-    </div>
-  </div>
-  <div class="scroll-hint"><span>SCROLL</span><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.25)" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg></div>
-</div>
-
-<section id="jobs" style="background:#f8f7f5;">
-  <div class="section-inner">
-    <div class="section-header">
-      <div class="section-tag" data-i18n="jobs_tag">Verfügbare Aufträge</div>
-      <h2 class="section-title" data-i18n="jobs_title">Aktuelle Einsätze 2026</h2>
-      <p class="section-sub" data-i18n="jobs_sub">Wähle deinen Einsatz, bewerbe dich in Sekunden und werde Teil unserer Crew.</p>
-    </div>
-    <div class="inbox-panel" id="inboxPanel">
-      <div class="inbox-header">
-        <div class="inbox-title">📬 Nachrichten & Einsätze</div>
-        <span class="inbox-badge" id="inboxCount">0</span>
-      </div>
-      <div id="inboxList"></div>
-    </div>
-    <div class="my-apps-bar" id="myAppsBar">
-      <div class="my-apps-bar-header">
-        <div class="my-apps-bar-title">👤 <span id="myAppsGreeting">Hallo!</span></div>
-        <button class="my-apps-bar-clear" onclick="clearAllData()">Profil löschen</button>
-      </div>
-      <div style="font-size:11px;color:var(--muted);" id="myAppsSubline">Du hast dich bereits beworben für:</div>
-      <div class="my-apps-list" id="myAppsList"></div>
-    </div>
-    <div class="filter-dropdown-mobile" style="margin-bottom:12px;display:flex;gap:8px">
-      <select onchange="sf(this.value,null)" style="flex:1;background:#f9fafb;border:1px solid #e5e7eb;border-radius:20px;padding:7px 14px;font-size:12px;font-family:var(--font);outline:none;color:#111827;font-weight:600">
-        <option value="alle">🎯 Alle Aufträge</option>
-        <option value="Konzert">🎸 Konzert</option>
-        <option value="Festival">🎪 Festival</option>
-        <option value="Promotion">📣 Promotion</option>
-        <option value="ESL">🏷️ ESL</option>
-        <option value="Sport">🥊 Sport</option>
-        <option value="Kino">🎬 Kino</option>
-        <option value="dringend">🔥 Dringend</option>
-      </select>
-      <select onchange="ss(this.value)" style="background:#f9fafb;border:1px solid #e5e7eb;border-radius:20px;padding:7px 14px;font-size:12px;font-family:var(--font);outline:none;color:#111827;font-weight:600">
-        <option value="datum">↑ Datum</option>
-        <option value="pax">↓ PAX</option>
-      </select>
-    </div>
-    <div class="jobs-controls filter-desktop">
-      <span style="font-size:10px;color:var(--muted);font-weight:700;letter-spacing:.08em;text-transform:uppercase">Filter:</span>
-      <button class="filter-pill on" onclick="sf('alle',this)" data-i18n="filter_all">Alle</button>
-      <button class="filter-pill" onclick="sf('Konzert',this)">🎸 Konzert</button>
-      <button class="filter-pill" onclick="sf('Festival',this)">🎪 Festival</button>
-      <button class="filter-pill" onclick="sf('Promotion',this)">📣 Promotion</button>
-      <button class="filter-pill" onclick="sf('ESL',this)">🏷️ ESL</button>
-      <button class="filter-pill" onclick="sf('Sport',this)">🥊 Sport</button>
-      <button class="filter-pill" onclick="sf('Kino',this)">🎬 Kino</button>
-      <button class="filter-pill" onclick="sf('dringend',this)" style="border-color:var(--or);color:var(--or)">🔥 Dringend</button>
-      <select class="jobs-sort" onchange="ss(this.value)">
-        <option value="datum">↑ Datum</option>
-        <option value="pax">↓ Personenbedarf</option>
-      </select>
-    </div>
-    <div id="jobsList"></div>
-  </div>
-</section>
-
-<section class="process-section" id="process">
-  <div class="section-inner">
-    <div class="section-header">
-      <div class="section-tag" data-i18n="process_tag">So einfach geht's</div>
-      <h2 class="section-title" data-i18n="process_title">Dein Weg zum Einsatz</h2>
-      <p class="section-sub" data-i18n="process_sub">Von der Bewerbung bis zur Abrechnung – Schritt für Schritt.</p>
-    </div>
-    <div class="process-grid" id="processGrid"></div>
-  </div>
-</section>
-
-<section id="about" style="background:#ffffff;">
-  <div class="section-inner">
-    <div class="about-grid">
-      <div class="about-img-wrap">
-        <img src="https://images.pexels.com/photos/1763075/pexels-photo-1763075.jpeg?auto=compress&cs=tinysrgb&w=800" alt="FESS">
-        <div class="about-badge"><div class="bn">24h</div><div class="bl">Bereitstellung</div></div>
-      </div>
-      <div>
-        <div class="section-tag" data-i18n="about_tag">Über FESS</div>
-        <h2 class="section-title" data-i18n="about_title">Mehr als eine Personalagentur</h2>
-        <p style="font-size:13px;color:var(--muted);line-height:1.7;margin-bottom:20px" data-i18n="about_p">FESS ist ein junges, dynamisches Team das die Personalvermittlung in der Eventbranche revolutioniert.</p>
-        <div class="about-features" id="aboutFeatures"></div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<div class="cta-section">
-  <div class="cta-inner">
-    <h2 data-i18n="cta_title">Bereit für deinen ersten Einsatz?</h2>
-    <p data-i18n="cta_p">Jetzt bewerben und Teil der FESS-Familie werden.</p>
-    <div class="cta-btns">
-      <button class="btn-white" onclick="openGen('Stagehands')" data-i18n="cta_btn1">⚒️ Als Stagehand bewerben</button>
-      <button class="btn-white" onclick="openGen('Promoter / Hostess')" data-i18n="cta_btn2">📣 Als Promoter bewerben</button>
-      <a class="btn-outline-white" href="https://wa.me/491633626855" target="_blank" data-i18n="cta_btn3">💬 Direkt schreiben</a>
-    </div>
-  </div>
-</div>
-
-<footer>
-  <div class="footer-inner">
-    <div class="footer-top">
-      <div>
-        <div class="footer-logo">fess<span>.jobs</span></div>
-        <p class="footer-tagline" data-i18n="footer_tagline">Zuverlässiges Eventpersonal deutschlandweit.</p>
-      </div>
-      <div class="footer-col">
-        <h4>Kontakt</h4>
-        <a href="tel:+4917644266658">+49 176 44266658</a>
-        <a href="mailto:info.fio@fess-recruitment.de">info.fio@fess-recruitment.de</a>
-        <p>John-F.-Kennedy Str. 9, 55743 Idar-Oberstein</p>
-      </div>
-      <div class="footer-col">
-        <h4>Links</h4>
-        <a href="https://fess-recruitment.de" target="_blank">fess-recruitment.de</a>
-        <a href="https://instagram.com/fess.jobs" target="_blank">Instagram @fess.jobs</a>
-        <a href="https://chat.whatsapp.com/BdG0V6isJZCCnmGqSWxeNh" target="_blank">WA Community</a>
-      </div>
-    </div>
-    <div class="footer-bottom">
-      <p>© 2026 FESS Jobs · Teil der incub.live Gruppe</p>
-      <p>Alle Rechte vorbehalten</p>
-    </div>
-  </div>
-</footer>
-
-<div class="modal-bg" id="MB" onclick="if(event.target.id==='MB')closeM()">
-  <div class="modal-box"><button class="modal-close" onclick="closeM()">✕</button><div id="MBody"></div></div>
-</div>
-
-<div class="cookie-banner" id="cookieBanner">
-  <div class="cookie-text">🍪 Wir nutzen Cookies & lokalen Speicher um deine Daten zu speichern. <a href="https://fess-recruitment.de/datenschutz" target="_blank">Datenschutz</a></div>
-  <div class="cookie-btns">
-    <button class="c-decline" onclick="cookieSet('minimal')">Nur notwendige</button>
-    <button class="c-accept" onclick="cookieSet('all')">✓ Alle akzeptieren</button>
-  </div>
-</div>
 
 <script>
-
 // ══════════════════════════════════════════
 // i18n – TRANSLATIONS (must be declared first)
 // ══════════════════════════════════════════
@@ -795,23 +606,253 @@ const ABOUT_FEATS_ALL = {
 
 function setLang(l, el) {
   LANG = l;
+  // Update lang buttons
   document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('on'));
   if(el) el.classList.add('on');
-  document.documentElement.dir = LANGS[l]?.dir || 'ltr';
+  // RTL support for Arabic
+  const T = LANGS[l] || LANGS.de;
+  document.documentElement.dir = T.dir || 'ltr';
   document.documentElement.lang = l;
+  // Patch MO months array for renderJobs
+  if(T.months) T.months.forEach((m,i) => { MO[i] = m; });
+  // Update all static data-i18n elements
   applyTranslations();
+  // Re-render dynamic sections
   renderJobs();
   renderProcess();
   renderAbout();
+  // Update mobile filter dropdown
+  const mobileFilter = document.querySelector('.filter-dropdown-mobile select');
+  if(mobileFilter) {
+    const opts = mobileFilter.querySelectorAll('option');
+    if(opts[0]) opts[0].textContent = '🎯 ' + T.filter_all;
+    if(opts[6]) opts[6].textContent = T.filter_urgent;
+  }
+  // Update desktop filter all button
+  const allBtn = document.querySelector('.filter-pill.on');
+  if(allBtn && allBtn.getAttribute('onclick')?.includes("'alle'")) allBtn.textContent = T.filter_all;
 }
 
 function applyTranslations() {
   const T = LANGS[LANG] || LANGS.de;
   document.querySelectorAll('[data-i18n]').forEach(el => {
     const key = el.getAttribute('data-i18n');
-    if(T[key] !== undefined) el.innerHTML = T[key];
+    if(T[key] !== undefined) {
+      if(el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') {
+        el.placeholder = T[key];
+      } else {
+        el.innerHTML = T[key];
+      }
+    }
   });
+  // Hero section (uses data-i18n already)
+  // Stat numbers stay the same, labels are data-i18n
+  // Update scroll hint
+  const scrollHint = document.querySelector('.scroll-hint span');
+  if(scrollHint) scrollHint.textContent = T.scroll || 'SCROLL';
+  // Update cookie banner
+  const cookieText = document.querySelector('.cookie-text');
+  if(cookieText) {
+    const linkHTML = cookieText.querySelector('a') ? cookieText.querySelector('a').outerHTML : '';
+    cookieText.innerHTML = T.cookie_text + ' ' + linkHTML;
+  }
+  const acceptBtn = document.querySelector('.c-accept');
+  if(acceptBtn) acceptBtn.textContent = T.cookie_accept || '✓ Alle akzeptieren';
+  const declineBtn = document.querySelector('.c-decline');
+  if(declineBtn) declineBtn.textContent = T.cookie_decline || 'Nur notwendige';
 }
+
+
+</script>
+</head>
+<body>
+
+<div class="lang-bar">
+  <div class="lang-group">
+    <span class="lang-label">Sprache:</span>
+    <button class="lang-btn on" onclick="setLang('de',this)">🇩🇪 DE</button>
+    <button class="lang-btn" onclick="setLang('en',this)">🇬🇧 EN</button>
+    <button class="lang-btn" onclick="setLang('ar',this)">🇸🇦 AR</button>
+    <button class="lang-btn" onclick="setLang('ru',this)">🇷🇺 RU</button>
+    <button class="lang-btn" onclick="setLang('uk',this)">🇺🇦 UK</button>
+  </div>
+  <div class="top-socials">
+    <a class="soc-btn" href="https://chat.whatsapp.com/BdG0V6isJZCCnmGqSWxeNh" target="_blank"><svg viewBox="0 0 24 24" fill="#25D366"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>Community</a>
+    <a class="soc-btn" href="https://wa.me/491633626855" target="_blank"><svg viewBox="0 0 24 24" fill="#25D366"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>Support</a>
+    <a class="soc-btn" href="https://instagram.com/fess.jobs" target="_blank"><svg viewBox="0 0 24 24"><defs><linearGradient id="ig" x1="0%" y1="100%" x2="100%" y2="0%"><stop offset="0%" stop-color="#f09433"/><stop offset="50%" stop-color="#dc2743"/><stop offset="100%" stop-color="#bc1888"/></linearGradient></defs><path fill="url(#ig)" d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>@fess.jobs</a>
+    <a class="soc-btn" href="https://fess-recruitment.de" target="_blank"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 010 20M12 2a15.3 15.3 0 000 20"/></svg>Website</a>
+  </div>
+</div>
+
+<nav class="nav">
+  <div class="nav-logo" onclick="window.scrollTo({top:0,behavior:'smooth'})">fess<span>.jobs</span></div>
+  <div class="nav-links">
+    <button class="nav-link" onclick="document.getElementById('jobs').scrollIntoView({behavior:'smooth'})" data-i18n="nav_jobs">Aufträge</button>
+    <button class="nav-link" onclick="document.getElementById('process').scrollIntoView({behavior:'smooth'})" data-i18n="nav_process">Ablauf</button>
+    <button class="nav-link" onclick="document.getElementById('about').scrollIntoView({behavior:'smooth'})" data-i18n="nav_about">Über uns</button>
+  </div>
+  <button class="nav-cta" onclick="openGen('Stagehands')" data-i18n="nav_apply">Jetzt bewerben</button>
+</nav>
+
+<div class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-content">
+    <div class="hero-tag" data-i18n="hero_tag">🎪 Deutschlands Event-Crew</div>
+    <h1 data-i18n="hero_h1">Dein Job.<br>Dein <em>Event.</em><br>Dein Team.</h1>
+    <p data-i18n="hero_p">Wir bringen dich auf die großen Bühnen Deutschlands. FESS vermittelt zuverlässiges Personal für Events, Konzerte und Messen.</p>
+    <div class="hero-btns">
+      <button class="btn-primary" onclick="document.getElementById('jobs').scrollIntoView({behavior:'smooth'})">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        Aufträge ansehen
+      </button>
+      <a class="btn-ghost" href="https://wa.me/491633626855" target="_blank">💬 WhatsApp Kontakt</a>
+    </div>
+    <div class="hero-stats">
+      <div><div class="stat-n">7+</div><div class="stat-l" data-i18n="stat1_l">Jahre Erfahrung</div></div>
+      <div><div class="stat-n">1.000+</div><div class="stat-l" data-i18n="stat2_l">Mitarbeiter</div></div>
+      <div><div class="stat-n">120+</div><div class="stat-l" data-i18n="stat3_l">Kunden</div></div>
+      <div><div class="stat-n">6</div><div class="stat-l" data-i18n="stat4_l">Regionale Hubs</div></div>
+    </div>
+  </div>
+  <div class="scroll-hint"><span>SCROLL</span><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.25)" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg></div>
+</div>
+
+<section id="jobs" style="background:#f8f7f5;">
+  <div class="section-inner">
+    <div class="section-header">
+      <div class="section-tag" data-i18n="jobs_tag">Verfügbare Aufträge</div>
+      <h2 class="section-title" data-i18n="jobs_title">Aktuelle Einsätze 2026</h2>
+      <p class="section-sub" data-i18n="jobs_sub">Wähle deinen Einsatz, bewerbe dich in Sekunden und werde Teil unserer Crew.</p>
+    </div>
+    <div id="myAppsSection" style="display:none;margin-bottom:4px">
+      <div class="my-bew-toggle" id="myBewToggle" onclick="toggleMyBew()">
+        <div style="display:flex;align-items:center;gap:8px">
+          <span>👤</span>
+          <span id="myAppsGreeting">Meine Bewerbungen</span>
+          <span id="myBewCount" style="background:var(--or);color:#fff;font-size:9px;font-weight:700;padding:2px 7px;border-radius:10px;display:none">0</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <button onclick="event.stopPropagation();clearAllData()" style="font-size:10px;color:var(--muted);background:none;border:1px solid #e5e7eb;border-radius:7px;padding:3px 8px;cursor:pointer;font-family:var(--font)">Profil löschen</button>
+          <span class="my-bew-arrow">▼</span>
+        </div>
+      </div>
+      <div class="my-bew-body" id="myBewBody"></div>
+    </div>
+    <div class="filter-dropdown-mobile" style="margin-bottom:12px;display:flex;gap:8px">
+      <select onchange="sf(this.value,null)" style="flex:1;background:#f9fafb;border:1px solid #e5e7eb;border-radius:20px;padding:7px 14px;font-size:12px;font-family:var(--font);outline:none;color:#111827;font-weight:600">
+        <option value="alle">🎯 Alle Aufträge</option>
+        <option value="Konzert">🎸 Konzert</option>
+        <option value="Festival">🎪 Festival</option>
+        <option value="Promotion">📣 Promotion</option>
+        <option value="ESL">🏷️ ESL</option>
+        <option value="Sport">🥊 Sport</option>
+        <option value="Kino">🎬 Kino</option>
+        <option value="dringend">🔥 Dringend</option>
+      </select>
+      <select onchange="ss(this.value)" style="background:#f9fafb;border:1px solid #e5e7eb;border-radius:20px;padding:7px 14px;font-size:12px;font-family:var(--font);outline:none;color:#111827;font-weight:600">
+        <option value="datum">↑ Datum</option>
+        <option value="pax">↓ PAX</option>
+      </select>
+    </div>
+    <div class="jobs-controls filter-desktop">
+      <span style="font-size:10px;color:var(--muted);font-weight:700;letter-spacing:.08em;text-transform:uppercase">Filter:</span>
+      <button class="filter-pill on" onclick="sf('alle',this)" data-i18n="filter_all">Alle</button>
+      <button class="filter-pill" onclick="sf('Konzert',this)">🎸 Konzert</button>
+      <button class="filter-pill" onclick="sf('Festival',this)">🎪 Festival</button>
+      <button class="filter-pill" onclick="sf('Promotion',this)">📣 Promotion</button>
+      <button class="filter-pill" onclick="sf('ESL',this)">🏷️ ESL</button>
+      <button class="filter-pill" onclick="sf('Sport',this)">🥊 Sport</button>
+      <button class="filter-pill" onclick="sf('Kino',this)">🎬 Kino</button>
+      <button class="filter-pill" onclick="sf('dringend',this)" style="border-color:var(--or);color:var(--or)">🔥 Dringend</button>
+      <select class="jobs-sort" onchange="ss(this.value)">
+        <option value="datum">↑ Datum</option>
+        <option value="pax">↓ Personenbedarf</option>
+      </select>
+    </div>
+    <div id="jobsList"></div>
+  </div>
+</section>
+
+<section class="process-section" id="process">
+  <div class="section-inner">
+    <div class="section-header">
+      <div class="section-tag" data-i18n="process_tag">So einfach geht's</div>
+      <h2 class="section-title" data-i18n="process_title">Dein Weg zum Einsatz</h2>
+      <p class="section-sub" data-i18n="process_sub">Von der Bewerbung bis zur Abrechnung – Schritt für Schritt.</p>
+    </div>
+    <div class="process-grid" id="processGrid"></div>
+  </div>
+</section>
+
+<section id="about" style="background:#ffffff;">
+  <div class="section-inner">
+    <div class="about-grid">
+      <div class="about-img-wrap">
+        <img src="https://images.pexels.com/photos/1763075/pexels-photo-1763075.jpeg?auto=compress&cs=tinysrgb&w=800" alt="FESS">
+        <div class="about-badge"><div class="bn">24h</div><div class="bl">Bereitstellung</div></div>
+      </div>
+      <div>
+        <div class="section-tag" data-i18n="about_tag">Über FESS</div>
+        <h2 class="section-title" data-i18n="about_title">Mehr als eine Personalagentur</h2>
+        <p style="font-size:13px;color:var(--muted);line-height:1.7;margin-bottom:20px" data-i18n="about_p">FESS ist ein junges, dynamisches Team das die Personalvermittlung in der Eventbranche revolutioniert.</p>
+        <div class="about-features" id="aboutFeatures"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="cta-section">
+  <div class="cta-inner">
+    <h2 data-i18n="cta_title">Bereit für deinen ersten Einsatz?</h2>
+    <p data-i18n="cta_p">Jetzt bewerben und Teil der FESS-Familie werden.</p>
+    <div class="cta-btns">
+      <button class="btn-white" onclick="openGen('Stagehands')" data-i18n="cta_btn1">⚒️ Als Stagehand bewerben</button>
+      <button class="btn-white" onclick="openGen('Promoter / Hostess')" data-i18n="cta_btn2">📣 Als Promoter bewerben</button>
+      <a class="btn-outline-white" href="https://wa.me/491633626855" target="_blank" data-i18n="cta_btn3">💬 Direkt schreiben</a>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <div class="footer-inner">
+    <div class="footer-top">
+      <div>
+        <div class="footer-logo">fess<span>.jobs</span></div>
+        <p class="footer-tagline" data-i18n="footer_tagline">Zuverlässiges Eventpersonal deutschlandweit.</p>
+      </div>
+      <div class="footer-col">
+        <h4>Kontakt</h4>
+        <a href="tel:+4917644266658">+49 176 44266658</a>
+        <a href="mailto:info.fio@fess-recruitment.de">info.fio@fess-recruitment.de</a>
+        <p>John-F.-Kennedy Str. 9, 55743 Idar-Oberstein</p>
+      </div>
+      <div class="footer-col">
+        <h4>Links</h4>
+        <a href="https://fess-recruitment.de" target="_blank">fess-recruitment.de</a>
+        <a href="https://instagram.com/fess.jobs" target="_blank">Instagram @fess.jobs</a>
+        <a href="https://chat.whatsapp.com/BdG0V6isJZCCnmGqSWxeNh" target="_blank">WA Community</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>© 2026 FESS Jobs · Teil der incub.live Gruppe</p>
+      <p>Alle Rechte vorbehalten</p>
+    </div>
+  </div>
+</footer>
+
+<div class="modal-bg" id="MB" onclick="if(event.target.id==='MB')closeM()">
+  <div class="modal-box"><button class="modal-close" onclick="closeM()">✕</button><div id="MBody"></div></div>
+</div>
+
+<div class="cookie-banner" id="cookieBanner">
+  <div class="cookie-text">🍪 Wir nutzen Cookies & lokalen Speicher um deine Daten zu speichern. <a href="https://fess-recruitment.de/datenschutz" target="_blank">Datenschutz</a></div>
+  <div class="cookie-btns">
+    <button class="c-decline" onclick="cookieSet('minimal')">Nur notwendige</button>
+    <button class="c-accept" onclick="cookieSet('all')">✓ Alle akzeptieren</button>
+  </div>
+</div>
+
+<script>
 
 
 // ══ CONFIG ══
@@ -907,7 +948,7 @@ function jcard(e){
 function renderJobs(){
   const evs=fevs();
   if(!evs.length){
-    document.getElementById('jobsList').innerHTML='<div style="text-align:center;padding:40px;color:var(--muted)"><div style="font-size:32px;margin-bottom:12px">📋</div><div style="font-size:14px;font-weight:600">Keine Aufträge gefunden</div><div style="font-size:12px;margin-top:6px">Bitte später nochmal schauen oder Filter ändern.</div></div>';
+    document.getElementById('jobsList').innerHTML=`<div style="text-align:center;padding:40px;color:var(--muted)"><div style="font-size:32px;margin-bottom:12px">📋</div><div style="font-size:14px;font-weight:600">${t('no_results')}</div><div style="font-size:12px;margin-top:6px">Bitte später nochmal schauen oder Filter ändern.</div></div>`;
     return;
   }
   const months=[...new Set(evs.map(e=>mon(e)))].sort((a,b)=>a-b);
@@ -916,7 +957,7 @@ function renderJobs(){
     return `<div class="month-group">
       <button class="month-toggle open" onclick="this.classList.toggle('open');this.nextElementSibling.classList.toggle('open')">
         <div><span class="mtag">${MO[m]}</span>${MO[m]} 2026</div>
-        <div style="display:flex;align-items:center;gap:8px"><span style="font-size:11px;color:var(--muted)">${me.length} Einsätze</span><span class="marrow">▼</span></div>
+        <div style="display:flex;align-items:center;gap:8px"><span style="font-size:11px;color:var(--muted)">${me.length} ${t('einsaetze')}arrow">▼</span></div>
       </button>
       <div class="month-body open">${me.map(jcard).join('')}</div>
     </div>`;
@@ -954,17 +995,211 @@ function clearAllData(){
 }
 
 async function renderMyApps(){
-  const p=loadProfile(),h=loadHistory(),bar=document.getElementById('myAppsBar');
-  if(!bar)return;
-  if(!p&&!h.length){bar.style.display='none';return;}
-  bar.style.display='block';
-  if(p)document.getElementById('myAppsGreeting').textContent='Hallo, '+p.vorname+'!';
-  const sub=document.getElementById('myAppsSubline');
-  const list=document.getElementById('myAppsList');
-  if(!h.length){sub.textContent='Noch keine Bewerbungen.';list.innerHTML='';return;}
-  sub.textContent='Meine Bewerbungen ('+h.length+'):';
-  list.innerHTML=h.map(x=>`<div class="my-app-chip" onclick="openBewerbungDetail('${x.id}','${(x.name||'').replace(/'/g,"\\'")}','eingegangen')"><div class="mac-dot"></div><span class="mac-name">${x.name||''}</span></div>`).join('');
+  const p=loadProfile(), h=loadHistory();
+  const section=document.getElementById('myAppsSection');
+  if(!section) return;
+  if(!p && !h.length){ section.style.display='none'; return; }
+  section.style.display='block';
+
+  const greeting = p ? 'Hallo, '+p.vorname+'! – Meine Bewerbungen' : 'Meine Bewerbungen';
+  document.getElementById('myAppsGreeting').textContent = greeting;
+
+  if(!h.length){
+    document.getElementById('myBewBody').innerHTML='<div style="font-size:12px;color:var(--muted);padding:8px">Noch keine Bewerbungen.</div>';
+    return;
+  }
+
+  // Fetch real status from Supabase
+  let statusMap={}, schichtMap={};
+  if(sb && p?.tel){
+    try{
+      const{data}=await sb.from('bewerbungen').select('auftrag_id,status,schicht,id').eq('telefon', p.tel);
+      (data||[]).forEach(b=>{
+        // keep best status per auftrag
+        const rank={bestaetigt:3,reserviert:2,eingegangen:1,abgelehnt:0};
+        if(!statusMap[b.auftrag_id] || (rank[b.status]||0) > (rank[statusMap[b.auftrag_id]]||0)){
+          statusMap[b.auftrag_id] = b.status;
+        }
+        if(!schichtMap[b.auftrag_id]) schichtMap[b.auftrag_id]=[];
+        if(b.schicht) schichtMap[b.auftrag_id].push({schicht:b.schicht, status:b.status, id:b.id});
+      });
+    }catch(e){ console.warn('status fetch',e); }
+  }
+
+  const count = h.length;
+  const badge = document.getElementById('myBewCount');
+  badge.textContent = count; badge.style.display = 'inline';
+
+  document.getElementById('myBewBody').innerHTML = h.map(x=>{
+    const ev = ALL.find(e=>String(e.id)===String(x.id));
+    const st = statusMap[x.id] || 'eingegangen';
+    const schichten = schichtMap[x.id] || [];
+    const stLabels={bestaetigt:'✅ Fest geplant',reserviert:'⏳ Reserviert',eingegangen:'🕐 Verfügbarkeit mitgeteilt',abgelehnt:'❌ Abgesagt'};
+    const stClasses={bestaetigt:'st-bestaetigt',reserviert:'st-reserviert',eingegangen:'st-eingegangen',abgelehnt:'st-abgelehnt'};
+    const stBarTexts={bestaetigt:'✅ FEST GEPLANT',reserviert:'⏳ AUF RESERVE',eingegangen:'🕐 VERFÜGBARKEIT MITGETEILT',abgelehnt:'❌ ABGESAGT'};
+
+    const kat = ev?.k||ev?.kategorie||'Konzert';
+    const col = {Konzert:'#E8651A',Festival:'#c45a14',Promotion:'#7c3aed',ESL:'#0891b2',Sport:'#d4a017',Kino:'#6b21a8'}[kat]||'#E8651A';
+    const gr = {Konzert:'gk',Festival:'gf',Promotion:'gp',ESL:'ge',Sport:'gs',Kino:'gp'}[kat]||'gk';
+    const ic = {Konzert:'🎸',Festival:'🎪',Promotion:'📣',ESL:'🏷️',Sport:'🥊',Kino:'🎬'}[kat]||'🎵';
+    const img = ev?.img||ev?.bild_url||'';
+    const name = ev?.n||ev?.name||x.name||'Event';
+    const loc = ev?.loc||ev?.location||'–';
+    const dateTxt = ev ? fmtD(ev) : (x.date||'–');
+
+    // Build shift pills
+    const shiftPills = schichten.length
+      ? schichten.map(s=>{
+          const sc={bestaetigt:'background:#ecfdf5;color:#059669;border:1px solid #a7f3d0',reserviert:'background:#f5f3ff;color:#7c3aed;border:1px solid #ddd6fe',eingegangen:'background:#fffbeb;color:#d97706;border:1px solid #fde68a',abgelehnt:'background:#fef2f2;color:#dc2626;border:1px solid #fecaca'}[s.status]||'background:#f3f4f6;color:#6b7280;border:1px solid #e5e7eb';
+          return `<span style="${sc};border-radius:8px;padding:2px 8px;font-size:9px;font-weight:700">⏰ ${s.schicht}</span>`;
+        }).join('')
+      : `<span style="background:#f3f4f6;color:#6b7280;border:1px solid #e5e7eb;border-radius:8px;padding:2px 8px;font-size:9px">⏰ ${x.date||'Einsatz'}</span>`;
+
+    const actionBtn = st==='bestaetigt'
+      ? `<button class="bew-action-btn confirmed" onclick="openBewStatusModal('${x.id}','${name.replace(/'/g,"\'")}','${st}')">✅ Fest geplant – Details ansehen</button>`
+      : st==='abgelehnt'
+      ? `<button class="bew-action-btn pending" style="background:#fef2f2;color:#dc2626;border:1px solid #fecaca" onclick="openBewStatusModal('${x.id}','${name.replace(/'/g,"\'")}','${st}')">❌ Abgesagt</button>`
+      : `<button class="bew-action-btn pending" onclick="openBewStatusModal('${x.id}','${name.replace(/'/g,"\'")}','${st}')">🕐 Verfügbarkeit mitgeteilt – Status ansehen</button>`;
+
+    return `<div class="bew-jcard ${stClasses[st]}">
+      <div class="bew-status-bar ${stClasses[st]}">${stBarTexts[st]||st}</div>
+      <div class="jcard-img ${gr}" style="height:148px;position:relative;">
+        ${img ? `<img src="${img}" alt="${name}" loading="lazy" style="width:100%;height:100%;object-fit:cover;display:block" onerror="this.style.display='none'">` : ''}
+        <div class="jcard-fb" style="${img?'display:none':'display:flex'}">${ic}</div>
+        <div class="jcard-ov"></div>
+        <div class="jcard-kat" style="background:${col};position:absolute;bottom:8px;left:8px;font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;padding:2px 8px;border-radius:16px;color:#111827">${kat}</div>
+      </div>
+      <div class="jcard-body">
+        <div class="jcard-name">${name}</div>
+        <div class="jcard-row"><span>📅</span><span>${dateTxt}</span></div>
+        <div class="jcard-row"><span>📍</span><span>${loc}</span></div>
+        <div class="jcard-shifts" style="margin-top:6px">${shiftPills}</div>
+        ${actionBtn}
+      </div>
+    </div>`;
+  }).join('');
 }
+
+function toggleMyBew(){
+  const toggle=document.getElementById('myBewToggle');
+  const body=document.getElementById('myBewBody');
+  toggle.classList.toggle('open');
+  body.classList.toggle('open');
+}
+
+async function openBewStatusModal(aufId, aufName, status){
+  const ev = ALL.find(e=>String(e.id)===String(aufId));
+  const p = loadProfile();
+
+  // Fetch bewerbung IDs for this auftrag+user for cancellation
+  let bewIds = [];
+  if(sb && p?.tel){
+    try{
+      const{data}=await sb.from('bewerbungen').select('id,schicht,status').eq('auftrag_id',aufId).eq('telefon',p.tel);
+      bewIds = data||[];
+    }catch(e){}
+  }
+
+  const stInfo = {
+    bestaetigt:{color:'#22c55e',bg:'#ecfdf5',label:'✅ Du bist fest eingeplant!',sub:'Dein Einsatz ist bestätigt. Bei Fragen wende dich an unser Team.'},
+    reserviert:{color:'#7c3aed',bg:'#f5f3ff',label:'⏳ Du bist auf der Reserveliste',sub:'Wir geben dir so schnell wie möglich Bescheid.'},
+    eingegangen:{color:'#d97706',bg:'#fffbeb',label:'🕐 Verfügbarkeit mitgeteilt',sub:'Deine Bewerbung ist eingegangen. Wir melden uns bald!'},
+    abgelehnt:{color:'#dc2626',bg:'#fef2f2',label:'❌ Leider abgesagt',sub:'Für diesen Einsatz hat es nicht geklappt. Beim nächsten Mal wieder!'},
+  }[status]||{color:'#6b7280',bg:'#f3f4f6',label:status,sub:''};
+
+  document.getElementById('MBody').innerHTML=`
+    <div class="modal-title">${aufName}</div>
+    <div style="background:${stInfo.bg};border-radius:10px;padding:12px 14px;margin-bottom:14px">
+      <div style="font-size:14px;font-weight:700;color:${stInfo.color}">${stInfo.label}</div>
+      <div style="font-size:11px;color:#374151;margin-top:4px">${stInfo.sub}</div>
+    </div>
+    ${ev?`<div style="font-size:12px;color:#4b5563;display:flex;flex-direction:column;gap:5px;margin-bottom:14px">
+      <div>📅 ${fmtD(ev)}</div>
+      <div>📍 ${ev.loc||ev.location||''}</div>
+      <div>👷 ${ev.ta||ev.taetigkeit||''}</div>
+    </div>`:''}
+    ${bewIds.length?`<div style="margin-bottom:14px">
+      <div style="font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#9ca3af;margin-bottom:6px">Deine Schichten:</div>
+      <div style="display:flex;flex-wrap:wrap;gap:5px">
+        ${bewIds.map(b=>{
+          const sc={bestaetigt:'background:#ecfdf5;color:#059669;border:1px solid #a7f3d0',reserviert:'background:#f5f3ff;color:#7c3aed;border:1px solid #ddd6fe',eingegangen:'background:#fffbeb;color:#d97706;border:1px solid #fde68a',abgelehnt:'background:#fef2f2;color:#dc2626;border:1px solid #fecaca'}[b.status]||'background:#f3f4f6;color:#6b7280;border:1px solid #e5e7eb';
+          return `<span style="${sc};border-radius:8px;padding:3px 10px;font-size:10px;font-weight:600">⏰ ${b.schicht||'Einsatz'}</span>`;
+        }).join('')}
+      </div>
+    </div>`:''}
+    <div class="bew-detail-actions">
+      ${status==='bestaetigt'?`
+      <button class="bew-detail-btn" style="background:var(--or);color:#fff" onclick="openChatModal('${aufId}','${aufName.replace(/'/g,"\'")}')">
+        💬 Nachricht an FESS senden
+      </button>`:''}
+      <a class="bew-detail-btn" href="https://wa.me/491633626855?text=${encodeURIComponent('Hallo FESS, ich habe eine Frage zu meinem Einsatz: '+aufName)}" target="_blank"
+        style="background:#25D366;color:#fff;text-decoration:none">
+        📱 WhatsApp Support
+      </a>
+      ${status!=='abgelehnt'?`
+      <button class="bew-detail-btn" style="background:#fef2f2;color:#dc2626;border:1px solid #fecaca" onclick="cancelSchicht('${aufId}','${aufName.replace(/'/g,"\'")}')">
+        ✗ Einsatz absagen
+      </button>`:''}
+      <button onclick="closeM()" style="width:100%;background:#f3f4f6;color:#6b7280;border:none;border-radius:8px;padding:10px;font-size:12px;cursor:pointer;font-family:var(--font)">Schließen</button>
+    </div>`;
+  document.getElementById('MB').classList.add('open');
+}
+
+async function cancelSchicht(aufId, aufName){
+  if(!confirm('Einsatz "'+aufName+'" wirklich absagen?')) return;
+  const p = loadProfile();
+  if(sb && p?.tel){
+    try{
+      // Update all bewerbungen for this auftrag+user to abgelehnt
+      await sb.from('bewerbungen').update({status:'abgelehnt'}).eq('auftrag_id',aufId).eq('telefon',p.tel);
+      // Notify admin via nachrichten table
+      const{data:bews}=await sb.from('bewerbungen').select('id').eq('auftrag_id',aufId).eq('telefon',p.tel);
+      if(bews?.length){
+        await sb.from('nachrichten').insert([{
+          bewerbung_id: bews[0].id,
+          von: 'ma',
+          von_name: p.vorname||'Mitarbeiter',
+          inhalt: `❌ ${p.vorname||'Mitarbeiter'} hat den Einsatz "${aufName}" abgesagt.`,
+          gelesen_von_admin: false
+        }]);
+      }
+    }catch(e){ console.warn('cancel error',e); }
+  }
+  // Remove from local history
+  const h = loadHistory().filter(x=>String(x.id)!==String(aufId));
+  localStorage.setItem('fess_history', JSON.stringify(h));
+  toast('Einsatz abgesagt – Admin wurde benachrichtigt','ok');
+  closeM();
+  renderMyApps().catch(e=>console.warn(e));
+}
+
+function openChatModal(aufId, aufName){
+  const p = loadProfile();
+  document.getElementById('MBody').innerHTML=`
+    <div class="modal-title">💬 Nachricht an FESS</div>
+    <div class="modal-sub">Betreff: <strong>${aufName}</strong></div>
+    <div class="fg">
+      <label class="fl">Deine Nachricht</label>
+      <textarea class="fta" id="chatMsgInput" placeholder="Deine Frage oder Nachricht…" rows="4"></textarea>
+    </div>
+    <div style="display:flex;gap:8px;margin-top:10px">
+      <button onclick="closeM();openBewStatusModal('${aufId}','${aufName.replace(/'/g,"\'")}','bestaetigt')" style="flex:1;background:#f3f4f6;color:#6b7280;border:none;border-radius:8px;padding:10px;font-size:12px;cursor:pointer;font-family:var(--font)">← Zurück</button>
+      <button onclick="sendChatToWA('${aufName.replace(/'/g,"\'")}','${p?.vorname||''}')" style="flex:2;background:var(--or);color:#fff;border:none;border-radius:8px;padding:10px;font-size:12px;font-weight:700;cursor:pointer;font-family:'Bitter',serif">Senden via WhatsApp</button>
+    </div>`;
+}
+
+function sendChatToWA(aufName, vorname){
+  const msg = document.getElementById('chatMsgInput')?.value?.trim();
+  if(!msg){ toast('Bitte Nachricht eingeben','err'); return; }
+  const text = `Hallo FESS Team,
+Nachricht von ${vorname} bezüglich "${aufName}":
+
+${msg}`;
+  window.open('https://wa.me/491633626855?text='+encodeURIComponent(text),'_blank');
+  closeM();
+  toast('Nachricht gesendet ✅','ok');
+}
+
 
 function openBewerbungDetail(aufId, aufName, status){
   const sc={bestaetigt:{bg:'#ecfdf5',color:'#059669',label:'✓ Bestätigt! Du bist dabei.'},abgelehnt:{bg:'#fef2f2',color:'#dc2626',label:'✕ Leider abgelehnt.'},reserviert:{bg:'#f5f3ff',color:'#7c3aed',label:'⏳ Du bist auf der Reserveliste.'},eingegangen:{bg:'#fffbeb',color:'#d97706',label:'⏳ Bewerbung eingegangen – wir melden uns!'}};
@@ -988,12 +1223,29 @@ function upsellHTML(currentId){
   if(!suggested.length) return '';
   return `<div class="upsell-section">
     <div class="upsell-title">🛒 Weitere passende Events dazu buchen:</div>
-    ${suggested.map(e=>`<div class="upsell-card" id="uc${e.id}" onclick="toggleUp('${e.id}',this)">
-      <div class="uc-check" id="uch${e.id}"></div>
-      <div class="uc-info"><div class="uc-name">${e.n||e.name}${(e.urg||e.dringend)?' 🔥':''}</div>
-      <div class="uc-detail">📅 ${fmtD(e)} · 📍 ${e.loc||e.location}</div></div>
-      <span class="uc-tag" style="background:${KC[e.k||e.kategorie]||'#888'}">${e.k||e.kategorie}</span>
-    </div>`).join('')}
+    <div style="font-size:10px;color:var(--muted);margin-bottom:8px">Wähle Events und Schichten die du dazubuchen möchtest:</div>
+    ${suggested.map(e=>{
+      const sh=e.sh||e.schichtzeiten||[];
+      const name=e.n||e.name;
+      const loc=e.loc||e.location;
+      const kat=e.k||e.kategorie;
+      return `<div class="upsell-card" id="uc${e.id}" onclick="toggleUp('${e.id}',this)">
+        <div class="uc-check" id="uch${e.id}"></div>
+        <div class="uc-info">
+          <div class="uc-name">${name}${(e.urg||e.dringend)?' 🔥':''}</div>
+          <div class="uc-detail">📅 ${fmtD(e)} · 📍 ${loc}</div>
+          <div id="upsell-shifts-${e.id}" style="display:none;margin-top:8px;padding:8px;background:#fff8f5;border-radius:6px;border:1px solid rgba(232,101,26,.2)">
+            <div style="font-size:9px;font-weight:700;color:var(--or);margin-bottom:5px;text-transform:uppercase;letter-spacing:.08em">⏰ Schicht wählen:</div>
+            ${sh.length ? sh.map(s=>`<label style="display:flex;align-items:center;gap:6px;font-size:11px;color:#111827;cursor:pointer;padding:3px 0">
+              <input type="checkbox" name="upsell_schicht_${e.id}" value="${e.dv||''}__${s}" style="accent-color:var(--or)"> ${s}
+            </label>`).join('') : `<label style="display:flex;align-items:center;gap:6px;font-size:11px;color:#111827;cursor:pointer;padding:3px 0">
+              <input type="checkbox" name="upsell_schicht_${e.id}" value="gesamt" checked style="accent-color:var(--or)"> Ganzer Einsatz
+            </label>`}
+          </div>
+        </div>
+        <span class="uc-tag" style="background:${KC[kat]||'#888'}">${kat}</span>
+      </div>`;
+    }).join('')}
     <div class="cart-sum" id="cartSum"><strong>🛒</strong> <span id="cartCount">1</span> Events ausgewählt</div>
   </div>`;
 }
@@ -1003,6 +1255,9 @@ function toggleUp(id,el){
   const chk=document.getElementById('uch'+id);
   if(isSel){upsellSel.add(id);if(chk)chk.textContent='✓';}
   else{upsellSel.delete(id);if(chk)chk.textContent='';}
+  // Show/hide shift selector
+  const shiftDiv=document.getElementById('upsell-shifts-'+id);
+  if(shiftDiv) shiftDiv.style.display=isSel?'block':'none';
   const cs=document.getElementById('cartSum');
   if(cs){const n=1+upsellSel.size;cs.style.display=n>1?'block':'none';document.getElementById('cartCount').textContent=n;}
 }
@@ -1181,6 +1436,12 @@ async function doSub(e,formEl){
   const langs=[...f.querySelectorAll('input[name="sprachen"]:checked')].map(i=>i.value).join(', ');
   saveProfile({vorname:g('vorname'),nachname:g('nachname'),tel:g('tel'),geb:g('geb'),wohnort:g('wohnort'),status:g('status'),regio:g('regio'),anreise:g('anreise')});
   const selSchichten=[...f.querySelectorAll('input[name="schicht_sel"]:checked')].map(i=>i.value);
+  // Also collect upsell schichten
+  const upsellSchichten={};
+  upsellSel.forEach(uid=>{
+    const checked=[...f.querySelectorAll(`input[name="upsell_schicht_${uid}"]:checked`)].map(i=>i.value);
+    upsellSchichten[uid]=checked.length?checked:['gesamt'];
+  });
   const mainEv=ALL.find(x=>String(x.id)===String(evId));
   if(mainEv) saveToHistory(mainEv.id,mainEv.n||mainEv.name,evD);
   upsellSel.forEach(uid=>{const ue=ALL.find(x=>String(x.id)===String(uid));if(ue)saveToHistory(ue.id,ue.n||ue.name,fmtD(ue));});
