@@ -241,15 +241,24 @@ function setLang(l,el){
 html{scroll-behavior:smooth}
 body{background:#f8f7f5;font-family:var(--font);color:#111827;overflow-x:hidden}
 /* LANG BAR */
-.lang-bar{background:#fff;border-bottom:1px solid var(--border);padding:7px 20px;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
-.lang-group{display:flex;align-items:center;gap:5px}
+.lang-bar{background:#fff;border-bottom:1px solid var(--border);padding:8px 16px;display:flex;align-items:center;justify-content:space-between;gap:8px}
+.lang-group{display:flex;align-items:center;gap:4px;flex-shrink:0}
 .lang-label{font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#374151;margin-right:4px}
-.lang-btn{background:none;border:1px solid #d1d5db;border-radius:20px;color:#111827;font-size:11px;font-weight:600;padding:4px 10px;cursor:pointer;font-family:var(--font)}
+.lang-btn{background:none;border:1px solid #d1d5db;border-radius:20px;color:#111827;font-size:11px;font-weight:600;padding:4px 10px;cursor:pointer;font-family:var(--font);white-space:nowrap;transition:all .15s}
 .lang-btn.on{background:var(--or);border-color:var(--or);color:#fff}
 .top-socials{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
-.soc-btn{display:flex;align-items:center;gap:4px;background:#f9fafb;border:1px solid var(--border);border-radius:20px;padding:4px 9px;font-size:10px;font-weight:600;color:#111827;text-decoration:none}
+.soc-btn{display:flex;align-items:center;gap:4px;background:#f9fafb;border:1px solid var(--border);border-radius:20px;padding:4px 9px;font-size:10px;font-weight:600;color:#111827;text-decoration:none;white-space:nowrap;transition:color .15s}
 .soc-btn:hover{color:var(--or)}
 .soc-btn svg{width:12px;height:12px;flex-shrink:0}
+/* MOBILE: languages row on top, socials 2x2 grid below */
+@media(max-width:600px){
+  .lang-bar{flex-direction:column;align-items:stretch;gap:8px;padding:10px 14px}
+  .lang-group{justify-content:center;gap:6px}
+  .lang-label{display:none}
+  .lang-btn{flex:1;text-align:center;padding:6px 4px;font-size:12px;border-radius:10px}
+  .top-socials{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+  .soc-btn{justify-content:center;padding:7px 8px;border-radius:10px;font-size:11px}
+}
 /* NAV */
 .nav{background:#fff;border-bottom:1px solid var(--border);box-shadow:0 1px 4px rgba(0,0,0,.06);padding:0 20px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:300;height:54px}
 .nav-logo{font-family:'Bitter',serif;font-weight:900;font-size:20px;color:#111827;cursor:pointer}
