@@ -546,7 +546,7 @@ function P(id, el) {
   if (id === 'users') loadUsers();
   if (id === 'newsletter') loadNewsletter();
   if (id === 'chats') { loadChats(); if(!CREW_LIST.length) loadNewsletter(); }
-  if (id === 'analyse') { setTimeout(() => renderAnalyse(), 100); }
+  if (id === 'analyse') { setTimeout(() => { if(typeof renderAnalyse==='function') renderAnalyse(); }, 200); }
 }
 
 // ══ DB CHECK ══
@@ -562,7 +562,7 @@ async function checkConnection() {
 
 // ══ LOAD ALL ══
 async function loadAll() {
-  await Promise.all([loadAuftraege(), loadBewerbungen(), loadUsers()]);
+  await Promise.all([loadAuftraege(), loadBewerbungen()]);
   renderDashboard();
 }
 
@@ -1420,6 +1420,526 @@ function setupRealtime() {
 }
 
 // ══ INIT ══
+
+
+// ══ USER MANAGEMENT ══
+let ALL_USERS = [];
+let USER_FILTER = 'pending';
+let CREW_LIST = [];
+
+async function loadUsers(){
+  try {
+    const { data } = await sb.from('profiles').select('*').order('created_at',{ascending:false});
+    ALL_USERS = data || [];
+  } catch(e) { ALL_USERS = []; }
+  renderUsers();
+  // Dashboard pending count
+  const pending = ALL_USERS.filter(u=>u.status==='pending').length;
+  if(pending > 0){
+    const el=document.getElementById('ds-bew-d');
+    if(el){ el.textContent=pending+' neue Registrierungen!'; el.className='sc-delta urg'; }
+  }
+}
+
+function filterUsers(status, el){
+  USER_FILTER=status;
+  document.querySelectorAll('#users-tabs .tab-btn').forEach(b=>b.classList.remove('on'));
+  if(el) el.classList.add('on');
+  renderUsers();
+}
+
+function renderUsers(){
+  let data=ALL_USERS;
+  if(USER_FILTER!=='all') data=data.filter(u=>u.status===USER_FILTER);
+  const tbody=document.getElementById('users-body');
+  if(!tbody) return;
+  if(!data.length){tbody.innerHTML='<tr><td colspan="6" class="empty">Keine Einträge</td></tr>';return;}
+  tbody.innerHTML=data.map(u=>{
+    const stClass={active:'badge-gr',pending:'badge-or',blocked:'badge-re'}[u.status]||'badge-gy';
+    const stLabel={active:'✅ Aktiv',pending:'⏳ Ausstehend',blocked:'🚫 Gesperrt'}[u.status]||u.status;
+    return`<tr>
+      <td><strong>${u.vorname||''} ${u.nachname||''}</strong></td>
+      <td style="font-size:11px">${u.email||'–'}</td>
+      <td>${u.telefon||'–'}</td>
+      <td style="font-size:11px">${fmtAt(u.created_at)}</td>
+      <td><span class="badge ${stClass}">${stLabel}</span></td>
+      <td><div style="display:flex;gap:4px;flex-wrap:wrap">
+        ${u.status==='pending'?`<button class="ia ok" onclick="approveUser('${u.id}','${(u.vorname||'').replace(/'/g,"\'")}','${u.email||''}')">✓ Freischalten</button><button class="ia no" onclick="setUserStatus('${u.id}','blocked')">✗</button>`:''}
+        ${u.status==='active'?`<button class="ia no" onclick="setUserStatus('${u.id}','blocked')">🚫 Sperren</button>`:''}
+        ${u.status==='blocked'?`<button class="ia ok" onclick="setUserStatus('${u.id}','active')">✓ Entsperren</button>`:''}
+        <button class="ia" onclick="openUserDetail('${u.id}')">👁</button>
+        ${u.telefon?`<a class="ia" href="https://wa.me/${u.telefon.replace(/[^0-9]/g,'')}" target="_blank">💬</a>`:''}
+      </div></td>
+    </tr>`;
+  }).join('');
+}
+
+async function approveUser(id,name,email){
+  await setUserStatus(id,'active');
+  const msg=`Hallo ${name}! 🎉 Dein Zugang bei fess.jobs wurde freigeschaltet. Melde dich an: https://mjanke99.github.io/fess.jobs/login.html`;
+  if(email) window.open(`mailto:${email}?subject=FESS Jobs – Zugang freigeschaltet&body=${encodeURIComponent(msg)}`);
+  toast(`✅ ${name} freigeschaltet`,'ok');
+}
+
+async function setUserStatus(id,status){
+  try{ await sb.from('profiles').update({status}).eq('id',id); }catch(e){toast('profiles-Tabelle fehlt – Migration ausführen','err');return;}
+  toast({active:'✅ Freigeschaltet',blocked:'🚫 Gesperrt'}[status]||status,'ok');
+  loadUsers();
+}
+
+function openUserDetail(id){
+  const u=ALL_USERS.find(x=>x.id===id);
+  if(!u) return;
+  openM(`<div class="mt">👤 ${u.vorname||''} ${u.nachname||''}</div>
+    <div class="ms">${u.email||''}</div>
+    <table style="width:100%;font-size:12px;border-collapse:collapse">
+      ${[['📞 Telefon',u.telefon||'–'],['🏠 Wohnort',u.wohnort||'–'],['📅 Registriert',fmtAt(u.created_at)]].map(([k,v])=>`<tr><td style="padding:5px 0;color:var(--muted);width:130px">${k}</td><td style="padding:5px 0;font-weight:500">${v}</td></tr>`).join('')}
+    </table>
+    <div style="display:flex;flex-direction:column;gap:8px;margin-top:12px">
+      ${u.status==='pending'?`<button class="btn b-or" onclick="approveUser('${u.id}','${(u.vorname||'').replace(/'/g,"\'")}','${u.email||''}');closeM()">✓ Freischalten</button>`:''}
+      ${u.telefon?`<a href="https://wa.me/${u.telefon.replace(/[^0-9]/g,'')}" target="_blank" style="display:flex;align-items:center;justify-content:center;background:#25D366;color:#fff;border:none;border-radius:8px;padding:10px;font-size:13px;font-weight:600;text-decoration:none">💬 WhatsApp</a>`:''}
+      <button onclick="closeM()" style="background:#f3f4f6;color:#6b7280;border:none;border-radius:8px;padding:9px;font-size:12px;cursor:pointer">Schließen</button>
+    </div>`);
+}
+
+// ══ NEWSLETTER ══
+async function loadNewsletter(){
+  try{
+    const{data:profiles}=await sb.from('profiles').select('id,vorname,nachname,email,telefon').eq('status','active');
+    CREW_LIST=profiles||[];
+  }catch(e){ CREW_LIST=[]; }
+
+  const nlTotal=document.getElementById('nl-total');
+  if(nlTotal) nlTotal.textContent=CREW_LIST.length;
+
+  try{
+    const{data:broads}=await sb.from('broadcasts').select('*').order('created_at',{ascending:false}).limit(20);
+    const nlSent=document.getElementById('nl-sent');
+    if(nlSent) nlSent.textContent=(broads||[]).filter(b=>b.status==='sent').length;
+    const sel=document.getElementById('nl-auftrag-id');
+    if(sel) sel.innerHTML='<option value="">– Auftrag wählen –</option>'+AUFTRAEGE.map(a=>`<option value="${a.id}">${a.name}</option>`).join('');
+    const cl=document.getElementById('nl-crew-list');
+    if(cl) cl.innerHTML=CREW_LIST.map(p=>`<label style="display:flex;align-items:center;gap:8px;padding:5px 0;cursor:pointer;font-size:12px;border-bottom:1px solid #f3f4f6"><input type="checkbox" name="nl-crew" value="${p.id}" data-email="${p.email||''}" data-tel="${p.telefon||''}" style="accent-color:var(--or)">${p.vorname} ${p.nachname} · ${p.email||p.telefon||''}</label>`).join('');
+    const tbody=document.getElementById('nl-history');
+    if(tbody) tbody.innerHTML=(broads||[]).map(b=>`<tr><td><strong>${b.title}</strong></td><td>${b.channel==='email'?'📧':b.channel==='whatsapp'?'💬':'📧+💬'}</td><td>${b.recipient_count||0}</td><td style="font-size:11px">${fmtAt(b.sent_at)}</td><td><span class="badge ${{sent:'badge-gr',draft:'badge-gy',failed:'badge-re'}[b.status]||'badge-gy'}">${b.status}</span></td></tr>`).join('')||'<tr><td colspan="5" class="empty">Noch keine Broadcasts</td></tr>';
+  }catch(e){}
+
+  document.querySelectorAll('input[name="nl-rec"]').forEach(r=>{
+    r.addEventListener('change',()=>{
+      document.getElementById('nl-auftrag-sel').style.display=r.value==='auftrag'?'block':'none';
+      document.getElementById('nl-select-crew').style.display=r.value==='select'?'block':'none';
+    });
+  });
+}
+
+async function sendBroadcast(){
+  const title=document.getElementById('nl-title').value.trim();
+  const content=document.getElementById('nl-content').value.trim();
+  const useEmail=document.getElementById('nl-email').checked;
+  const useWA=document.getElementById('nl-wa').checked;
+  if(!title||!content){toast('Betreff und Nachricht ausfüllen','err');return;}
+  if(!useEmail&&!useWA){toast('Kanal wählen','err');return;}
+  const recType=document.querySelector('input[name="nl-rec"]:checked')?.value||'all';
+  let recipients=[];
+  if(recType==='all') recipients=CREW_LIST;
+  else if(recType==='auftrag'){
+    const aufId=document.getElementById('nl-auftrag-id').value;
+    if(!aufId){toast('Auftrag wählen','err');return;}
+    try{const{data:bews}=await sb.from('bewerbungen').select('telefon,vorname,nachname').eq('auftrag_id',aufId).eq('status','bestaetigt');recipients=bews||[];}catch(e){}
+  }else{
+    recipients=[...document.querySelectorAll('input[name="nl-crew"]:checked')].map(c=>({id:c.value,email:c.dataset.email,telefon:c.dataset.tel}));
+  }
+  if(!recipients.length){toast('Keine Empfänger','err');return;}
+  const channel=useEmail&&useWA?'both':useEmail?'email':'whatsapp';
+  if(useEmail){
+    const emails=recipients.filter(r=>r.email).map(r=>r.email).join(';');
+    window.open(`mailto:info@fess-recruitment.de?bcc=${emails}&subject=${encodeURIComponent(title)}&body=${encodeURIComponent(content)}`);
+  }
+  if(useWA){
+    window.open(`https://wa.me/491633626855?text=${encodeURIComponent('*'+title+'*\n\n'+content)}`,'_blank');
+  }
+  try{
+    const user=(await sb.auth.getUser()).data.user;
+    await sb.from('broadcasts').insert([{title,content,channel,status:'sent',sent_by:user?.id,recipient_count:recipients.length,sent_at:new Date().toISOString()}]);
+  }catch(e){}
+  toast(`✅ Broadcast an ${recipients.length} gesendet`,'ok');
+  document.getElementById('nl-title').value='';
+  document.getElementById('nl-content').value='';
+  loadNewsletter();
+}
+
+function previewBroadcast(){
+  const title=document.getElementById('nl-title').value||'(Kein Betreff)';
+  const content=document.getElementById('nl-content').value||'(Kein Inhalt)';
+  openM(`<div class="mt">👁 Vorschau</div><div style="background:#f9fafb;border:1px solid var(--border);border-radius:8px;padding:14px;margin-bottom:12px"><div style="font-weight:700;font-size:14px;margin-bottom:8px">${title}</div><div style="font-size:13px;line-height:1.6;white-space:pre-wrap">${content}</div></div><button onclick="closeM()" style="width:100%;background:#f3f4f6;color:#374151;border:none;border-radius:8px;padding:10px;font-size:12px;cursor:pointer">Schließen</button>`);
+}
+
+// ══ CHATS ══
+let ALL_CHATS=[];
+
+async function loadChats(){
+  try{
+    const{data}=await sb.from('chats').select('*').order('created_at',{ascending:false});
+    ALL_CHATS=data||[];
+  }catch(e){ALL_CHATS=[];}
+  const tbody=document.getElementById('chats-body');
+  if(!tbody) return;
+  tbody.innerHTML=ALL_CHATS.map(c=>`<tr>
+    <td><strong>${c.name}</strong></td>
+    <td>–</td><td>–</td>
+    <td style="font-size:11px">${fmtAt(c.created_at)}</td>
+    <td><a class="ia" href="chat.html?chat=${c.id}" target="_blank">💬 Öffnen</a><button class="ia no" onclick="deleteChat('${c.id}')">🗑</button></td>
+  </tr>`).join('')||'<tr><td colspan="5" class="empty">Noch keine Chats</td></tr>';
+}
+
+function openNewChat(){
+  if(!CREW_LIST.length) loadNewsletter();
+  openM(`<div class="mt">💬 Neuen Chat erstellen</div>
+    <div class="fg"><label class="fl">Chat-Name *</label><input class="fi" id="nc-name" placeholder="z.B. Rock am Ring Crew"></div>
+    <div class="fg"><label class="fl">Auftrag (optional)</label><select class="fsel" id="nc-auf"><option value="">– Kein Auftrag –</option>${AUFTRAEGE.map(a=>`<option value="${a.id}">${a.name}</option>`).join('')}</select></div>
+    <div class="btn-row"><button class="btn b-gh" onclick="closeM()">Abbrechen</button><button class="btn b-or" onclick="createChat()">Erstellen</button></div>`);
+}
+
+async function createChat(){
+  const name=document.getElementById('nc-name').value.trim();
+  const aufId=document.getElementById('nc-auf').value||null;
+  if(!name){toast('Name erforderlich','err');return;}
+  try{
+    const user=(await sb.auth.getUser()).data.user;
+    await sb.from('chats').insert([{name,auftrag_id:aufId,created_by:user?.id}]);
+    toast('✅ Chat erstellt','ok');
+    closeM(); loadChats();
+  }catch(e){toast('Fehler: chats-Tabelle fehlt – Migration ausführen','err');}
+}
+
+async function deleteChat(chatId){
+  if(!confirm('Chat löschen?')) return;
+  try{ await sb.from('chats').delete().eq('id',chatId); toast('Gelöscht','ok'); loadChats(); }catch(e){toast('Fehler','err');}
+}
+
+
+// ══════════════════════════════════════
+// ══ ANALYSE & STATISTIKEN ══
+// ══════════════════════════════════════
+const MO_NAMES = ['Jan','Feb','Mär','Apr','Mai','Jun','Jul','Aug','Sep','Okt','Nov','Dez'];
+const KAT_COLORS = {Konzert:'#E8651A',Festival:'#16a34a',Promotion:'#7c3aed',ESL:'#0891b2',Sport:'#d97706',Kino:'#6b21a8'};
+let chartMannstunden=null, chartKategorie=null, chartEinsatztage=null;
+
+function getChecklist(){try{return JSON.parse(localStorage.getItem('fess_checklist')||'{}')}catch(e){return{}}}
+function saveChecklist(d){localStorage.setItem('fess_checklist',JSON.stringify(d))}
+
+function getFilteredAuftraege(){
+  const period=document.getElementById('an-period')?.value||'month';
+  const now=new Date();
+  return AUFTRAEGE.filter(a=>{
+    if(a.status==='abgesagt') return false;
+    const d=new Date(a.datum_von);
+    if(period==='month') return d.getMonth()===now.getMonth()&&d.getFullYear()===now.getFullYear();
+    if(period==='quarter'){const q=Math.floor(now.getMonth()/3);return Math.floor(d.getMonth()/3)===q&&d.getFullYear()===now.getFullYear();}
+    if(period==='year') return d.getFullYear()===now.getFullYear();
+    return true;
+  });
+}
+
+function calcMannstunden(a,rate){
+  const pax=a.pax_gesamt||0;
+  const start=new Date(a.datum_von);
+  const end=a.datum_bis?new Date(a.datum_bis):new Date(a.datum_von);
+  const days=Math.max(1,Math.round((end-start)/86400000)+1);
+  const hours=pax*days*8;
+  return {hours,days,revenue:hours*rate,pax,manntage:pax*days};
+}
+
+function renderAnalyse(){
+  const rate=parseFloat(document.getElementById('an-rate')?.value)||18;
+  const auf=getFilteredAuftraege();
+  const cl=getChecklist();
+
+  if(!auf.length){
+    const kpiEl=document.getElementById('an-kpis');
+    if(kpiEl) kpiEl.innerHTML='<div style="padding:20px;color:#9ca3af;font-size:13px">Keine Aufträge im gewählten Zeitraum.</div>';
+    document.getElementById('an-checklist-body').innerHTML='<tr><td colspan="9" class="empty">Keine Aufträge</td></tr>';
+    return;
+  }
+
+  let totalHours=0,totalRevenue=0,totalDays=0,totalManntage=0,totalPax=0;
+  const byMonth={}, byKat={};
+
+  auf.forEach(a=>{
+    const{hours,days,revenue,pax,manntage}=calcMannstunden(a,rate);
+    totalHours+=hours; totalRevenue+=revenue; totalDays+=days; totalManntage+=manntage; totalPax+=pax;
+    const month=MO_NAMES[new Date(a.datum_von).getMonth()];
+    if(!byMonth[month]) byMonth[month]={hours:0,revenue:0,days:0,count:0,manntage:0};
+    byMonth[month].hours+=hours; byMonth[month].revenue+=revenue;
+    byMonth[month].days+=days; byMonth[month].count++; byMonth[month].manntage+=manntage;
+    const kat=a.kategorie||'Sonstige';
+    if(!byKat[kat]) byKat[kat]={hours:0,revenue:0,count:0};
+    byKat[kat].hours+=hours; byKat[kat].revenue+=revenue; byKat[kat].count++;
+  });
+
+  // ── KPI Cards ──
+  const kpiEl=document.getElementById('an-kpis');
+  if(kpiEl) kpiEl.innerHTML=[
+    {n:Math.round(totalHours).toLocaleString('de'),l:'Mannstunden (est.)',icon:'⏱️',c:'#E8651A'},
+    {n:'€'+Math.round(totalRevenue).toLocaleString('de'),l:'Umsatz (est.)',icon:'💰',c:'#22c55e'},
+    {n:totalManntage,l:'Manntage',icon:'👤',c:'#3b82f6'},
+    {n:totalDays,l:'Einsatztage',icon:'📅',c:'#7c3aed'},
+    {n:auf.length,l:'Aufträge',icon:'📋',c:'#f59e0b'},
+    {n:totalPax,l:'PAX gesamt',icon:'👥',c:'#6b7280'},
+  ].map(k=>`<div class="stat-card" style="border-left:3px solid ${k.c}">
+    <div style="font-size:18px;margin-bottom:4px">${k.icon}</div>
+    <div class="sc-n" style="font-size:22px;color:${k.c}">${k.n}</div>
+    <div class="sc-l">${k.l}</div>
+  </div>`).join('');
+
+  // ── Chart Mannstunden / Monat ──
+  const mLabels=Object.keys(byMonth);
+  const mHours=mLabels.map(m=>Math.round(byMonth[m].hours));
+  const mRevenue=mLabels.map(m=>Math.round(byMonth[m].revenue));
+  if(chartMannstunden) chartMannstunden.destroy();
+  const ctx1=document.getElementById('chartMannstunden');
+  if(ctx1&&typeof Chart!=='undefined') chartMannstunden=new Chart(ctx1,{
+    type:'bar',
+    data:{labels:mLabels,datasets:[
+      {label:'Mannstunden',data:mHours,backgroundColor:'rgba(232,101,26,0.85)',borderRadius:6,yAxisID:'y'},
+      {label:'Umsatz €',data:mRevenue,type:'line',borderColor:'#22c55e',backgroundColor:'rgba(34,197,94,0.1)',fill:true,tension:0.4,pointBackgroundColor:'#22c55e',pointRadius:5,yAxisID:'y2'}
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{position:'top',labels:{font:{size:11}}}},
+      scales:{
+        y:{title:{display:true,text:'Stunden',font:{size:11}},beginAtZero:true},
+        y2:{position:'right',title:{display:true,text:'Umsatz €',font:{size:11}},beginAtZero:true,grid:{drawOnChartArea:false}}
+      }}
+  });
+
+  // ── Chart Umsatz nach Kategorie ──
+  const kLabels=Object.keys(byKat);
+  const kRevenue=kLabels.map(k=>Math.round(byKat[k].revenue));
+  const kColors=kLabels.map(k=>KAT_COLORS[k]||'#9ca3af');
+  if(chartKategorie) chartKategorie.destroy();
+  const ctx2=document.getElementById('chartKategorie');
+  if(ctx2&&typeof Chart!=='undefined') chartKategorie=new Chart(ctx2,{
+    type:'doughnut',
+    data:{labels:kLabels.map((k,i)=>`${k} (€${kRevenue[i].toLocaleString('de')})`),
+      datasets:[{data:kRevenue,backgroundColor:kColors,borderWidth:2,borderColor:'#fff',hoverOffset:8}]},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{position:'bottom',labels:{font:{size:11},padding:12}}}}
+  });
+
+  // ── Chart Einsatztage ──
+  const dLabels=Object.keys(byMonth);
+  const dData=dLabels.map(m=>byMonth[m].days);
+  const mdData=dLabels.map(m=>byMonth[m].manntage);
+  if(chartEinsatztage) chartEinsatztage.destroy();
+  const ctx3=document.getElementById('chartEinsatztage');
+  if(ctx3&&typeof Chart!=='undefined') chartEinsatztage=new Chart(ctx3,{
+    type:'line',
+    data:{labels:dLabels,datasets:[
+      {label:'Einsatztage',data:dData,borderColor:'#3b82f6',backgroundColor:'rgba(59,130,246,0.15)',fill:true,tension:0.4,pointBackgroundColor:'#3b82f6',pointRadius:5},
+      {label:'Manntage',data:mdData,borderColor:'#7c3aed',backgroundColor:'rgba(124,58,237,0.1)',fill:true,tension:0.4,pointBackgroundColor:'#7c3aed',pointRadius:5}
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{position:'top',labels:{font:{size:11}}}},
+      scales:{y:{beginAtZero:true,ticks:{stepSize:1}}}}
+  });
+
+  renderForecast(byMonth,rate,auf);
+  renderChecklist(auf,rate,cl);
+}
+
+function renderForecast(byMonth,rate,auf){
+  const fp=document.getElementById('forecastPanel');
+  if(!fp) return;
+  const now=new Date();
+  const months=Object.entries(byMonth);
+  const avgH=months.length?months.reduce((s,[,v])=>s+v.hours,0)/months.length:0;
+  const avgR=months.length?months.reduce((s,[,v])=>s+v.revenue,0)/months.length:0;
+
+  const nextWeek=new Date(now); nextWeek.setDate(now.getDate()+7);
+  const wAuf=AUFTRAEGE.filter(a=>{const d=new Date(a.datum_von);return d>=now&&d<=nextWeek&&a.status!=='abgesagt';});
+  const wH=wAuf.reduce((s,a)=>s+calcMannstunden(a,rate).hours,0);
+
+  const nextMonth=new Date(now); nextMonth.setMonth(now.getMonth()+1);
+  const mAuf=AUFTRAEGE.filter(a=>{const d=new Date(a.datum_von);return d>=now&&d<=nextMonth&&a.status!=='abgesagt';});
+  const mH=mAuf.reduce((s,a)=>s+calcMannstunden(a,rate).hours,0);
+
+  fp.innerHTML=`<div style="display:flex;flex-direction:column;gap:10px">
+    <div style="background:#fff8f5;border:1px solid rgba(232,101,26,.2);border-radius:8px;padding:12px">
+      <div style="font-size:10px;font-weight:700;color:var(--or);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px">📅 Nächste Woche</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
+        <div><div style="font-size:20px;font-weight:900;font-family:'Bitter',serif">${Math.round(wH).toLocaleString('de')}</div><div style="font-size:10px;color:#6b7280">Mannstunden</div></div>
+        <div><div style="font-size:20px;font-weight:900;font-family:'Bitter',serif;color:#22c55e">€${Math.round(wH*rate).toLocaleString('de')}</div><div style="font-size:10px;color:#6b7280">Umsatz</div></div>
+      </div>
+      <div style="font-size:11px;color:#6b7280;margin-top:5px">${wAuf.length} Aufträge geplant</div>
+    </div>
+    <div style="background:#f0fdf4;border:1px solid rgba(34,197,94,.2);border-radius:8px;padding:12px">
+      <div style="font-size:10px;font-weight:700;color:#22c55e;text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px">📆 Nächste 30 Tage</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
+        <div><div style="font-size:20px;font-weight:900;font-family:'Bitter',serif">${Math.round(mH).toLocaleString('de')}</div><div style="font-size:10px;color:#6b7280">Mannstunden</div></div>
+        <div><div style="font-size:20px;font-weight:900;font-family:'Bitter',serif;color:#22c55e">€${Math.round(mH*rate).toLocaleString('de')}</div><div style="font-size:10px;color:#6b7280">Umsatz</div></div>
+      </div>
+      <div style="font-size:11px;color:#6b7280;margin-top:5px">${mAuf.length} Aufträge geplant</div>
+    </div>
+    <div style="background:#eff6ff;border:1px solid rgba(59,130,246,.2);border-radius:8px;padding:12px">
+      <div style="font-size:10px;font-weight:700;color:#3b82f6;text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px">🔮 Jahres-Forecast 2026</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
+        <div><div style="font-size:20px;font-weight:900;font-family:'Bitter',serif">${Math.round(avgH*12).toLocaleString('de')}</div><div style="font-size:10px;color:#6b7280">Mannstunden</div></div>
+        <div><div style="font-size:20px;font-weight:900;font-family:'Bitter',serif;color:#3b82f6">€${Math.round(avgR*12).toLocaleString('de')}</div><div style="font-size:10px;color:#6b7280">Prog. Umsatz</div></div>
+      </div>
+      <div style="font-size:10px;color:#9ca3af;margin-top:5px">Ø ${Math.round(avgH)} Std/Monat × 12</div>
+    </div>
+  </div>`;
+}
+
+function renderChecklist(auf,rate,cl){
+  const tbody=document.getElementById('an-checklist-body');
+  if(!tbody) return;
+  if(!auf.length){tbody.innerHTML='<tr><td colspan="9" class="empty">Keine Aufträge im Zeitraum</td></tr>';return;}
+  tbody.innerHTML=auf.map(a=>{
+    const{hours,revenue,manntage}=calcMannstunden(a,rate);
+    const c=cl[a.id]||{};
+    const stBg=c.stunden?'background:#ecfdf5;color:#059669':'background:#fffbeb;color:#d97706';
+    const rBg=c.rechnung?'background:#ecfdf5;color:#059669':'background:#fffbeb;color:#d97706';
+    const rowBg=c.stunden&&c.rechnung?'background:#f0fdf4':'';
+    return`<tr style="${rowBg}">
+      <td><strong>${a.name}</strong>${a.dringend?'<span class="badge badge-re" style="margin-left:4px;font-size:8px">🔥</span>':''}</td>
+      <td style="font-size:11px;white-space:nowrap">${fmtD(a)}</td>
+      <td><span class="badge badge-bl" style="font-size:9px">${a.kategorie||'–'}</span></td>
+      <td style="font-weight:700;text-align:center">${a.pax_gesamt||0}</td>
+      <td style="font-weight:600">${Math.round(hours).toLocaleString('de')} h</td>
+      <td style="font-weight:700;color:#22c55e">€${Math.round(revenue).toLocaleString('de')}</td>
+      <td style="text-align:center">
+        <label style="display:inline-flex;align-items:center;gap:5px;cursor:pointer;font-size:11px;font-weight:700;padding:4px 10px;border-radius:6px;${stBg}">
+          <input type="checkbox" ${c.stunden?'checked':''} style="accent-color:#059669;width:14px;height:14px"
+            onchange="toggleChecklist('${a.id}','stunden',this.checked)">
+          ${c.stunden?'✓ Ja':'Offen'}
+        </label>
+      </td>
+      <td style="text-align:center">
+        <label style="display:inline-flex;align-items:center;gap:5px;cursor:pointer;font-size:11px;font-weight:700;padding:4px 10px;border-radius:6px;${rBg}">
+          <input type="checkbox" ${c.rechnung?'checked':''} style="accent-color:#059669;width:14px;height:14px"
+            onchange="toggleChecklist('${a.id}','rechnung',this.checked)">
+          ${c.rechnung?'✓ Ja':'Offen'}
+        </label>
+      </td>
+      <td><input class="fi" style="font-size:11px;padding:5px 8px;min-width:100px"
+        placeholder="Notiz…" value="${(c.notiz||'').replace(/"/g,'&quot;')}"
+        onchange="toggleChecklist('${a.id}','notiz',this.value)"></td>
+    </tr>`;
+  }).join('');
+}
+
+function toggleChecklist(aufId,field,value){
+  const cl=getChecklist();
+  if(!cl[aufId]) cl[aufId]={};
+  cl[aufId][field]=value;
+  saveChecklist(cl);
+  const rate=parseFloat(document.getElementById('an-rate')?.value)||18;
+  renderChecklist(getFilteredAuftraege(),rate,cl);
+}
+
+function exportPDF(){
+  if(typeof window.jspdf==='undefined'){toast('jsPDF lädt noch, kurz warten…','info');return;}
+  const{jsPDF}=window.jspdf;
+  const rate=parseFloat(document.getElementById('an-rate')?.value)||18;
+  const auf=getFilteredAuftraege();
+  const cl=getChecklist();
+  const doc=new jsPDF({orientation:'landscape',unit:'mm',format:'a4'});
+
+  // Header
+  doc.setFillColor(232,101,26);
+  doc.rect(0,0,297,22,'F');
+  doc.setTextColor(255,255,255);
+  doc.setFont('helvetica','bold');
+  doc.setFontSize(16);
+  doc.text('FESS Jobs – Analyse & Auswertung',14,13);
+  doc.setFontSize(9);
+  const period=document.getElementById('an-period')?.value||'month';
+  const pLabel={month:'Aktueller Monat',quarter:'Quartal',year:'Jahr 2026',all:'Alle Zeit'}[period];
+  doc.text(`Zeitraum: ${pLabel}  |  Stundensatz: €${rate}/h  |  Export: ${new Date().toLocaleDateString('de')}`,14,19);
+
+  // KPIs
+  let tH=0,tR=0,tD=0,tM=0;
+  const byKat={};
+  auf.forEach(a=>{
+    const{hours,revenue,days,manntage}=calcMannstunden(a,rate);
+    tH+=hours;tR+=revenue;tD+=days;tM+=manntage;
+    const k=a.kategorie||'Sonstige';
+    if(!byKat[k]) byKat[k]={hours:0,revenue:0,count:0};
+    byKat[k].hours+=hours;byKat[k].revenue+=revenue;byKat[k].count++;
+  });
+
+  doc.setTextColor(17,24,39);
+  doc.setFontSize(10);
+  doc.setFont('helvetica','bold');
+  doc.text('Kennzahlen',14,30);
+
+  [[`${Math.round(tH).toLocaleString('de')} h`,'Mannstunden'],[`€${Math.round(tR).toLocaleString('de')}`,'Umsatz (est.)'],[`${tM}`,'Manntage'],[`${auf.length}`,'Aufträge']].forEach(([val,lbl],i)=>{
+    const x=14+i*68;
+    doc.setFillColor(249,250,251);
+    doc.roundedRect(x,33,64,18,2,2,'F');
+    doc.setFontSize(7);doc.setFont('helvetica','normal');doc.setTextColor(107,114,128);
+    doc.text(lbl.toUpperCase(),x+4,39);
+    doc.setFontSize(13);doc.setFont('helvetica','bold');doc.setTextColor(232,101,26);
+    doc.text(val,x+4,48);
+  });
+
+  // Category bar chart
+  doc.setFontSize(10);doc.setFont('helvetica','bold');doc.setTextColor(17,24,39);
+  doc.text('Umsatz nach Kategorie',14,60);
+  const kEntries=Object.entries(byKat).sort((a,b)=>b[1].revenue-a[1].revenue);
+  const maxR=kEntries[0]?.[1].revenue||1;
+  kEntries.forEach(([k,d],i)=>{
+    const y=64+i*10;
+    const bw=Math.max(2,(d.revenue/maxR)*120);
+    doc.setFillColor(232,101,26);
+    doc.roundedRect(14,y,bw,7,1,1,'F');
+    doc.setFontSize(7);doc.setFont('helvetica','bold');doc.setTextColor(255,255,255);
+    if(bw>18) doc.text(k,17,y+5);
+    doc.setTextColor(17,24,39);doc.setFont('helvetica','normal');
+    doc.text(`€${Math.round(d.revenue).toLocaleString('de')} · ${d.count} Aufträge · ${Math.round(d.hours)} h`,14+bw+3,y+5);
+  });
+
+  // Checklist table
+  const tY=64+kEntries.length*10+10;
+  doc.setFontSize(10);doc.setFont('helvetica','bold');doc.setTextColor(17,24,39);
+  doc.text('Auftrags-Checkliste',14,tY);
+  const hdr=['Auftrag','Datum','Kat.','PAX','Mannstd.','Umsatz €','Std. erfasst','Rechnung'];
+  const cW=[55,26,18,12,20,22,22,22];
+  let cx=14,cy=tY+4;
+  doc.setFillColor(232,101,26);
+  doc.rect(cx,cy,cW.reduce((a,b)=>a+b,0),7,'F');
+  hdr.forEach((h,i)=>{
+    doc.setFontSize(7);doc.setFont('helvetica','bold');doc.setTextColor(255,255,255);
+    doc.text(h,cx+2,cy+5);cx+=cW[i];
+  });
+  auf.slice(0,20).forEach((a,ri)=>{
+    cy+=7;cx=14;
+    const{hours,revenue}=calcMannstunden(a,rate);
+    const c=cl[a.id]||{};
+    doc.setFillColor(ri%2===0?249:255,ri%2===0?250:255,ri%2===0?251:255);
+    doc.rect(14,cy,cW.reduce((a,b)=>a+b,0),7,'F');
+    [a.name.substring(0,28),fmtD(a),a.kategorie||'–',String(a.pax_gesamt||0),
+     Math.round(hours)+' h','€'+Math.round(revenue).toLocaleString('de'),
+     c.stunden?'✓ Ja':'○ Offen',c.rechnung?'✓ Ja':'○ Offen'
+    ].forEach((cell,i)=>{
+      doc.setFontSize(7);doc.setFont('helvetica',i>=6?'bold':'normal');
+      if(i>=6) doc.setTextColor(cell.includes('✓')?34:107,cell.includes('✓')?197:114,cell.includes('✓')?94:128);
+      else doc.setTextColor(17,24,39);
+      doc.text(cell,cx+2,cy+5);cx+=cW[i];
+    });
+  });
+
+  // Footer
+  doc.setFillColor(249,250,251);
+  doc.rect(0,195,297,12,'F');
+  doc.setFontSize(8);doc.setFont('helvetica','normal');doc.setTextColor(107,114,128);
+  doc.text('FESS Jobs Analyse Report | '+new Date().toLocaleString('de')+' | mjanke99.github.io/fess.jobs',14,202);
+
+  doc.save(`FESS_Analyse_${new Date().toISOString().split('T')[0]}.pdf`);
+  toast('✅ PDF gespeichert','ok');
+}
+
 document.getElementById('modalBG').addEventListener('click', e => { if (e.target.id === 'modalBG') closeM(); });
 (async () => {
   await checkConnection();
