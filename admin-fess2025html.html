@@ -546,7 +546,7 @@ function P(id, el) {
   if (id === 'users') loadUsers();
   if (id === 'newsletter') loadNewsletter();
   if (id === 'chats') { loadChats(); if(!CREW_LIST.length) loadNewsletter(); }
-  if (id === 'analyse') { setTimeout(() => renderAnalyse(), 100); }
+  if (id === 'analyse') { setTimeout(() => { if(typeof renderAnalyse==='function') renderAnalyse(); }, 200); }
 }
 
 // ══ DB CHECK ══
@@ -562,7 +562,7 @@ async function checkConnection() {
 
 // ══ LOAD ALL ══
 async function loadAll() {
-  await Promise.all([loadAuftraege(), loadBewerbungen(), loadUsers()]);
+  await Promise.all([loadAuftraege(), loadBewerbungen()]);
   renderDashboard();
 }
 
@@ -1420,6 +1420,202 @@ function setupRealtime() {
 }
 
 // ══ INIT ══
+
+
+// ══ USER MANAGEMENT ══
+let ALL_USERS = [];
+let USER_FILTER = 'pending';
+let CREW_LIST = [];
+
+async function loadUsers(){
+  try {
+    const { data } = await sb.from('profiles').select('*').order('created_at',{ascending:false});
+    ALL_USERS = data || [];
+  } catch(e) { ALL_USERS = []; }
+  renderUsers();
+  // Dashboard pending count
+  const pending = ALL_USERS.filter(u=>u.status==='pending').length;
+  if(pending > 0){
+    const el=document.getElementById('ds-bew-d');
+    if(el){ el.textContent=pending+' neue Registrierungen!'; el.className='sc-delta urg'; }
+  }
+}
+
+function filterUsers(status, el){
+  USER_FILTER=status;
+  document.querySelectorAll('#users-tabs .tab-btn').forEach(b=>b.classList.remove('on'));
+  if(el) el.classList.add('on');
+  renderUsers();
+}
+
+function renderUsers(){
+  let data=ALL_USERS;
+  if(USER_FILTER!=='all') data=data.filter(u=>u.status===USER_FILTER);
+  const tbody=document.getElementById('users-body');
+  if(!tbody) return;
+  if(!data.length){tbody.innerHTML='<tr><td colspan="6" class="empty">Keine Einträge</td></tr>';return;}
+  tbody.innerHTML=data.map(u=>{
+    const stClass={active:'badge-gr',pending:'badge-or',blocked:'badge-re'}[u.status]||'badge-gy';
+    const stLabel={active:'✅ Aktiv',pending:'⏳ Ausstehend',blocked:'🚫 Gesperrt'}[u.status]||u.status;
+    return`<tr>
+      <td><strong>${u.vorname||''} ${u.nachname||''}</strong></td>
+      <td style="font-size:11px">${u.email||'–'}</td>
+      <td>${u.telefon||'–'}</td>
+      <td style="font-size:11px">${fmtAt(u.created_at)}</td>
+      <td><span class="badge ${stClass}">${stLabel}</span></td>
+      <td><div style="display:flex;gap:4px;flex-wrap:wrap">
+        ${u.status==='pending'?`<button class="ia ok" onclick="approveUser('${u.id}','${(u.vorname||'').replace(/'/g,"\'")}','${u.email||''}')">✓ Freischalten</button><button class="ia no" onclick="setUserStatus('${u.id}','blocked')">✗</button>`:''}
+        ${u.status==='active'?`<button class="ia no" onclick="setUserStatus('${u.id}','blocked')">🚫 Sperren</button>`:''}
+        ${u.status==='blocked'?`<button class="ia ok" onclick="setUserStatus('${u.id}','active')">✓ Entsperren</button>`:''}
+        <button class="ia" onclick="openUserDetail('${u.id}')">👁</button>
+        ${u.telefon?`<a class="ia" href="https://wa.me/${u.telefon.replace(/[^0-9]/g,'')}" target="_blank">💬</a>`:''}
+      </div></td>
+    </tr>`;
+  }).join('');
+}
+
+async function approveUser(id,name,email){
+  await setUserStatus(id,'active');
+  const msg=`Hallo ${name}! 🎉 Dein Zugang bei fess.jobs wurde freigeschaltet. Melde dich an: https://mjanke99.github.io/fess.jobs/login.html`;
+  if(email) window.open(`mailto:${email}?subject=FESS Jobs – Zugang freigeschaltet&body=${encodeURIComponent(msg)}`);
+  toast(`✅ ${name} freigeschaltet`,'ok');
+}
+
+async function setUserStatus(id,status){
+  try{ await sb.from('profiles').update({status}).eq('id',id); }catch(e){toast('profiles-Tabelle fehlt – Migration ausführen','err');return;}
+  toast({active:'✅ Freigeschaltet',blocked:'🚫 Gesperrt'}[status]||status,'ok');
+  loadUsers();
+}
+
+function openUserDetail(id){
+  const u=ALL_USERS.find(x=>x.id===id);
+  if(!u) return;
+  openM(`<div class="mt">👤 ${u.vorname||''} ${u.nachname||''}</div>
+    <div class="ms">${u.email||''}</div>
+    <table style="width:100%;font-size:12px;border-collapse:collapse">
+      ${[['📞 Telefon',u.telefon||'–'],['🏠 Wohnort',u.wohnort||'–'],['📅 Registriert',fmtAt(u.created_at)]].map(([k,v])=>`<tr><td style="padding:5px 0;color:var(--muted);width:130px">${k}</td><td style="padding:5px 0;font-weight:500">${v}</td></tr>`).join('')}
+    </table>
+    <div style="display:flex;flex-direction:column;gap:8px;margin-top:12px">
+      ${u.status==='pending'?`<button class="btn b-or" onclick="approveUser('${u.id}','${(u.vorname||'').replace(/'/g,"\'")}','${u.email||''}');closeM()">✓ Freischalten</button>`:''}
+      ${u.telefon?`<a href="https://wa.me/${u.telefon.replace(/[^0-9]/g,'')}" target="_blank" style="display:flex;align-items:center;justify-content:center;background:#25D366;color:#fff;border:none;border-radius:8px;padding:10px;font-size:13px;font-weight:600;text-decoration:none">💬 WhatsApp</a>`:''}
+      <button onclick="closeM()" style="background:#f3f4f6;color:#6b7280;border:none;border-radius:8px;padding:9px;font-size:12px;cursor:pointer">Schließen</button>
+    </div>`);
+}
+
+// ══ NEWSLETTER ══
+async function loadNewsletter(){
+  try{
+    const{data:profiles}=await sb.from('profiles').select('id,vorname,nachname,email,telefon').eq('status','active');
+    CREW_LIST=profiles||[];
+  }catch(e){ CREW_LIST=[]; }
+
+  const nlTotal=document.getElementById('nl-total');
+  if(nlTotal) nlTotal.textContent=CREW_LIST.length;
+
+  try{
+    const{data:broads}=await sb.from('broadcasts').select('*').order('created_at',{ascending:false}).limit(20);
+    const nlSent=document.getElementById('nl-sent');
+    if(nlSent) nlSent.textContent=(broads||[]).filter(b=>b.status==='sent').length;
+    const sel=document.getElementById('nl-auftrag-id');
+    if(sel) sel.innerHTML='<option value="">– Auftrag wählen –</option>'+AUFTRAEGE.map(a=>`<option value="${a.id}">${a.name}</option>`).join('');
+    const cl=document.getElementById('nl-crew-list');
+    if(cl) cl.innerHTML=CREW_LIST.map(p=>`<label style="display:flex;align-items:center;gap:8px;padding:5px 0;cursor:pointer;font-size:12px;border-bottom:1px solid #f3f4f6"><input type="checkbox" name="nl-crew" value="${p.id}" data-email="${p.email||''}" data-tel="${p.telefon||''}" style="accent-color:var(--or)">${p.vorname} ${p.nachname} · ${p.email||p.telefon||''}</label>`).join('');
+    const tbody=document.getElementById('nl-history');
+    if(tbody) tbody.innerHTML=(broads||[]).map(b=>`<tr><td><strong>${b.title}</strong></td><td>${b.channel==='email'?'📧':b.channel==='whatsapp'?'💬':'📧+💬'}</td><td>${b.recipient_count||0}</td><td style="font-size:11px">${fmtAt(b.sent_at)}</td><td><span class="badge ${{sent:'badge-gr',draft:'badge-gy',failed:'badge-re'}[b.status]||'badge-gy'}">${b.status}</span></td></tr>`).join('')||'<tr><td colspan="5" class="empty">Noch keine Broadcasts</td></tr>';
+  }catch(e){}
+
+  document.querySelectorAll('input[name="nl-rec"]').forEach(r=>{
+    r.addEventListener('change',()=>{
+      document.getElementById('nl-auftrag-sel').style.display=r.value==='auftrag'?'block':'none';
+      document.getElementById('nl-select-crew').style.display=r.value==='select'?'block':'none';
+    });
+  });
+}
+
+async function sendBroadcast(){
+  const title=document.getElementById('nl-title').value.trim();
+  const content=document.getElementById('nl-content').value.trim();
+  const useEmail=document.getElementById('nl-email').checked;
+  const useWA=document.getElementById('nl-wa').checked;
+  if(!title||!content){toast('Betreff und Nachricht ausfüllen','err');return;}
+  if(!useEmail&&!useWA){toast('Kanal wählen','err');return;}
+  const recType=document.querySelector('input[name="nl-rec"]:checked')?.value||'all';
+  let recipients=[];
+  if(recType==='all') recipients=CREW_LIST;
+  else if(recType==='auftrag'){
+    const aufId=document.getElementById('nl-auftrag-id').value;
+    if(!aufId){toast('Auftrag wählen','err');return;}
+    try{const{data:bews}=await sb.from('bewerbungen').select('telefon,vorname,nachname').eq('auftrag_id',aufId).eq('status','bestaetigt');recipients=bews||[];}catch(e){}
+  }else{
+    recipients=[...document.querySelectorAll('input[name="nl-crew"]:checked')].map(c=>({id:c.value,email:c.dataset.email,telefon:c.dataset.tel}));
+  }
+  if(!recipients.length){toast('Keine Empfänger','err');return;}
+  const channel=useEmail&&useWA?'both':useEmail?'email':'whatsapp';
+  if(useEmail){
+    const emails=recipients.filter(r=>r.email).map(r=>r.email).join(';');
+    window.open(`mailto:info@fess-recruitment.de?bcc=${emails}&subject=${encodeURIComponent(title)}&body=${encodeURIComponent(content)}`);
+  }
+  if(useWA){
+    window.open(`https://wa.me/491633626855?text=${encodeURIComponent('*'+title+'*\n\n'+content)}`,'_blank');
+  }
+  try{
+    const user=(await sb.auth.getUser()).data.user;
+    await sb.from('broadcasts').insert([{title,content,channel,status:'sent',sent_by:user?.id,recipient_count:recipients.length,sent_at:new Date().toISOString()}]);
+  }catch(e){}
+  toast(`✅ Broadcast an ${recipients.length} gesendet`,'ok');
+  document.getElementById('nl-title').value='';
+  document.getElementById('nl-content').value='';
+  loadNewsletter();
+}
+
+function previewBroadcast(){
+  const title=document.getElementById('nl-title').value||'(Kein Betreff)';
+  const content=document.getElementById('nl-content').value||'(Kein Inhalt)';
+  openM(`<div class="mt">👁 Vorschau</div><div style="background:#f9fafb;border:1px solid var(--border);border-radius:8px;padding:14px;margin-bottom:12px"><div style="font-weight:700;font-size:14px;margin-bottom:8px">${title}</div><div style="font-size:13px;line-height:1.6;white-space:pre-wrap">${content}</div></div><button onclick="closeM()" style="width:100%;background:#f3f4f6;color:#374151;border:none;border-radius:8px;padding:10px;font-size:12px;cursor:pointer">Schließen</button>`);
+}
+
+// ══ CHATS ══
+let ALL_CHATS=[];
+
+async function loadChats(){
+  try{
+    const{data}=await sb.from('chats').select('*').order('created_at',{ascending:false});
+    ALL_CHATS=data||[];
+  }catch(e){ALL_CHATS=[];}
+  const tbody=document.getElementById('chats-body');
+  if(!tbody) return;
+  tbody.innerHTML=ALL_CHATS.map(c=>`<tr>
+    <td><strong>${c.name}</strong></td>
+    <td>–</td><td>–</td>
+    <td style="font-size:11px">${fmtAt(c.created_at)}</td>
+    <td><a class="ia" href="chat.html?chat=${c.id}" target="_blank">💬 Öffnen</a><button class="ia no" onclick="deleteChat('${c.id}')">🗑</button></td>
+  </tr>`).join('')||'<tr><td colspan="5" class="empty">Noch keine Chats</td></tr>';
+}
+
+function openNewChat(){
+  if(!CREW_LIST.length) loadNewsletter();
+  openM(`<div class="mt">💬 Neuen Chat erstellen</div>
+    <div class="fg"><label class="fl">Chat-Name *</label><input class="fi" id="nc-name" placeholder="z.B. Rock am Ring Crew"></div>
+    <div class="fg"><label class="fl">Auftrag (optional)</label><select class="fsel" id="nc-auf"><option value="">– Kein Auftrag –</option>${AUFTRAEGE.map(a=>`<option value="${a.id}">${a.name}</option>`).join('')}</select></div>
+    <div class="btn-row"><button class="btn b-gh" onclick="closeM()">Abbrechen</button><button class="btn b-or" onclick="createChat()">Erstellen</button></div>`);
+}
+
+async function createChat(){
+  const name=document.getElementById('nc-name').value.trim();
+  const aufId=document.getElementById('nc-auf').value||null;
+  if(!name){toast('Name erforderlich','err');return;}
+  try{
+    const user=(await sb.auth.getUser()).data.user;
+    await sb.from('chats').insert([{name,auftrag_id:aufId,created_by:user?.id}]);
+    toast('✅ Chat erstellt','ok');
+    closeM(); loadChats();
+  }catch(e){toast('Fehler: chats-Tabelle fehlt – Migration ausführen','err');}
+}
+
+async function deleteChat(chatId){
+  if(!confirm('Chat löschen?')) return;
+  try{ await sb.from('chats').delete().eq('id',chatId); toast('Gelöscht','ok'); loadChats(); }catch(e){toast('Fehler','err');}
+}
 
 
 // ══════════════════════════════════════
