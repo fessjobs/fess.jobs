@@ -1237,7 +1237,7 @@ function mkForm(evId,evN,evD,evL,isGen){
     </div></div>`:'';
   return `${savedBanner}
 <div class="step-ind"><div class="step-dot ${isGen?'cur':'done'}" id="sd0${eid}"></div><div class="step-dot ${isGen?'':'cur'}" id="sd1${eid}"></div><div class="step-dot" id="sd2${eid}"></div></div>
-<div class="modal-title">🎯 ${t('apply_title')||'Jetzt bewerben'}</div>
+<div class="modal-title">🎯 ${evN||'Jetzt bewerben'}</div>
 <div class="modal-sub"><strong>${evN||'Allgemeine Bewerbung'}</strong>${evD?' · '+evD:''}<br>${evL?'📍 '+evL:''}</div>
 <form id="F${eid}" data-evid="${evId||''}" data-evn="${evN||''}" data-evd="${evD||''}" data-evl="${evL||''}" data-eid="${eid}" onsubmit="doSub(event,this)">
 <div class="step ${isGen?'hidden':'on'}" id="s0${eid}">
