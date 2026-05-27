@@ -1,0 +1,40 @@
+{
+  "name": "fess.jobs",
+  "short_name": "fess.jobs",
+  "description": "Dein Einstieg in die Eventbranche – FESS Jobs",
+  "start_url": "/login.html",
+  "display": "standalone",
+  "background_color": "#E8651A",
+  "theme_color": "#E8651A",
+  "orientation": "portrait-primary",
+  "scope": "/",
+  "lang": "de",
+  "icons": [
+    {
+      "src": "icon-192.svg",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icon-512.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "screenshots": [],
+  "categories": ["business", "productivity"],
+  "shortcuts": [
+    {
+      "name": "Aufträge ansehen",
+      "url": "/index.html",
+      "description": "Aktuelle Einsätze anzeigen"
+    },
+    {
+      "name": "Bewerben",
+      "url": "/index.html#jobs",
+      "description": "Für einen Auftrag bewerben"
+    }
+  ]
+}

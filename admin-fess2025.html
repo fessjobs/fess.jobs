@@ -149,6 +149,8 @@ body{background:var(--bg);font-family:var(--font);color:var(--text);display:flex
   .dispo-slot-row .hide-mobile{display:none}
 }
 </style>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
 </head>
 <body>
 
@@ -162,6 +164,12 @@ body{background:var(--bg);font-family:var(--font);color:var(--text);display:flex
   <a class="ni" onclick="P('dispo',this)"><i class="ti ti-layout-list"></i><span>Dispo & Crew</span></a>
   <a class="ni" onclick="P('stunden',this)"><i class="ti ti-clock"></i><span>Stundennachweise</span></a>
   <a class="ni" onclick="P('mitarbeiter',this)"><i class="ti ti-id-badge"></i><span>Mitarbeiter</span></a>
+  <div class="sb-section">Kommunikation</div>
+  <a class="ni" onclick="P('users',this)"><i class="ti ti-user-check"></i><span>Zugänge</span></a>
+  <a class="ni" onclick="P('newsletter',this)"><i class="ti ti-send"></i><span>Newsletter</span></a>
+  <a class="ni" onclick="P('chats',this)"><i class="ti ti-messages"></i><span>Chats</span></a>
+  <div class="sb-section">Auswertung</div>
+  <a class="ni" onclick="P('analyse',this)"><i class="ti ti-chart-bar"></i><span>Analyse</span></a>
   <div class="sb-bottom">
     <div style="display:flex;align-items:center;gap:7px">
       <div class="db-dot" id="dbDot"></div>
@@ -292,6 +300,182 @@ body{background:var(--bg);font-family:var(--font);color:var(--text);display:flex
       </div>
     </div>
 
+
+    <!-- ANALYSE -->
+    <div class="page" id="pg-analyse">
+
+      <!-- Settings row -->
+      <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:16px;background:#fff;border:1px solid var(--border);border-radius:10px;padding:14px 18px">
+        <div style="display:flex;align-items:center;gap:8px;flex:1;min-width:180px">
+          <label style="font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#9ca3af;white-space:nowrap">Stundensatz (€)</label>
+          <input type="number" id="an-rate" value="18" min="1" step="0.5"
+            style="width:90px;background:#f9fafb;border:1.5px solid var(--border);border-radius:8px;padding:7px 10px;font-size:14px;font-weight:700;color:var(--or);outline:none"
+            oninput="renderAnalyse()">
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;flex:1;min-width:180px">
+          <label style="font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#9ca3af;white-space:nowrap">Zeitraum</label>
+          <select id="an-period" onchange="renderAnalyse()"
+            style="background:#f9fafb;border:1.5px solid var(--border);border-radius:8px;padding:7px 10px;font-size:13px;outline:none;color:#111827">
+            <option value="month">Aktueller Monat</option>
+            <option value="quarter">Quartal</option>
+            <option value="year">Jahr 2026</option>
+            <option value="all">Alle Zeit</option>
+          </select>
+        </div>
+        <div style="display:flex;gap:8px">
+          <button class="tbtn" onclick="renderAnalyse()"><i class="ti ti-refresh"></i> Refresh</button>
+          <button class="tbtn primary" onclick="exportPDF()"><i class="ti ti-file-type-pdf"></i> PDF Export</button>
+        </div>
+      </div>
+
+      <!-- KPI Cards -->
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px;margin-bottom:16px" id="an-kpis"></div>
+
+      <!-- Charts row -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px">
+        <div class="panel">
+          <div class="panel-header"><div class="panel-title">📊 Mannstunden / Monat</div></div>
+          <div class="panel-body" style="padding:16px">
+            <canvas id="chartMannstunden" height="220"></canvas>
+          </div>
+        </div>
+        <div class="panel">
+          <div class="panel-header"><div class="panel-title">💰 Umsatz nach Kategorie</div></div>
+          <div class="panel-body" style="padding:16px">
+            <canvas id="chartKategorie" height="220"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px">
+        <div class="panel">
+          <div class="panel-header"><div class="panel-title">📅 Einsatztage / Monat</div></div>
+          <div class="panel-body" style="padding:16px">
+            <canvas id="chartEinsatztage" height="220"></canvas>
+          </div>
+        </div>
+        <div class="panel">
+          <div class="panel-header"><div class="panel-title">🔮 Forecast</div></div>
+          <div class="panel-body" style="padding:16px" id="forecastPanel"></div>
+        </div>
+      </div>
+
+      <!-- Aufträge Checkliste -->
+      <div class="panel">
+        <div class="panel-header">
+          <div class="panel-title">✅ Auftrags-Checkliste</div>
+          <span style="font-size:11px;color:var(--muted)">Stunden erfasst & Rechnung geschrieben abhaken</span>
+        </div>
+        <div class="panel-body">
+          <table class="tbl" id="an-checklist">
+            <thead>
+              <tr>
+                <th>Auftrag</th>
+                <th>Datum</th>
+                <th>Kat.</th>
+                <th>PAX</th>
+                <th>Mannstd. (est.)</th>
+                <th>Umsatz (est.)</th>
+                <th style="text-align:center">⏱ Stunden erfasst</th>
+                <th style="text-align:center">📄 Rechnung geschrieben</th>
+                <th>Notiz</th>
+              </tr>
+            </thead>
+            <tbody id="an-checklist-body"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- USERS / ZUGÄNGE -->
+    <!-- USERS / ZUGÄNGE -->
+    <div class="page" id="pg-users">
+      <div class="tab-bar" id="users-tabs">
+        <button class="tab-btn on" onclick="filterUsers('pending',this)">⏳ Ausstehend</button>
+        <button class="tab-btn" onclick="filterUsers('active',this)">✅ Aktiv</button>
+        <button class="tab-btn" onclick="filterUsers('blocked',this)">🚫 Gesperrt</button>
+        <button class="tab-btn" onclick="filterUsers('all',this)">Alle</button>
+      </div>
+      <div class="panel">
+        <div class="panel-body">
+          <table class="tbl">
+            <thead><tr><th>Name</th><th>E-Mail</th><th>Telefon</th><th>Registriert</th><th>Status</th><th>Aktionen</th></tr></thead>
+            <tbody id="users-body"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- NEWSLETTER / BROADCAST -->
+    <div class="page" id="pg-newsletter">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px">
+        <div class="stat-card"><div class="sc-n" id="nl-total">–</div><div class="sc-l">Aktive Mitarbeiter</div></div>
+        <div class="stat-card"><div class="sc-n" id="nl-sent">–</div><div class="sc-l">Broadcasts gesendet</div></div>
+      </div>
+      <div class="panel" style="margin-bottom:16px">
+        <div class="panel-header"><div class="panel-title">📤 Neue Nachricht senden</div></div>
+        <div class="panel-body" style="padding:16px">
+          <div class="fg"><label class="fl">Betreff / Titel *</label><input class="fi" id="nl-title" placeholder="z.B. Neuer Auftrag Rock am Ring"></div>
+          <div class="fg"><label class="fl">Nachricht *</label><textarea class="fta" id="nl-content" rows="5" placeholder="Deine Nachricht an die Crew…"></textarea></div>
+          <div class="fg"><label class="fl">Kanal</label>
+            <div style="display:flex;gap:10px;margin-top:4px">
+              <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:13px"><input type="checkbox" id="nl-email" checked style="accent-color:var(--or)"> 📧 E-Mail</label>
+              <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:13px"><input type="checkbox" id="nl-wa" style="accent-color:var(--or)"> 💬 WhatsApp</label>
+            </div>
+          </div>
+          <div class="fg"><label class="fl">Empfänger</label>
+            <div style="display:flex;gap:10px;margin-top:4px;flex-wrap:wrap">
+              <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:13px"><input type="radio" name="nl-rec" value="all" checked style="accent-color:var(--or)"> Alle aktiven Mitarbeiter</label>
+              <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:13px"><input type="radio" name="nl-rec" value="auftrag" style="accent-color:var(--or)"> Für bestimmten Auftrag</label>
+              <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:13px"><input type="radio" name="nl-rec" value="select" style="accent-color:var(--or)"> Auswahl</label>
+            </div>
+          </div>
+          <div id="nl-auftrag-sel" style="display:none" class="fg">
+            <label class="fl">Auftrag wählen</label>
+            <select class="fsel" id="nl-auftrag-id">
+              <option value="">– Auftrag wählen –</option>
+            </select>
+          </div>
+          <div id="nl-select-crew" style="display:none;max-height:200px;overflow-y:auto;border:1px solid var(--border);border-radius:8px;padding:8px" class="fg">
+            <div id="nl-crew-list"></div>
+          </div>
+          <div class="fg"><label class="fl">Anhang (optional)</label>
+            <input type="file" id="nl-file" style="font-size:12px;color:#374151">
+          </div>
+          <div style="display:flex;gap:8px">
+            <button class="tbtn" onclick="previewBroadcast()">👁 Vorschau</button>
+            <button class="tbtn primary" onclick="sendBroadcast()"><i class="ti ti-send"></i> Senden</button>
+          </div>
+        </div>
+      </div>
+      <!-- Broadcast history -->
+      <div class="panel">
+        <div class="panel-header"><div class="panel-title">📋 Gesendete Broadcasts</div></div>
+        <div class="panel-body">
+          <table class="tbl">
+            <thead><tr><th>Titel</th><th>Kanal</th><th>Empfänger</th><th>Gesendet</th><th>Status</th></tr></thead>
+            <tbody id="nl-history"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- CHATS -->
+    <div class="page" id="pg-chats">
+      <div style="display:flex;gap:8px;margin-bottom:14px">
+        <button class="tbtn primary" onclick="openNewChat()"><i class="ti ti-plus"></i> Neuer Chat</button>
+        <button class="tbtn" onclick="loadChats()"><i class="ti ti-refresh"></i></button>
+      </div>
+      <div class="panel">
+        <div class="panel-body">
+          <table class="tbl">
+            <thead><tr><th>Chat Name</th><th>Auftrag</th><th>Mitglieder</th><th>Letzte Nachricht</th><th>Aktionen</th></tr></thead>
+            <tbody id="chats-body"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
   </div>
 </div>
 
@@ -340,7 +524,7 @@ function P(id, el) {
   document.getElementById('pg-' + id).classList.add('active');
   if (el) el.classList.add('on');
   const titles = {
-    dashboard: 'Dashboard', auftraege: 'Aufträge verwalten',
+    dashboard: 'Dashboard', auftraege: 'Aufträge verwalten', users: 'Zugänge & Registrierungen', newsletter: 'Newsletter & Broadcast', chats: 'Chat-Gruppen', analyse: '📊 Analyse & Auswertung',
     bewerbungen: 'Bewerbungen', dispo: 'Dispo & Crew',
     stunden: 'Stundennachweise', mitarbeiter: 'Mitarbeiter'
   };
@@ -350,11 +534,19 @@ function P(id, el) {
     bewerbungen: `<button class="tbtn" onclick="loadBewerbungen()"><i class="ti ti-refresh"></i> Refresh</button>`,
     dashboard: `<button class="tbtn" onclick="loadAll()"><i class="ti ti-refresh"></i> Aktualisieren</button>`,
     mitarbeiter: `<button class="tbtn" onclick="loadMitarbeiter()"><i class="ti ti-refresh"></i> Refresh</button>`,
+    users: `<button class="tbtn" onclick="loadUsers()"><i class="ti ti-refresh"></i> Refresh</button>`,
+    newsletter: `<button class="tbtn primary" onclick="sendBroadcast()"><i class="ti ti-send"></i> Senden</button>`,
+    chats: `<button class="tbtn primary" onclick="openNewChat()"><i class="ti ti-plus"></i> Neuer Chat</button>`,
+    analyse: `<button class="tbtn" onclick="renderAnalyse()"><i class="ti ti-refresh"></i> Refresh</button><button class="tbtn primary" onclick="exportPDF()" style="margin-left:6px"><i class="ti ti-file-type-pdf"></i> PDF Export</button>`,
   };
   document.getElementById('pageActions').innerHTML = acts[id] || '';
   if (id === 'dispo') loadDispoSelect();
   if (id === 'stunden') loadStunden();
   if (id === 'mitarbeiter') loadMitarbeiter();
+  if (id === 'users') loadUsers();
+  if (id === 'newsletter') loadNewsletter();
+  if (id === 'chats') { loadChats(); if(!CREW_LIST.length) loadNewsletter(); }
+  if (id === 'analyse') { setTimeout(() => renderAnalyse(), 100); }
 }
 
 // ══ DB CHECK ══
@@ -370,7 +562,7 @@ async function checkConnection() {
 
 // ══ LOAD ALL ══
 async function loadAll() {
-  await Promise.all([loadAuftraege(), loadBewerbungen()]);
+  await Promise.all([loadAuftraege(), loadBewerbungen(), loadUsers()]);
   renderDashboard();
 }
 
@@ -661,6 +853,14 @@ function renderDashboard() {
   document.getElementById('ds-auftraege').textContent = aktive.length;
   document.getElementById('ds-offen').textContent = offenStellen;
   document.getElementById('ds-bew').textContent = neuBew;
+  // Pending users notification (async)
+  sb.from('profiles').select('id').eq('status','pending').then(({data}) => {
+    const pendingUsers = data?.length || 0;
+    if(pendingUsers > 0){
+      const el = document.getElementById('ds-bew-d');
+      if(el){ el.textContent = pendingUsers + ' neue Registrierungen!'; el.className = 'sc-delta urg'; }
+    }
+  });
   document.getElementById('ds-crew').textContent = bestaetigt;
 
   if (offenStellen > 0) {

@@ -8,10 +8,36 @@ const SB_URL='https://nojmxfelunqaotqslabk.supabase.co';
 const SB_ANON='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5vam14ZmVsdW5xYW90cXNsYWJrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkyNjg4NzcsImV4cCI6MjA5NDg0NDg3N30.14x_oz0vxPXqbwBCcBeUZmE-s6Eg4QNbBWCorMsvfFo';
 let sb=null;
 try{sb=supabase.createClient(SB_URL,SB_ANON);console.log('✅ Supabase OK');}catch(e){console.error('❌',e);}
+// PWA Service Worker
+if('serviceWorker' in navigator){
+  navigator.serviceWorker.register('/sw.js').catch(e=>console.warn('SW:',e));
+}
+// Auth check - redirect to login if not authenticated
+(async()=>{
+  const { data: { session } } = await sb.auth.getSession();
+  if(!session){
+    // Allow viewing but show login prompt for applying
+    console.log('Not logged in - guest mode');
+  } else {
+    // Store user info
+    window.FESS_USER = session.user;
+    const { data: profile } = await sb.from('profiles').select('*').eq('id', session.user.id).single();
+    if(profile) window.FESS_PROFILE = profile;
+    if(profile?.status === 'pending'){
+      window.location.href = 'login.html';
+    }
+  }
+})();
 </script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>FESS Jobs – Dein Einstieg in die Eventbranche</title>
+<link rel="manifest" href="manifest.json">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="fess.jobs">
+<meta name="theme-color" content="#E8651A">
+<link rel="apple-touch-icon" href="icon-192.svg">
 <link href="https://fonts.googleapis.com/css2?family=Bitter:wght@700;800;900&family=Barlow:wght@400;500;600;700&display=swap" rel="stylesheet">
 
 <!-- i18n must load before body renders -->
@@ -515,7 +541,12 @@ canvas.sig-canvas{width:100%;height:80px;cursor:crosshair;display:block;touch-ac
     <button class="nav-link" data-i18n="nav_process" onclick="document.getElementById('process').scrollIntoView({behavior:'smooth'})">Ablauf</button>
     <button class="nav-link" data-i18n="nav_about" onclick="document.getElementById('about').scrollIntoView({behavior:'smooth'})">Über uns</button>
   </div>
+  <div style="display:flex;gap:8px;align-items:center">
+  <div id="userBadge" style="display:none;background:#f9fafb;border:1px solid #e5e7eb;border-radius:20px;padding:4px 12px;font-size:11px;font-weight:600;color:#374151;cursor:pointer" onclick="openUserMenu()">
+    <span id="userName">👤</span>
+  </div>
   <button class="nav-cta" data-i18n="nav_apply" onclick="openGen('Stagehands')">Jetzt bewerben</button>
+</div>
 </nav>
 
 <div class="hero">
@@ -1436,9 +1467,43 @@ async function loadEvents(){
   ALL=EV.slice();renderJobs();renderMyApps().catch(e=>console.warn(e));
 }
 
+// ── USER MENU ──
+async function initUserBadge(){
+  const { data: { session } } = await sb.auth.getSession();
+  if(!session) return;
+  const { data: profile } = await sb.from('profiles').select('vorname,role').eq('id', session.user.id).single();
+  if(!profile) return;
+  const badge = document.getElementById('userBadge');
+  const nameEl = document.getElementById('userName');
+  if(badge && nameEl){
+    badge.style.display = 'block';
+    nameEl.textContent = profile.vorname || '👤';
+  }
+  window.FESS_PROFILE = profile;
+}
+
+function openUserMenu(){
+  const p = window.FESS_PROFILE;
+  if(!p) return;
+  document.getElementById('MBody').innerHTML = `
+    <div style="text-align:center;padding:8px 0 16px">
+      <div style="width:60px;height:60px;border-radius:50%;background:var(--or);display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:700;color:#fff;margin:0 auto 10px">${(p.vorname||'?')[0]}</div>
+      <div style="font-family:'Bitter',serif;font-weight:800;font-size:16px">${p.vorname||''}</div>
+      <div style="font-size:11px;color:#6b7280;margin-top:3px">${p.role==='admin'?'👑 Admin':'🦺 FESS Crew'}</div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:8px">
+      <a href="chat.html" style="display:flex;align-items:center;justify-content:center;gap:8px;background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;padding:11px;font-size:13px;font-weight:600;color:#111827;text-decoration:none">💬 Meine Chats</a>
+      ${p.role==='admin'?`<a href="admin-fess2025.html" style="display:flex;align-items:center;justify-content:center;gap:8px;background:var(--or);border:none;border-radius:8px;padding:11px;font-size:13px;font-weight:700;color:#fff;text-decoration:none">⚙️ Admin Dashboard</a>`:''}
+      <button onclick="sb.auth.signOut().then(()=>{window.FESS_USER=null;window.FESS_PROFILE=null;document.getElementById('userBadge').style.display='none';closeM();})" style="background:#fef2f2;color:#dc2626;border:1px solid #fecaca;border-radius:8px;padding:10px;font-size:12px;cursor:pointer;font-family:var(--font)">Abmelden</button>
+      <button onclick="closeM()" style="background:#f3f4f6;color:#6b7280;border:none;border-radius:8px;padding:9px;font-size:12px;cursor:pointer;font-family:var(--font)">Schließen</button>
+    </div>`;
+  document.getElementById('MB').classList.add('open');
+}
+
 // ── INIT ──
 document.getElementById('MB').addEventListener('click',e=>{if(e.target.id==='MB')closeM();});
 loadEvents();
+initUserBadge();
 renderProcess();
 renderAbout();
 renderMyApps().catch(e=>console.warn(e));
