@@ -148,6 +148,39 @@ body{background:var(--bg);font-family:var(--font);color:var(--text);display:flex
   .dispo-slot-row{grid-template-columns:28px 1fr 80px;gap:6px}
   .dispo-slot-row .hide-mobile{display:none}
 }
+/* ── KALENDER ── */
+.kal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:1px;background:var(--border);border-radius:10px;overflow:hidden;border:1px solid var(--border)}
+.kal-day-header{background:#f9fafb;padding:7px 0;text-align:center;font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.kal-day{background:#fff;min-height:90px;padding:5px;position:relative;vertical-align:top}
+.kal-day.other-month{background:#fafafa}
+.kal-day.today{background:#fff8f5}
+.kal-day-num{font-size:11px;font-weight:700;color:var(--muted);margin-bottom:3px}
+.kal-day.today .kal-day-num{background:var(--or);color:#fff;width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px}
+.kal-event{font-size:10px;font-weight:600;padding:2px 5px;border-radius:4px;margin-bottom:2px;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.4}
+.kal-event:hover{opacity:.8}
+.kal-event.konzert{background:#fee2e2;color:#b91c1c;border-left:3px solid #ef4444}
+.kal-event.festival{background:#fef9c3;color:#854d0e;border-left:3px solid #eab308}
+.kal-event.esl,.kal-event.lager{background:#e0f2fe;color:#0369a1;border-left:3px solid #0ea5e9}
+.kal-event.promotion{background:#f3e8ff;color:#6b21a8;border-left:3px solid #a855f7}
+.kal-event.other{background:#f3f4f6;color:#374151;border-left:3px solid #9ca3af}
+.kal-event.kino{background:#dcfce7;color:#166534;border-left:3px solid #22c55e}
+.kal-more{font-size:9px;color:var(--or);font-weight:700;cursor:pointer;padding:1px 4px}
+/* Woche */
+.kal-week-grid{display:grid;grid-template-columns:50px repeat(7,1fr);gap:1px;background:var(--border);border-radius:10px;overflow:hidden;border:1px solid var(--border)}
+.kal-wh{background:#f9fafb;padding:8px 6px;text-align:center;font-size:11px;font-weight:700}
+.kal-wh.today{color:var(--or)}
+.kal-wtime{background:#f9fafb;padding:6px 4px;text-align:right;font-size:9px;color:var(--muted);font-weight:600}
+.kal-wcell{background:#fff;min-height:50px;padding:3px;position:relative}
+.kal-wcell.today{background:#fff8f5}
+/* Liste */
+.kal-list-day{margin-bottom:20px}
+.kal-list-date{font-family:'Bitter',serif;font-weight:800;font-size:13px;padding:8px 14px;background:#f9fafb;border-radius:8px;margin-bottom:6px;border-left:3px solid var(--or)}
+.kal-list-row{display:grid;grid-template-columns:90px 1fr 100px 80px 80px;gap:10px;align-items:center;padding:8px 14px;background:#fff;border:1px solid var(--border);border-radius:8px;margin-bottom:4px;font-size:12px;cursor:pointer;transition:background .1s}
+.kal-list-row:hover{background:#fff8f5}
+.kal-filter.on{background:var(--or);color:#fff;border-color:var(--or)}
+.kal-tooltip{position:fixed;z-index:9999;background:#1f2937;color:#fff;border-radius:10px;padding:12px 16px;font-size:12px;min-width:220px;max-width:280px;box-shadow:0 8px 24px rgba(0,0,0,.3);pointer-events:none}
+.kal-tt-title{font-family:'Bitter',serif;font-weight:800;font-size:14px;margin-bottom:6px;color:#fff}
+.kal-tt-row{display:flex;gap:6px;margin-bottom:3px;font-size:11px;color:rgba(255,255,255,.8)}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
@@ -160,6 +193,7 @@ body{background:var(--bg);font-family:var(--font);color:var(--text);display:flex
   <a class="ni on" onclick="P('dashboard',this)"><i class="ti ti-dashboard"></i><span>Dashboard</span></a>
   <div class="sb-section">Verwaltung</div>
   <a class="ni" onclick="P('auftraege',this)"><i class="ti ti-calendar-event"></i><span>Aufträge</span></a>
+  <a class="ni" onclick="P('kalender',this)"><i class="ti ti-calendar-month"></i><span>Kalender</span></a>
   <a class="ni" onclick="P('bewerbungen',this)"><i class="ti ti-users"></i><span>Bewerbungen</span></a>
   <a class="ni" onclick="P('dispo',this)"><i class="ti ti-layout-list"></i><span>Dispo & Crew</span></a>
   <a class="ni" onclick="P('stunden',this)"><i class="ti ti-clock"></i><span>Stundennachweise</span></a>
@@ -236,6 +270,32 @@ body{background:var(--bg);font-family:var(--font);color:var(--text);display:flex
           </table>
         </div>
       </div>
+    </div>
+
+    <!-- KALENDER -->
+    <div class="page" id="pg-kalender">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px">
+        <div style="display:flex;align-items:center;gap:8px">
+          <button class="tbtn" onclick="kalNav(-1)"><i class="ti ti-chevron-left"></i></button>
+          <div id="kalMonthLabel" style="font-family:'Bitter',serif;font-weight:800;font-size:17px;min-width:160px;text-align:center"></div>
+          <button class="tbtn" onclick="kalNav(1)"><i class="ti ti-chevron-right"></i></button>
+          <button class="tbtn" onclick="kalGoToday()" style="margin-left:4px">Heute</button>
+        </div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap">
+          <button class="tbtn" id="kal-v-monat" onclick="setKalView('monat')" style="background:var(--or);color:#fff;border-color:var(--or)">Monat</button>
+          <button class="tbtn" id="kal-v-woche" onclick="setKalView('woche')">Woche</button>
+          <button class="tbtn" id="kal-v-liste" onclick="setKalView('liste')">Liste</button>
+        </div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center">
+          <span style="font-size:11px;color:var(--muted);font-weight:600">Filter:</span>
+          <button class="tbtn kal-filter on" data-f="" onclick="setKalFilter(this,'')">Alle</button>
+          <button class="tbtn kal-filter" data-f="Konzert" onclick="setKalFilter(this,'Konzert')">&#127925; Konzert</button>
+          <button class="tbtn kal-filter" data-f="Festival" onclick="setKalFilter(this,'Festival')">&#127914; Festival</button>
+          <button class="tbtn kal-filter" data-f="ESL" onclick="setKalFilter(this,'ESL')">&#128295; ESL/Lager</button>
+          <button class="tbtn kal-filter" data-f="Promotion" onclick="setKalFilter(this,'Promotion')">&#128226; Promotion</button>
+        </div>
+      </div>
+      <div id="kalBody"></div>
     </div>
 
     <!-- BEWERBUNGEN -->
@@ -524,13 +584,14 @@ function P(id, el) {
   document.getElementById('pg-' + id).classList.add('active');
   if (el) el.classList.add('on');
   const titles = {
-    dashboard: 'Dashboard', auftraege: 'Aufträge verwalten', users: 'Zugänge & Registrierungen', newsletter: 'Newsletter & Broadcast', chats: 'Chat-Gruppen', analyse: '📊 Analyse & Auswertung',
+    dashboard: 'Dashboard', auftraege: 'Aufträge verwalten', kalender: '📅 Auftragskalender', users: 'Zugänge & Registrierungen', newsletter: 'Newsletter & Broadcast', chats: 'Chat-Gruppen', analyse: '📊 Analyse & Auswertung',
     bewerbungen: 'Bewerbungen', dispo: 'Dispo & Crew',
     stunden: 'Stundennachweise', mitarbeiter: 'Mitarbeiter'
   };
   document.getElementById('pageTitle').textContent = titles[id] || id;
   const acts = {
     auftraege: `<button class="tbtn primary" onclick="openNewAuf()"><i class="ti ti-plus"></i> Neuer Auftrag</button><button class="tbtn" onclick="loadAuftraege()"><i class="ti ti-refresh"></i></button>`,
+    kalender: `<button class="tbtn" onclick="renderKalender()"><i class="ti ti-refresh"></i> Refresh</button><button class="tbtn" onclick="openKalVerwalten()" style="margin-left:4px"><i class="ti ti-eye-off"></i> Aufträge verwalten</button>`,  
     bewerbungen: `<button class="tbtn" onclick="loadBewerbungen()"><i class="ti ti-refresh"></i> Refresh</button>`,
     dashboard: `<button class="tbtn" onclick="loadAll()"><i class="ti ti-refresh"></i> Aktualisieren</button>`,
     mitarbeiter: `<button class="tbtn" onclick="loadMitarbeiter()"><i class="ti ti-refresh"></i> Refresh</button>`,
@@ -547,6 +608,7 @@ function P(id, el) {
   if (id === 'newsletter') loadNewsletter();
   if (id === 'chats') { loadChats(); if(!CREW_LIST.length) loadNewsletter(); }
   if (id === 'analyse') { setTimeout(() => { if(typeof renderAnalyse==='function') renderAnalyse(); }, 200); }
+  if (id === 'kalender') { setTimeout(renderKalender, 100); }
 }
 
 // ══ DB CHECK ══
@@ -1943,6 +2005,513 @@ function exportPDF(){
 document.getElementById('modalBG').addEventListener('click', e => { if (e.target.id === 'modalBG') closeM(); });
 (async () => {
   await checkConnection();
+
+// ══════════════════════════════════════════
+// AUFTRAGSKALENDER
+// ══════════════════════════════════════════
+let KAL_DATE = new Date();
+let KAL_VIEW = 'monat';
+let KAL_FILTER = '';
+let KAL_HIDDEN = new Set(); // IDs ausgeblendeter Aufträge
+let KAL_TOOLTIP_EL = null;
+
+// ── Alle Aufträge aus PDF als Seed-Daten (werden mit Supabase-Daten überschrieben) ──
+const PDF_AUFTRAEGE = [
+  {id:'pdf-1',datum_von:'2026-06-05',kategorie:'Festival',kunde:'Do it',event:'Rock im Park',taetigkeit:'Promotion LID',schicht:'Tagschicht',location:'Nürnberg',pax:16,status:'bestätigt',dispo:'fertig'},
+  {id:'pdf-2',datum_von:'2026-06-05',kategorie:'Promotion',kunde:'VOLVO Frankfurt',event:'Volvo Promotion',taetigkeit:'Promotion',schicht:'Tagschicht',location:'Frankfurt',pax:1,status:'bestätigt',dispo:'fertig'},
+  {id:'pdf-3',datum_von:'2026-06-05',kategorie:'Konzert',kunde:'Stadt IO',event:'Jazztage',taetigkeit:'Stagehands',schicht:'10-18Uhr',location:'Idar Marktplatz',pax:2,status:'bestätigt',dispo:'fertig'},
+  {id:'pdf-4',datum_von:'2026-06-06',kategorie:'Festival',kunde:'Do it',event:'Rock im Park',taetigkeit:'Promotion LID',schicht:'Tagschicht',location:'Nürnberg',pax:16,status:'bestätigt',dispo:'fertig'},
+  {id:'pdf-5',datum_von:'2026-06-06',kategorie:'Promotion',kunde:'VOLVO Frankfurt',event:'Volvo Promotion',taetigkeit:'Promotion',schicht:'Tagschicht',location:'Frankfurt',pax:1,status:'bestätigt',dispo:'fertig'},
+  {id:'pdf-6',datum_von:'2026-06-07',kategorie:'Festival',kunde:'Do it',event:'Rock im Park',taetigkeit:'Promotion LID',schicht:'Tagschicht',location:'Nürnberg',pax:16,status:'bestätigt',dispo:'fertig'},
+  {id:'pdf-7',datum_von:'2026-06-07',kategorie:'Konzert',kunde:'uneed',event:'Rock am Ring',taetigkeit:'Stagehand',schicht:'23-7Uhr',location:'Nürburgring',pax:4,status:'bestätigt',dispo:'in Planung'},
+  {id:'pdf-8',datum_von:'2026-06-07',kategorie:'Konzert',kunde:'uneed',event:'Rock am Ring',taetigkeit:'Stagehand',schicht:'23-7Uhr',location:'Nürburgring',pax:12,status:'bestätigt',dispo:'in Planung'},
+  {id:'pdf-9',datum_von:'2026-06-07',kategorie:'Promotion',kunde:'VOLVO Frankfurt',event:'Volvo Promotion',taetigkeit:'Promotion',schicht:'Tagschicht',location:'Frankfurt',pax:1,status:'bestätigt',dispo:'fertig'},
+  {id:'pdf-10',datum_von:'2026-06-07',kategorie:'Konzert',kunde:'uneed',event:'Rock am Ring',taetigkeit:'Stagehand',schicht:'23-08Uhr',location:'Nürburgring',pax:7,status:'bestätigt',dispo:'in Planung'},
+  {id:'pdf-11',datum_von:'2026-06-07',kategorie:'Konzert',kunde:'uneed',event:'Rock am Ring',taetigkeit:'Crewchief',schicht:'23-08Uhr',location:'Nürburgring',pax:1,status:'bestätigt',dispo:'in Planung'},
+  {id:'pdf-12',datum_von:'2026-06-07',kategorie:'Konzert',kunde:'Stadt IO',event:'Jazztage',taetigkeit:'Stagehands',schicht:'18:30-24Uhr',location:'Idar Marktplatz',pax:3,status:'bestätigt',dispo:'in Planung'},
+  {id:'pdf-13',datum_von:'2026-06-08',kategorie:'Promotion',kunde:'VOLVO Frankfurt',event:'Volvo Promotion',taetigkeit:'Promotion',schicht:'Tagschicht',location:'Frankfurt',pax:1,status:'bestätigt',dispo:'fertig'},
+  {id:'pdf-14',datum_von:'2026-06-08',kategorie:'Konzert',kunde:'Stadt IO',event:'Jazztage',taetigkeit:'Stagehands',schicht:'09-17Uhr',location:'Idar Marktplatz',pax:3,status:'bestätigt',dispo:'in Planung'},
+  {id:'pdf-15',datum_von:'2026-06-09',kategorie:'ESL',kunde:'COX',event:'Preisschilder tauschen',taetigkeit:'Helfer',schicht:'8-16Uhr',location:'77767 Appenweier',pax:10,status:'bestätigt',dispo:'in Planung'},
+  {id:'pdf-16',datum_von:'2026-06-09',kategorie:'Konzert',kunde:'uneed',event:'Rock am Ring',taetigkeit:'Stagehand',schicht:'7:15-18:15',location:'Nürburgring',pax:1,status:'bestätigt',dispo:'in Planung'},
+  {id:'pdf-17',datum_von:'2026-06-09',kategorie:'Konzert',kunde:'uneed',event:'Rock am Ring',taetigkeit:'Staplerfahrer',schicht:'8-19Uhr',location:'Nürburgring',pax:3,status:'bestätigt',dispo:'fertig'},
+  {id:'pdf-18',datum_von:'2026-06-09',kategorie:'Promotion',kunde:'VOLVO Frankfurt',event:'Volvo Promotion',taetigkeit:'Promotion',schicht:'Tagschicht',location:'Frankfurt',pax:1,status:'bestätigt',dispo:'fertig'},
+  {id:'pdf-19',datum_von:'2026-06-09',kategorie:'Lager',kunde:'Pool',event:'Trucks beladen',taetigkeit:'Stagehand',schicht:'9-18Uhr',location:'Emsdetten',pax:5,status:'ausstehend',dispo:'fertig'},
+  {id:'pdf-20',datum_von:'2026-06-10',kategorie:'ESL',kunde:'COX',event:'Preisschilder tauschen',taetigkeit:'Helfer',schicht:'8-16Uhr',location:'76185 Karlsruhe',pax:10,status:'bestätigt',dispo:'in Planung'},
+  {id:'pdf-21',datum_von:'2026-06-10',kategorie:'Konzert',kunde:'uneed',event:'Rock am Ring',taetigkeit:'Staplerfahrer',schicht:'8-19Uhr',location:'Nürburgring',pax:2,status:'bestätigt',dispo:'in Planung'},
+  {id:'pdf-22',datum_von:'2026-06-10',kategorie:'Promotion',kunde:'VOLVO Frankfurt',event:'Volvo Promotion',taetigkeit:'Promotion',schicht:'Tagschicht',location:'Frankfurt',pax:1,status:'bestätigt',dispo:'fertig'},
+  {id:'pdf-23',datum_von:'2026-06-10',kategorie:'Lager',kunde:'Pool',event:'Trucks beladen',taetigkeit:'Stagehand',schicht:'9-18Uhr',location:'Emsdetten',pax:10,status:'ausstehend',dispo:'in Planung'},
+  {id:'pdf-24',datum_von:'2026-06-11',kategorie:'ESL',kunde:'COX',event:'Preisschilder tauschen',taetigkeit:'Helfer',schicht:'8-16Uhr',location:'66386 St. Ingbert',pax:10,status:'bestätigt',dispo:'in Planung'},
+  {id:'pdf-25',datum_von:'2026-06-11',kategorie:'Promotion',kunde:'VOLVO Frankfurt',event:'Volvo Promotion',taetigkeit:'Promotion',schicht:'Tagschicht',location:'Frankfurt',pax:1,status:'bestätigt',dispo:'fertig'},
+  {id:'pdf-26',datum_von:'2026-06-11',kategorie:'Konzert',kunde:'SSIO',event:'SSIO',taetigkeit:'Stagehands Technikeinbau',schicht:'12-18Uhr',location:'Dortmund Westfalenhalle',pax:5,status:'bestätigt',dispo:'in Planung'},
+  {id:'pdf-27',datum_von:'2026-06-12',kategorie:'Promotion',kunde:'VOLVO Frankfurt',event:'Volvo Promotion',taetigkeit:'Promotion',schicht:'Tagschicht',location:'Frankfurt',pax:1,status:'bestätigt',dispo:'fertig'},
+  {id:'pdf-28',datum_von:'2026-06-13',kategorie:'Promotion',kunde:'VOLVO Frankfurt',event:'Volvo Promotion',taetigkeit:'Promotion',schicht:'Tagschicht',location:'Frankfurt',pax:1,status:'bestätigt',dispo:'fertig'},
+  {id:'pdf-29',datum_von:'2026-06-14',kategorie:'Promotion',kunde:'VOLVO Frankfurt',event:'Volvo Promotion',taetigkeit:'Promotion',schicht:'Tagschicht',location:'Frankfurt',pax:1,status:'bestätigt',dispo:'fertig'},
+  {id:'pdf-30',datum_von:'2026-06-14',kategorie:'Konzert',kunde:'Timeskill',event:'Cypress Hill',taetigkeit:'Stagehand Technikausbau',schicht:'ab 22:30Uhr',location:'Dortmund Westfalenhalle',pax:3,status:'bestätigt',dispo:''},
+  {id:'pdf-31',datum_von:'2026-06-16',kategorie:'ESL',kunde:'COX',event:'Preisschilder tauschen',taetigkeit:'Helfer',schicht:'8-16Uhr',location:'97616 Bad Neustadt a.d.Saale',pax:8,status:'bestätigt',dispo:'in Planung'},
+  {id:'pdf-32',datum_von:'2026-06-16',kategorie:'ESL',kunde:'COX',event:'Preisschilder tauschen',taetigkeit:'Helfer',schicht:'8-16Uhr',location:'97616 Bad Neustadt a.d.Saale',pax:8,status:'bestätigt',dispo:'in Planung'},
+  {id:'pdf-33',datum_von:'2026-06-17',kategorie:'ESL',kunde:'COX',event:'Preisschilder tauschen',taetigkeit:'Helfer',schicht:'8-16Uhr',location:'95447 Bayreuth',pax:8,status:'bestätigt',dispo:'in Planung'},
+  {id:'pdf-34',datum_von:'2026-06-17',kategorie:'Konzert',kunde:'a-team',event:'Helene Fischer',taetigkeit:'Staplerfahrer',schicht:'TBA',location:'Deutsche Bank Park FFM',pax:2,status:'anpassung',dispo:'in Planung'},
+  {id:'pdf-35',datum_von:'2026-06-17',kategorie:'Konzert',kunde:'a-team',event:'Helene Fischer',taetigkeit:'Stagehands',schicht:'TBA',location:'Deutsche Bank Park FFM',pax:7,status:'ausstehend',dispo:'in Planung'},
+  {id:'pdf-36',datum_von:'2026-06-18',kategorie:'ESL',kunde:'COX',event:'Preisschilder tauschen',taetigkeit:'Helfer',schicht:'8-16Uhr',location:'74545 Michelfeld',pax:8,status:'bestätigt',dispo:'in Planung'},
+  {id:'pdf-37',datum_von:'2026-06-18',kategorie:'Konzert',kunde:'a-team',event:'Helene Fischer',taetigkeit:'Stagehands',schicht:'TBA',location:'Deutsche Bank Park FFM',pax:7,status:'ausstehend',dispo:'in Planung'},
+  {id:'pdf-38',datum_von:'2026-06-18',kategorie:'Konzert',kunde:'a-team',event:'Helene Fischer',taetigkeit:'Staplerfahrer',schicht:'TBA',location:'Deutsche Bank Park FFM',pax:2,status:'anpassung',dispo:'in Planung'},
+  {id:'pdf-39',datum_von:'2026-06-20',kategorie:'Konzert',kunde:'a-team',event:'Helene Fischer',taetigkeit:'Stagehands',schicht:'TBA',location:'Deutsche Bank Park FFM',pax:2,status:'anpassung',dispo:'in Planung'},
+  {id:'pdf-40',datum_von:'2026-06-20',kategorie:'Konzert',kunde:'a-team',event:'Helene Fischer',taetigkeit:'Staplerfahrer',schicht:'TBA',location:'Deutsche Bank Park FFM',pax:3,status:'ausstehend',dispo:'in Planung'},
+  {id:'pdf-41',datum_von:'2026-06-20',kategorie:'Konzert',kunde:'Event Geist',event:'Zucchero',taetigkeit:'Stagehands',schicht:'6:45-14:45',location:'Festhalle Frankfurt',pax:10,status:'bestätigt',dispo:'in Planung'},
+  {id:'pdf-42',datum_von:'2026-06-20',kategorie:'Konzert',kunde:'Event Geist',event:'Zucchero',taetigkeit:'Stagehands',schicht:'21:00-03:00',location:'Festhalle Frankfurt',pax:10,status:'bestätigt',dispo:'in Planung'},
+  {id:'pdf-43',datum_von:'2026-06-22',kategorie:'Konzert',kunde:'a-team',event:'Helene Fischer',taetigkeit:'Stagehands',schicht:'Tagschicht',location:'Veltins-Arena, Gelsenkirchen',pax:10,status:'ausstehend',dispo:'in Planung'},
+  {id:'pdf-44',datum_von:'2026-06-23',kategorie:'ESL',kunde:'COX',event:'Preisschilder tauschen',taetigkeit:'Helfer',schicht:'8-16Uhr',location:'82362 Weilheim in Oberbayern',pax:8,status:'bestätigt',dispo:'in Planung'},
+  {id:'pdf-45',datum_von:'2026-06-23',kategorie:'Konzert',kunde:'a-team',event:'Helene Fischer',taetigkeit:'Stagehands',schicht:'21-03Uhr',location:'Veltins-Arena, Gelsenkirchen',pax:10,status:'ausstehend',dispo:'in Planung'},
+  {id:'pdf-46',datum_von:'2026-06-24',kategorie:'ESL',kunde:'COX',event:'Preisschilder tauschen',taetigkeit:'Helfer',schicht:'8-16Uhr',location:'71272 Renningen',pax:8,status:'bestätigt',dispo:'in Planung'},
+  {id:'pdf-47',datum_von:'2026-06-25',kategorie:'Konzert',kunde:'a-team',event:'Helene Fischer',taetigkeit:'Stagehands',schicht:'Tagschicht',location:'Rheinenergie-Stadion, Köln',pax:10,status:'ausstehend',dispo:'in Planung'},
+  {id:'pdf-48',datum_von:'2026-06-25',kategorie:'Konzert',kunde:'a-team',event:'Max Korzh',taetigkeit:'Stagehands',schicht:'Tagschicht',location:'Merkur-Spiel-Arena, Düsseldorf',pax:5,status:'ausstehend',dispo:'in Planung'},
+  {id:'pdf-49',datum_von:'2026-06-27',kategorie:'Konzert',kunde:'Timeskill',event:'Clueso',taetigkeit:'Stagehands langer Abbau',schicht:'',location:'Dortmund',pax:5,status:'bestätigt',dispo:'in Planung'},
+  {id:'pdf-50',datum_von:'2026-06-28',kategorie:'Konzert',kunde:'Timeskill',event:'Mark Forster',taetigkeit:'Stagehands Aufbau+Abbau',schicht:'',location:'Dortmund',pax:5,status:'',dispo:'in Planung'},
+  {id:'pdf-51',datum_von:'2026-06-30',kategorie:'Konzert',kunde:'Event Geist',event:'Böhse Onkelz',taetigkeit:'Stagehands Kabelbrücken',schicht:'8-19Uhr',location:'Deutsche Bank Park FFM',pax:5,status:'bestätigt',dispo:'in Planung'},
+  {id:'pdf-52',datum_von:'2026-06-30',kategorie:'Konzert',kunde:'Event Geist',event:'Böhse Onkelz',taetigkeit:'Stagehands Barrikaden',schicht:'19-03Uhr',location:'Deutsche Bank Park FFM',pax:5,status:'ausstehend',dispo:'in Planung'},
+  {id:'pdf-53',datum_von:'2026-06-30',kategorie:'Konzert',kunde:'Event Geist',event:'Böhse Onkelz',taetigkeit:'Staplerfahrer',schicht:'20-04Uhr',location:'Deutsche Bank Park FFM',pax:2,status:'bestätigt',dispo:'in Planung'},
+  {id:'pdf-54',datum_von:'2026-07-01',kategorie:'Konzert',kunde:'Event Geist',event:'Böhse Onkelz',taetigkeit:'Stagehands Logistik',schicht:'8-19Uhr',location:'Deutsche Bank Park FFM',pax:5,status:'bestätigt',dispo:'in Planung'},
+  {id:'pdf-55',datum_von:'2026-07-01',kategorie:'Konzert',kunde:'Event Geist',event:'Böhse Onkelz',taetigkeit:'Stagehands Kabelbrücken',schicht:'10:30-21:30',location:'Deutsche Bank Park FFM',pax:2,status:'bestätigt',dispo:'in Planung'},
+  {id:'pdf-56',datum_von:'2026-07-01',kategorie:'Konzert',kunde:'Event Geist',event:'Böhse Onkelz',taetigkeit:'Stagehands Strom',schicht:'10:30-21:30',location:'Deutsche Bank Park FFM',pax:3,status:'bestätigt',dispo:'in Planung'},
+  {id:'pdf-57',datum_von:'2026-07-01',kategorie:'Konzert',kunde:'Event Geist',event:'Böhse Onkelz',taetigkeit:'Stagehands Barrikaden',schicht:'19:30-3:30',location:'Deutsche Bank Park FFM',pax:10,status:'bestätigt',dispo:'in Planung'},
+  {id:'pdf-58',datum_von:'2026-07-02',kategorie:'Konzert',kunde:'Event Geist',event:'Böhse Onkelz',taetigkeit:'Stagehands Barrikaden',schicht:'20:00-04:00',location:'Deutsche Bank Park FFM',pax:10,status:'bestätigt',dispo:'in Planung'},
+  {id:'pdf-59',datum_von:'2026-07-02',kategorie:'Konzert',kunde:'Event Geist',event:'Böhse Onkelz',taetigkeit:'Stagehands Logistik',schicht:'8-19Uhr',location:'Deutsche Bank Park FFM',pax:5,status:'bestätigt',dispo:'in Planung'},
+  {id:'pdf-60',datum_von:'2026-07-03',kategorie:'Konzert',kunde:'Hockeypark',event:'David Garrett',taetigkeit:'Stagehands',schicht:'9-18Uhr',location:'Loreley',pax:12,status:'bestätigt',dispo:'in Planung'},
+  {id:'pdf-61',datum_von:'2026-07-04',kategorie:'Konzert',kunde:'Event Geist',event:'Böhse Onkelz',taetigkeit:'Stagehands Strom',schicht:'22-6Uhr',location:'Deutsche Bank Park FFM',pax:5,status:'in Planung',dispo:''},
+  {id:'pdf-62',datum_von:'2026-07-04',kategorie:'Konzert',kunde:'Hockeypark',event:'David Garrett',taetigkeit:'Stagehands',schicht:'8-15Uhr',location:'Loreley',pax:10,status:'',dispo:'in Planung'},
+  {id:'pdf-63',datum_von:'2026-07-04',kategorie:'Konzert',kunde:'Hockeypark',event:'David Garrett',taetigkeit:'Showcrew+Abbau',schicht:'19-03Uhr',location:'Loreley',pax:4,status:'bestätigt',dispo:'in Planung'},
+  {id:'pdf-64',datum_von:'2026-07-04',kategorie:'Konzert',kunde:'Hockeypark',event:'David Garrett',taetigkeit:'Stagehands',schicht:'21:30-03Uhr',location:'Loreley',pax:6,status:'bestätigt',dispo:'in Planung'},
+  {id:'pdf-65',datum_von:'2026-07-04',kategorie:'Konzert',kunde:'Hockeypark',event:'David Garrett',taetigkeit:'Stagehands',schicht:'21:30-03Uhr',location:'Loreley',pax:6,status:'bestätigt',dispo:'in Planung'},
+  {id:'pdf-66',datum_von:'2026-07-05',kategorie:'Konzert',kunde:'Event Geist',event:'Böhse Onkelz',taetigkeit:'Stagehands Kabelbrücken',schicht:'8-19Uhr',location:'Deutsche Bank Park FFM',pax:3,status:'in Planung',dispo:''},
+  {id:'pdf-67',datum_von:'2026-07-05',kategorie:'Konzert',kunde:'Event Geist',event:'Böhse Onkelz',taetigkeit:'Stagehands Barrikaden',schicht:'14-01:00Uhr',location:'Deutsche Bank Park FFM',pax:3,status:'in Planung',dispo:''},
+  {id:'pdf-68',datum_von:'2026-07-08',kategorie:'Konzert',kunde:'Timeskill',event:'Böhse Onkelz',taetigkeit:'Stagehands',schicht:'15-01Uhr',location:'Gelsenkirchen',pax:8,status:'bestätigt',dispo:'in Planung'},
+  {id:'pdf-69',datum_von:'2026-07-08',kategorie:'Konzert',kunde:'Timeskill',event:'Böhse Onkelz',taetigkeit:'Staplerfahrer',schicht:'15-01Uhr',location:'Gelsenkirchen',pax:1,status:'bestätigt',dispo:'in Planung'},
+  {id:'pdf-70',datum_von:'2026-07-08',kategorie:'Konzert',kunde:'Timeskill',event:'Böhse Onkelz',taetigkeit:'Staplerfahrer',schicht:'14-01Uhr',location:'Gelsenkirchen',pax:10,status:'bestätigt',dispo:''},
+  {id:'pdf-71',datum_von:'2026-07-09',kategorie:'Festival',kunde:'Stadt Neuwied',event:'Deutschstadtfest Neuwied',taetigkeit:'Stagehands',schicht:'Tagschicht',location:'Loreley',pax:6,status:'',dispo:'in Planung'},
+  {id:'pdf-72',datum_von:'2026-07-09',kategorie:'Konzert',kunde:'Timeskill',event:'Böhse Onkelz',taetigkeit:'Stagehands',schicht:'19:30-6:30',location:'Gelsenkirchen',pax:20,status:'bestätigt',dispo:'in Planung'},
+  {id:'pdf-73',datum_von:'2026-07-10',kategorie:'Festival',kunde:'Stadt Neuwied',event:'Deutschstadtfest Neuwied',taetigkeit:'Stagehands',schicht:'Tagschicht',location:'Neuwied',pax:5,status:'',dispo:'in Planung'},
+  {id:'pdf-74',datum_von:'2026-07-10',kategorie:'Konzert',kunde:'Timeskill',event:'Anne May Kanterei',taetigkeit:'Stagehands Aufbau+Abbau',schicht:'',location:'Dortmund',pax:5,status:'bestätigt',dispo:'in Planung'},
+  {id:'pdf-75',datum_von:'2026-07-11',kategorie:'Festival',kunde:'Stadt Neuwied',event:'Deutschstadtfest Neuwied',taetigkeit:'Stagehands',schicht:'Tagschicht',location:'Neuwied',pax:5,status:'',dispo:'in Planung'},
+  {id:'pdf-76',datum_von:'2026-07-11',kategorie:'Konzert',kunde:'Timeskill',event:'Böhse Onkelz',taetigkeit:'Stagehands langer Abbau',schicht:'',location:'Gelsenkirchen',pax:20,status:'bestätigt',dispo:'in Planung'},
+  {id:'pdf-77',datum_von:'2026-07-12',kategorie:'Festival',kunde:'Stadt Neuwied',event:'Deutschstadtfest Neuwied',taetigkeit:'Stagehands',schicht:'Tagschicht',location:'Neuwied',pax:5,status:'',dispo:'in Planung'},
+  {id:'pdf-78',datum_von:'2026-07-13',kategorie:'Kino',kunde:'VPT',event:'Einbau Dolby Atmos',taetigkeit:'Helfer',schicht:'8-18Uhr',location:'Reutlingen',pax:2,status:'bestätigt',dispo:'in Planung'},
+  {id:'pdf-79',datum_von:'2026-07-14',kategorie:'Kino',kunde:'VPT',event:'Einbau Dolby Atmos',taetigkeit:'Helfer',schicht:'8-18Uhr',location:'Reutlingen',pax:2,status:'bestätigt',dispo:'in Planung'},
+  {id:'pdf-80',datum_von:'2026-07-15',kategorie:'Kino',kunde:'VPT',event:'Einbau Dolby Atmos',taetigkeit:'Helfer',schicht:'8-18Uhr',location:'Reutlingen',pax:2,status:'bestätigt',dispo:'in Planung'},
+  {id:'pdf-81',datum_von:'2026-07-16',kategorie:'Kino',kunde:'VPT',event:'Einbau Dolby Atmos',taetigkeit:'Helfer',schicht:'8-18Uhr',location:'Reutlingen',pax:2,status:'bestätigt',dispo:'in Planung'},
+  {id:'pdf-82',datum_von:'2026-07-16',kategorie:'Konzert',kunde:'Timeskill',event:'Toten Hosen',taetigkeit:'Stagehands',schicht:'10-18Uhr',location:'Köln',pax:15,status:'bestätigt',dispo:'in Planung'},
+  {id:'pdf-83',datum_von:'2026-07-18',kategorie:'Konzert',kunde:'Timeskill',event:'Romeo Santos',taetigkeit:'Stagehands Aufbau+Abbau',schicht:'',location:'Lanxess Arena Köln',pax:20,status:'bestätigt',dispo:'in Planung'},
+];
+
+function getKalData(includeHidden = false) {
+  // Merge Supabase AUFTRAEGE with PDF seed data (PDF only fills gaps)
+  const pdfFiltered = PDF_AUFTRAEGE.filter(p => {
+    return !AUFTRAEGE.some(a => a.datum_von === p.datum_von && (a.event_name||'').toLowerCase().includes((p.event||'').toLowerCase().substring(0,5)));
+  });
+  // Map Supabase format to calendar format
+  const sbMapped = AUFTRAEGE.map(a => ({
+    id: a.id,
+    datum_von: a.datum_von,
+    kategorie: a.kategorie || a.typ || 'other',
+    kunde: a.kunde || '',
+    event: a.event_name || a.titel || '',
+    taetigkeit: a.taetigkeit || a.beschreibung || '',
+    schicht: a.schichtzeiten || '',
+    location: a.ort || a.location || '',
+    pax: a.anzahl_ma || a.pax || 0,
+    status: a.status || '',
+    dispo: a.dispositionsstatus || ''
+  }));
+  const all = [...sbMapped, ...pdfFiltered];
+  return includeHidden ? all : all.filter(e => !KAL_HIDDEN.has(e.id));
+}
+
+function kalEventClass(kat) {
+  const k = (kat||'').toLowerCase();
+  if(k.includes('konzert')) return 'konzert';
+  if(k.includes('festival')) return 'festival';
+  if(k.includes('esl') || k.includes('lager')) return 'esl';
+  if(k.includes('promotion') || k.includes('do it')) return 'promotion';
+  if(k.includes('kino')) return 'kino';
+  return 'other';
+}
+
+function kalFilterData(data) {
+  if(!KAL_FILTER) return data;
+  return data.filter(d => {
+    const k = (d.kategorie||'').toLowerCase();
+    const f = KAL_FILTER.toLowerCase();
+    if(f === 'esl') return k.includes('esl') || k.includes('lager');
+    return k.includes(f);
+  });
+}
+
+function setKalView(v) {
+  KAL_VIEW = v;
+  document.querySelectorAll('[id^="kal-v-"]').forEach(b => {
+    b.style.background=''; b.style.color=''; b.style.borderColor='';
+  });
+  const btn = document.getElementById('kal-v-'+v);
+  if(btn){ btn.style.background='var(--or)'; btn.style.color='#fff'; btn.style.borderColor='var(--or)'; }
+  renderKalender();
+}
+
+function setKalFilter(el, val) {
+  KAL_FILTER = val;
+  document.querySelectorAll('.kal-filter').forEach(b => b.classList.remove('on'));
+  el.classList.add('on');
+  renderKalender();
+}
+
+function kalNav(dir) {
+  if(KAL_VIEW === 'monat') {
+    KAL_DATE = new Date(KAL_DATE.getFullYear(), KAL_DATE.getMonth() + dir, 1);
+  } else if(KAL_VIEW === 'woche') {
+    KAL_DATE = new Date(KAL_DATE.getTime() + dir * 7 * 86400000);
+  } else {
+    KAL_DATE = new Date(KAL_DATE.getFullYear(), KAL_DATE.getMonth() + dir, 1);
+  }
+  renderKalender();
+}
+
+function kalGoToday() {
+  KAL_DATE = new Date();
+  renderKalender();
+}
+
+function renderKalender() {
+  const data = kalFilterData(getKalData());
+  if(KAL_VIEW === 'monat') renderKalMonat(data);
+  else if(KAL_VIEW === 'woche') renderKalWoche(data);
+  else renderKalListe(data);
+}
+
+function renderKalMonat(data) {
+  const y = KAL_DATE.getFullYear(), m = KAL_DATE.getMonth();
+  const MONATE = ['Januar','Februar','März','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'];
+  document.getElementById('kalMonthLabel').textContent = MONATE[m] + ' ' + y;
+
+  const firstDay = new Date(y, m, 1).getDay();
+  const daysInMonth = new Date(y, m+1, 0).getDate();
+  const startOffset = (firstDay === 0 ? 6 : firstDay - 1);
+  const today = new Date().toISOString().split('T')[0];
+
+  // Group events by date
+  const byDate = {};
+  data.forEach(d => {
+    const dt = d.datum_von;
+    if(!byDate[dt]) byDate[dt] = [];
+    byDate[dt].push(d);
+  });
+
+  let html = '<div class="kal-grid">';
+  const days = ['Mo','Di','Mi','Do','Fr','Sa','So'];
+  days.forEach(d => html += `<div class="kal-day-header">${d}</div>`);
+
+  // Previous month filler
+  const prevDays = new Date(y, m, 0).getDate();
+  for(let i = startOffset - 1; i >= 0; i--) {
+    html += `<div class="kal-day other-month"><div class="kal-day-num" style="color:#d1d5db">${prevDays - i}</div></div>`;
+  }
+
+  for(let d = 1; d <= daysInMonth; d++) {
+    const dateStr = `${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const isToday = dateStr === today;
+    const events = byDate[dateStr] || [];
+    const maxShow = 3;
+    html += `<div class="kal-day${isToday ? ' today' : ''}">`;
+    html += `<div class="kal-day-num">${d}</div>`;
+    events.slice(0, maxShow).forEach(ev => {
+      const cls = kalEventClass(ev.kategorie);
+      const label = ev.event || ev.taetigkeit || ev.kunde || '–';
+      html += `<div class="kal-event ${cls}" onclick="kalShowDetail('${(ev.id||'').replace(/'/g,"\'")}','${dateStr}')" title="${label} | ${ev.schicht||''} | ${ev.location||''}">${label}</div>`;
+    });
+    if(events.length > maxShow) {
+      html += `<div class="kal-more" onclick="kalShowDayModal('${dateStr}')">+${events.length - maxShow} weitere</div>`;
+    }
+    html += '</div>';
+  }
+
+  // Next month filler
+  const total = startOffset + daysInMonth;
+  const remaining = (7 - (total % 7)) % 7;
+  for(let i = 1; i <= remaining; i++) {
+    html += `<div class="kal-day other-month"><div class="kal-day-num" style="color:#d1d5db">${i}</div></div>`;
+  }
+  html += '</div>';
+
+  // Summary bar
+  const total_pax = data.filter(d => d.datum_von && d.datum_von.startsWith(`${y}-${String(m+1).padStart(2,'0')}`)).reduce((s,d) => s + (parseInt(d.pax)||0), 0);
+  const month_events = data.filter(d => d.datum_von && d.datum_von.startsWith(`${y}-${String(m+1).padStart(2,'0')}`));
+  html = `<div style="display:flex;gap:12px;margin-bottom:14px;flex-wrap:wrap">
+    <div class="stat-card" style="flex:1;min-width:120px;padding:12px 16px">
+      <div class="sc-n" style="font-size:22px">${month_events.length}</div>
+      <div class="sc-l">Einsätze im Monat</div>
+    </div>
+    <div class="stat-card" style="flex:1;min-width:120px;padding:12px 16px">
+      <div class="sc-n" style="font-size:22px">${total_pax}</div>
+      <div class="sc-l">Mitarbeiter gesamt</div>
+    </div>
+    <div class="stat-card" style="flex:1;min-width:120px;padding:12px 16px">
+      <div class="sc-n" style="font-size:22px">${month_events.filter(e=>e.status==='bestätigt').length}</div>
+      <div class="sc-l">Bestätigt</div>
+    </div>
+    <div class="stat-card" style="flex:1;min-width:120px;padding:12px 16px">
+      <div class="sc-n" style="font-size:22px;color:#f59e0b">${month_events.filter(e=>e.status==='ausstehend'||e.status==='anpassung').length}</div>
+      <div class="sc-l">Ausstehend</div>
+    </div>
+  </div>` + html;
+
+  document.getElementById('kalBody').innerHTML = html;
+}
+
+function renderKalWoche(data) {
+  // Find Monday of current week
+  const d = new Date(KAL_DATE);
+  const day = d.getDay();
+  const diff = (day === 0 ? -6 : 1 - day);
+  d.setDate(d.getDate() + diff);
+
+  const MONATE = ['Jan','Feb','Mär','Apr','Mai','Jun','Jul','Aug','Sep','Okt','Nov','Dez'];
+  const TAGE = ['Mo','Di','Mi','Do','Fr','Sa','So'];
+  const today = new Date().toISOString().split('T')[0];
+
+  const weekDays = [];
+  for(let i = 0; i < 7; i++) {
+    const wd = new Date(d);
+    wd.setDate(d.getDate() + i);
+    weekDays.push(wd);
+  }
+
+  const startStr = `${weekDays[0].getDate()}. ${MONATE[weekDays[0].getMonth()]}`;
+  const endStr = `${weekDays[6].getDate()}. ${MONATE[weekDays[6].getMonth()]} ${weekDays[6].getFullYear()}`;
+  document.getElementById('kalMonthLabel').textContent = `${startStr} – ${endStr}`;
+
+  const byDate = {};
+  data.forEach(ev => {
+    if(!byDate[ev.datum_von]) byDate[ev.datum_von] = [];
+    byDate[ev.datum_von].push(ev);
+  });
+
+  let html = '<div style="display:grid;grid-template-columns:repeat(7,1fr);gap:10px">';
+  weekDays.forEach((wd, i) => {
+    const dateStr = wd.toISOString().split('T')[0];
+    const isToday = dateStr === today;
+    const events = byDate[dateStr] || [];
+    html += `<div style="background:#fff;border:1px solid var(--border);border-radius:10px;overflow:hidden${isToday ? ';box-shadow:0 0 0 2px var(--or)' : ''}">
+      <div style="padding:8px 10px;border-bottom:1px solid var(--border);background:${isToday ? 'var(--or)' : '#f9fafb'}">
+        <div style="font-size:10px;font-weight:700;text-transform:uppercase;color:${isToday ? 'rgba(255,255,255,.8)' : 'var(--muted)'}">${TAGE[i]}</div>
+        <div style="font-family:'Bitter',serif;font-weight:900;font-size:20px;color:${isToday ? '#fff' : 'var(--text)'}">${wd.getDate()}</div>
+      </div>
+      <div style="padding:6px;min-height:120px">`;
+    events.forEach(ev => {
+      const cls = kalEventClass(ev.kategorie);
+      html += `<div class="kal-event ${cls}" onclick="kalShowDetail('${(ev.id||'').replace(/'/g,"\'")}','${dateStr}')" style="margin-bottom:4px;white-space:normal;line-height:1.3">
+        <div style="font-weight:700">${ev.event||ev.taetigkeit||ev.kunde}</div>
+        ${ev.schicht ? `<div style="font-size:9px;opacity:.8">${ev.schicht}</div>` : ''}
+        ${ev.pax ? `<div style="font-size:9px;opacity:.8">👥 ${ev.pax} MA</div>` : ''}
+      </div>`;
+    });
+    if(events.length === 0) html += `<div style="color:var(--muted);font-size:11px;text-align:center;padding-top:20px">–</div>`;
+    html += '</div></div>';
+  });
+  html += '</div>';
+  document.getElementById('kalBody').innerHTML = html;
+}
+
+function renderKalListe(data) {
+  const MONATE = ['Januar','Februar','März','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'];
+  const y = KAL_DATE.getFullYear(), m = KAL_DATE.getMonth();
+  document.getElementById('kalMonthLabel').textContent = MONATE[m] + ' ' + y;
+
+  const monthStr = `${y}-${String(m+1).padStart(2,'0')}`;
+  const filtered = data.filter(d => (d.datum_von||'').startsWith(monthStr));
+
+  // Group by date
+  const byDate = {};
+  filtered.forEach(d => {
+    if(!byDate[d.datum_von]) byDate[d.datum_von] = [];
+    byDate[d.datum_von].push(d);
+  });
+
+  const sortedDates = Object.keys(byDate).sort();
+  const today = new Date().toISOString().split('T')[0];
+  const TAGE_LANG = ['Sonntag','Montag','Dienstag','Mittwoch','Donnerstag','Freitag','Samstag'];
+
+  let html = '';
+  if(sortedDates.length === 0) {
+    html = '<div class="empty" style="padding:40px;text-align:center;color:var(--muted)">Keine Aufträge in diesem Monat</div>';
+  }
+
+  sortedDates.forEach(dateStr => {
+    const dt = new Date(dateStr + 'T12:00:00');
+    const isToday = dateStr === today;
+    const dayName = TAGE_LANG[dt.getDay()];
+    const dayNum = dt.getDate();
+    const totalPax = byDate[dateStr].reduce((s,e) => s + (parseInt(e.pax)||0), 0);
+
+    html += `<div class="kal-list-day">
+      <div class="kal-list-date" style="${isToday ? 'background:var(--or);color:#fff;' : ''}">
+        ${dayName}, ${dayNum}. ${MONATE[m]} ${y}
+        <span style="float:right;font-size:11px;font-weight:500;opacity:.7">👥 ${totalPax} MA gesamt</span>
+      </div>`;
+
+    byDate[dateStr].forEach(ev => {
+      const cls = kalEventClass(ev.kategorie);
+      const statusBadge = ev.status === 'bestätigt' ? '<span class="badge badge-gr">bestätigt</span>' :
+        ev.status === 'ausstehend' ? '<span class="badge badge-or">ausstehend</span>' :
+        ev.status === 'anpassung' ? '<span class="badge badge-pu">Anpassung</span>' :
+        ev.status ? `<span class="badge badge-gy">${ev.status}</span>` : '';
+      const dispoBadge = ev.dispo === 'fertig' ? '<span class="badge badge-gr" style="margin-left:4px">Dispo fertig</span>' :
+        ev.dispo === 'in Planung' ? '<span class="badge badge-bl" style="margin-left:4px">in Planung</span>' : '';
+
+      html += `<div class="kal-list-row" onclick="kalShowDetail('${(ev.id||'').replace(/'/g,"\'")}','${dateStr}')">
+        <div>
+          <div style="font-weight:700;font-size:11px">${ev.schicht || 'Tagschicht'}</div>
+          <div style="font-size:10px;color:var(--muted)">${ev.kunde||''}</div>
+        </div>
+        <div>
+          <div style="font-weight:700">${ev.event || '–'}</div>
+          <div style="font-size:11px;color:var(--muted)">${ev.taetigkeit||''}</div>
+        </div>
+        <div style="font-size:11px;color:var(--muted)">📍 ${ev.location||'–'}</div>
+        <div style="text-align:center">
+          <div style="font-family:'Bitter',serif;font-weight:900;font-size:16px;color:var(--or)">${ev.pax||0}</div>
+          <div style="font-size:9px;color:var(--muted)">MA</div>
+        </div>
+        <div>${statusBadge}${dispoBadge}</div>
+      </div>`;
+    });
+    html += '</div>';
+  });
+
+  document.getElementById('kalBody').innerHTML = html;
+}
+
+function kalShowDetail(id, dateStr) {
+  const data = getKalData();
+  const ev = data.find(d => d.id === id && d.datum_von === dateStr) || data.find(d => d.datum_von === dateStr);
+  if(!ev) return;
+
+  const MONATE = ['Januar','Februar','März','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'];
+  const dt = new Date(dateStr + 'T12:00:00');
+
+  const statusColor = ev.status === 'bestätigt' ? '#059669' : ev.status === 'ausstehend' ? '#d97706' : '#6b7280';
+
+  openM(`
+    <div class="mt">📋 ${ev.event || ev.taetigkeit || 'Auftrag'}</div>
+    <div class="ms">${ev.kunde||''} · ${dt.getDate()}. ${MONATE[dt.getMonth()]} ${dt.getFullYear()}</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px">
+      <div style="background:#f9fafb;border-radius:8px;padding:10px">
+        <div style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px">Tätigkeit</div>
+        <div style="font-weight:600;font-size:13px">${ev.taetigkeit||'–'}</div>
+      </div>
+      <div style="background:#f9fafb;border-radius:8px;padding:10px">
+        <div style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px">Schichtzeit</div>
+        <div style="font-weight:600;font-size:13px">${ev.schicht||'–'}</div>
+      </div>
+      <div style="background:#f9fafb;border-radius:8px;padding:10px">
+        <div style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px">Location</div>
+        <div style="font-weight:600;font-size:13px">${ev.location||'–'}</div>
+      </div>
+      <div style="background:#f9fafb;border-radius:8px;padding:10px">
+        <div style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px">Mitarbeiter</div>
+        <div style="font-family:'Bitter',serif;font-weight:900;font-size:20px;color:var(--or)">${ev.pax||0}</div>
+      </div>
+    </div>
+    <div style="display:flex;gap:8px;margin-bottom:14px">
+      <span class="badge" style="background:#f3f4f6;color:var(--text);font-size:11px;padding:4px 10px">${ev.kategorie||'–'}</span>
+      <span class="badge" style="background:#f9fafb;color:${statusColor};border:1px solid ${statusColor};font-size:11px;padding:4px 10px">● ${ev.status||'–'}</span>
+      ${ev.dispo ? `<span class="badge badge-bl" style="font-size:11px;padding:4px 10px">Dispo: ${ev.dispo}</span>` : ''}
+    </div>
+    <div class="btn-row">
+      <button class="btn b-or" onclick="closeM()">Schließen</button>
+      ${!id.startsWith('pdf-') ? `<button class="btn b-gh" onclick="closeM();P('dispo',document.querySelector('.ni:nth-child(6)'))">→ Zur Dispo</button>` : ''}
+    </div>
+  `);
+}
+
+function kalShowDayModal(dateStr) {
+  const data = getKalData();
+  const dayEvents = kalFilterData(data).filter(d => d.datum_von === dateStr);
+  const dt = new Date(dateStr + 'T12:00:00');
+  const MONATE = ['Januar','Februar','März','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'];
+
+  let rows = dayEvents.map(ev => {
+    const cls = kalEventClass(ev.kategorie);
+    return `<div class="kal-event ${cls}" style="margin-bottom:6px;padding:8px 10px;font-size:12px;white-space:normal;cursor:pointer" onclick="kalShowDetail('${(ev.id||'').replace(/'/g,"\'")}','${dateStr}')">
+      <div style="font-weight:700">${ev.event||ev.taetigkeit||ev.kunde}</div>
+      <div style="opacity:.8;margin-top:2px">${ev.schicht||''} · ${ev.location||''} · 👥 ${ev.pax||0} MA</div>
+    </div>`;
+  }).join('');
+
+  openM(`
+    <div class="mt">📅 ${dt.getDate()}. ${MONATE[dt.getMonth()]} ${dt.getFullYear()}</div>
+    <div class="ms">${dayEvents.length} Einsätze · ${dayEvents.reduce((s,e)=>s+(parseInt(e.pax)||0),0)} Mitarbeiter gesamt</div>
+    ${rows}
+    <button class="btn b-gh" style="width:100%;margin-top:8px" onclick="closeM()">Schließen</button>
+  `);
+}
+
+function openKalVerwalten() {
+  const all = getKalData(true); // alle inkl. hidden
+  // Group by date for better overview
+  const byDate = {};
+  all.forEach(e => {
+    if(!byDate[e.datum_von]) byDate[e.datum_von] = [];
+    byDate[e.datum_von].push(e);
+  });
+  const sortedDates = Object.keys(byDate).sort();
+
+  let rows = sortedDates.map(dateStr => {
+    const dt = new Date(dateStr + 'T12:00:00');
+    const MONATE = ['Jan','Feb','Mär','Apr','Mai','Jun','Jul','Aug','Sep','Okt','Nov','Dez'];
+    const dayStr = `${dt.getDate()}. ${MONATE[dt.getMonth()]} ${dt.getFullYear()}`;
+
+    return byDate[dateStr].map(ev => {
+      const hidden = KAL_HIDDEN.has(ev.id);
+      const cls = hidden ? 'badge-gy' : 'badge-gr';
+      const icon = hidden ? '👁‍🗨 einblenden' : '🙈 ausblenden';
+      return `<div style="display:flex;align-items:center;gap:8px;padding:7px 10px;border-bottom:1px solid #f3f4f6;font-size:12px${hidden ? ';opacity:.5' : ''}">
+        <div style="flex:0 0 90px;color:var(--muted);font-size:11px">${dayStr}</div>
+        <div style="flex:1">
+          <div style="font-weight:600">${ev.event || ev.taetigkeit || '–'}</div>
+          <div style="font-size:10px;color:var(--muted)">${ev.taetigkeit||''} · ${ev.schicht||''} · ${ev.location||''}</div>
+        </div>
+        <div style="flex:0 0 60px;text-align:center;font-family:'Bitter',serif;font-weight:900;color:var(--or)">${ev.pax||0} MA</div>
+        <button class="ia" onclick="kalToggleHidden('${ev.id}')" style="flex-shrink:0;font-size:10px">${icon}</button>
+      </div>`;
+    }).join('');
+  }).join('');
+
+  const hiddenCount = KAL_HIDDEN.size;
+
+  openM(`
+    <div class="mt">👁 Aufträge ein-/ausblenden</div>
+    <div class="ms">Ausgeblendete Aufträge sind nur für dich unsichtbar – die Daten bleiben erhalten. ${hiddenCount > 0 ? `<strong style="color:var(--or)">${hiddenCount} ausgeblendet</strong>` : 'Alle sichtbar.'}</div>
+    <div style="max-height:400px;overflow-y:auto;border:1px solid var(--border);border-radius:8px;margin-bottom:12px">
+      ${rows || '<div class="empty" style="padding:20px">Keine Aufträge vorhanden</div>'}
+    </div>
+    <div class="btn-row">
+      ${hiddenCount > 0 ? `<button class="btn b-gh" onclick="kalShowAll()">Alle einblenden (${hiddenCount})</button>` : ''}
+      <button class="btn b-or" onclick="closeM();renderKalender()">Fertig</button>
+    </div>
+  `);
+}
+
+function kalToggleHidden(id) {
+  if(KAL_HIDDEN.has(id)) {
+    KAL_HIDDEN.delete(id);
+  } else {
+    KAL_HIDDEN.add(id);
+  }
+  openKalVerwalten(); // refresh modal
+}
+
+function kalShowAll() {
+  KAL_HIDDEN.clear();
+  openKalVerwalten();
+}
+
   await loadAll();
   setupRealtime();
 })();
