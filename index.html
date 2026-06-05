@@ -10,7 +10,9 @@ let sb=null;
 try{sb=supabase.createClient(SB_URL,SB_ANON);console.log('✅ Supabase OK');}catch(e){console.error('❌',e);}
 // PWA Service Worker
 if('serviceWorker' in navigator){
-  navigator.serviceWorker.register('/sw.js').catch(e=>console.warn('SW:',e));
+  // Unregister old SW to prevent caching issues
+  navigator.serviceWorker.getRegistrations().then(regs=>{regs.forEach(r=>r.unregister());});
+  navigator.serviceWorker.register('/fess.jobs/sw.js').catch(e=>console.warn('SW:',e));
 }
 // Auth check - redirect to login if not authenticated
 (async()=>{
@@ -258,7 +260,7 @@ function setLang(l,el){
     const k=el.getAttribute('data-i18n');
     if(T[k]!==undefined)el.innerHTML=T[k];
   });
-  renderJobs();renderProcess();renderAbout();
+  if(typeof renderJobs==='function'){renderJobs();renderProcess();renderAbout();}
 }
 </script>
 <style>
