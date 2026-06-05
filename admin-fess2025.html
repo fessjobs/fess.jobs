@@ -666,7 +666,11 @@ function renderAuftraege() {
           <span style="font-size:10px;font-weight:700;color:${occColor}">${a.pax_besetzt||0}/${a.pax_gesamt||0}</span>
         </div>
       </td>
-      <td><span class="badge ${stBadge}">${a.status||''}</span></td>
+      <td>
+        <button class="ia ${a.status==='bestaetigt'?'ok':''}" onclick="toggleAufStatus('${a.id}','${a.status||'ausstehend'}')" style="font-size:11px;padding:4px 10px">
+          ${a.status==='bestaetigt'?'✓ Bestätigt':'Angefragt'}
+        </button>
+      </td>
       <td>
         <div style="display:flex;gap:4px;flex-wrap:wrap">
           <button class="ia" onclick="openEditAuf('${a.id}')">✏️</button>
@@ -682,6 +686,14 @@ function renderAuftraege() {
 
 function filterAuf(v) { AUF_SEARCH = v.toLowerCase(); renderAuftraege(); }
 function filterAufKat(v) { AUF_KAT = v; renderAuftraege(); }
+
+async function toggleAufStatus(id, currentStatus) {
+  const newStatus = currentStatus === 'bestaetigt' ? 'ausstehend' : 'bestaetigt';
+  const { error } = await sb.from('auftraege').update({ status: newStatus }).eq('id', id);
+  if (error) { toast('Fehler', 'err'); return; }
+  toast(newStatus === 'bestaetigt' ? '✓ Auftrag bestätigt' : 'Zurück auf Angefragt', 'ok');
+  loadAuftraege();
+}
 
 async function toggleDringend(id, current) {
   const { error } = await sb.from('auftraege').update({ dringend: !current }).eq('id', id);
