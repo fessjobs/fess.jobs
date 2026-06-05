@@ -650,7 +650,12 @@ function renderAuftraege() {
     const occColor = occ >= 80 ? '#22c55e' : occ >= 40 ? '#f59e0b' : '#dc2626';
     const stBadge = a.status === 'bestaetigt' ? 'badge-gr' : a.status === 'abgesagt' ? 'badge-re' : 'badge-gy';
     return `<tr>
-      <td><strong>${a.name||''}</strong>${a.dringend?'<span class="badge badge-re" style="margin-left:5px">🔥</span>':''}</td>
+      <td>
+        <strong>${a.name||''}</strong>
+        ${a.dringend?'<span class="badge badge-re" style="margin-left:5px">🔥</span>':''}
+        ${a.voll_besetzt?'<span class="badge badge-gr" style="margin-left:5px">✅ Besetzt</span>':''}
+        ${a.sichtbar===false?'<span class="badge badge-gy" style="margin-left:5px">🙈</span>':''}
+      </td>
       <td><span class="badge badge-bl">${a.kategorie||''}</span></td>
       <td style="white-space:nowrap">${fmtD(a)}</td>
       <td style="max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${a.location||''}</td>
@@ -664,8 +669,10 @@ function renderAuftraege() {
       <td><span class="badge ${stBadge}">${a.status||''}</span></td>
       <td>
         <div style="display:flex;gap:4px;flex-wrap:wrap">
-          <button class="ia" onclick="openEditAuf('${a.id}')">✏️ Bearbeiten</button>
-          <button class="ia or" onclick="toggleDringend('${a.id}',${a.dringend})">${a.dringend?'✓ Dringend':'⚡ Dringend'}</button>
+          <button class="ia" onclick="openEditAuf('${a.id}')">✏️</button>
+          <button class="ia ${a.dringend?'no':''}" onclick="toggleDringend('${a.id}',${!!a.dringend})" title="${a.dringend?'Dringend entfernen':'Als dringend markieren'}">${a.dringend?'🔥 Dringend':'⚡ Dringend'}</button>
+          <button class="ia ${a.voll_besetzt?'ok':''}" onclick="toggleVollBesetzt('${a.id}',${!!a.voll_besetzt})" title="${a.voll_besetzt?'Vollständig besetzt – klicken zum Aufheben':'Als vollständig besetzt markieren'}">${a.voll_besetzt?'✅ Besetzt':'👥 Besetzt?'}</button>
+          <button class="ia ${a.sichtbar===false?'no':'or'}" onclick="toggleSichtbar('${a.id}',${a.sichtbar!==false})" title="${a.sichtbar===false?'Auftrag ist ausgeblendet – einblenden?':'Auftrag ausblenden (Mitarbeiter sehen ihn nicht)'}">${a.sichtbar===false?'👁 Einblenden':'🙈 Ausblenden'}</button>
           <button class="ia no" onclick="deleteAuf('${a.id}','${(a.name||'').replace(/'/g,"\\'")}')">🗑</button>
         </div>
       </td>
@@ -680,6 +687,20 @@ async function toggleDringend(id, current) {
   const { error } = await sb.from('auftraege').update({ dringend: !current }).eq('id', id);
   if (error) { toast('Fehler', 'err'); return; }
   toast(current ? 'Dringend entfernt' : '🔥 Als dringend markiert', 'ok');
+  loadAuftraege();
+}
+
+async function toggleVollBesetzt(id, current) {
+  const { error } = await sb.from('auftraege').update({ voll_besetzt: !current }).eq('id', id);
+  if (error) { toast('Fehler', 'err'); return; }
+  toast(current ? 'Besetzt-Markierung entfernt' : '✅ Als vollständig besetzt markiert', 'ok');
+  loadAuftraege();
+}
+
+async function toggleSichtbar(id, currentlyVisible) {
+  const { error } = await sb.from('auftraege').update({ sichtbar: !currentlyVisible }).eq('id', id);
+  if (error) { toast('Fehler', 'err'); return; }
+  toast(currentlyVisible ? '🙈 Auftrag ausgeblendet' : '👁 Auftrag eingeblendet', 'ok');
   loadAuftraege();
 }
 

@@ -356,6 +356,8 @@ section{padding:60px 20px}
 .jcard.urg{border-color:var(--or)}
 .urg-strip{background:#dc2626;color:#fff;font-size:9px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;text-align:center;padding:3px 0}
 .jcard-img{width:100%;height:148px;position:relative;overflow:hidden}
+.voll-overlay{position:absolute;inset:0;background:rgba(0,0,0,.55);display:flex;align-items:center;justify-content:center;z-index:5;border-radius:0}
+.voll-badge{background:#22c55e;color:#fff;font-family:'Bitter',serif;font-weight:900;font-size:17px;padding:10px 20px;border-radius:10px;text-align:center;box-shadow:0 4px 16px rgba(0,0,0,.3);letter-spacing:.5px}
 .jcard-img img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .3s}
 .jcard:hover .jcard-img img{transform:scale(1.05)}
 .jcard-ov{position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.6),transparent 55%)}
@@ -892,7 +894,7 @@ function occC(p){return p>=80?'#22c55e':p>=40?'#f59e0b':'#E8651A';}
 function sf(f,el){CF=f;document.querySelectorAll('.filter-pill').forEach(b=>b.classList.remove('on'));if(el)el.classList.add('on');renderJobs();}
 function ss(v){CS=v;renderJobs();}
 function fevs(){
-  let a=ALL.slice();
+  let a=ALL.filter(e=>e.sichtbar!==false);
   if(CF==='dringend')a=a.filter(e=>e.urg||e.dringend);
   else if(CF!=='alle')a=a.filter(e=>(e.k||e.kategorie)===CF);
   if(CS==='datum')a.sort((a,b)=>(a.dv||a.datum_von||'').localeCompare(b.dv||b.datum_von||''));
@@ -924,6 +926,7 @@ function jcard(e){
     ${stTag}
     <div class="jcard-kat" style="background:${col}">${kat}</div>
     <div class="occ-wrap"><div class="occ-bg"><div class="occ-fill" style="width:${op}%;background:${bc}"></div></div><span class="occ-pct">${op}%</span></div>
+    ${e.voll?'<div class="voll-overlay"><div class="voll-badge">✅ Vollständig besetzt</div></div>':''}
   </div>
   <div class="jcard-body">
     <div class="jcard-name">${name}</div>
@@ -932,7 +935,9 @@ function jcard(e){
     <div class="jcard-row"><span>👷</span><span>${ta}</span></div>
     <div class="jcard-row"><span>👥</span><span>${pax} ${t('card_persons')}</span></div>
     <div class="jcard-shifts">${sh.map(s=>`<span class="jcard-shift">⏰ ${s}</span>`).join('')}</div>
-    <button class="jcard-btn" onclick="openModal('${e.id}')">${t('card_apply')}</button>
+    ${e.voll
+      ? '<button class="jcard-btn" disabled style="background:#e5e7eb;color:#9ca3af;cursor:not-allowed">✅ Vollständig besetzt</button>'
+      : '<button class="jcard-btn" onclick="openModal(''+e.id+'')">'+t('card_apply')+'</button>'}
   </div></div>`;
 }
 
@@ -1456,7 +1461,7 @@ async function loadEvents(){
       const{data,error}=await sb.from('auftraege').select('*').neq('status','abgesagt').gte('datum_von',today).order('datum_von',{ascending:true});
       console.log('SB auftraege:',data?.length,'error:',error?.message);
       if(!error&&data&&data.length>0){
-        ALL=data.map(e=>({id:e.id,n:e.name,k:e.kategorie,st:e.status,urg:e.dringend,dv:e.datum_von,db:e.datum_bis,loc:e.location,ta:e.taetigkeit,pax:e.pax_gesamt,pb:e.pax_besetzt||0,sh:e.schichtzeiten||[],img:e.bild_url||''}));
+        ALL=data.map(e=>({id:e.id,n:e.name,k:e.kategorie,st:e.status,urg:e.dringend,dv:e.datum_von,db:e.datum_bis,loc:e.location,ta:e.taetigkeit,pax:e.pax_gesamt,pb:e.pax_besetzt||0,sh:e.schichtzeiten||[],img:e.bild_url||'',sichtbar:e.sichtbar!==false,voll:e.voll_besetzt||false}));
         const in10=new Date();in10.setDate(in10.getDate()+10);
         ALL.forEach(e=>{const pct=e.pax>0?(e.pb/e.pax*100):0;if(new Date(e.dv)<=in10&&pct<80)e.urg=true;});
         console.log('Loaded',ALL.length,'events');
