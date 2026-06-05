@@ -1,0 +1,1393 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>fess.jobs – Wie funktioniert's?</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bitter:wght@700;800;900&family=Barlow:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+:root{
+  --or:#E8651A;
+  --or-dark:#d4580f;
+  --bg:#0f0f0f;
+  --surface:#161616;
+  --border-dark:#222;
+  --text:#fff;
+  --muted:#777;
+  --app-bg:#f4f5f7;
+  --app-white:#fff;
+  --app-border:#e5e7eb;
+  --app-text:#111827;
+  --app-muted:#6b7280;
+  --app-green:#059669;
+  --phone-w:288px;
+  --phone-h:592px;
+}
+
+html,body{height:100%;overflow:hidden}
+
+body{
+  background:var(--bg);
+  color:var(--text);
+  font-family:'Barlow',sans-serif;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  padding:16px 20px;
+  gap:0;
+}
+
+/* subtle radial glow behind phone */
+body::before{
+  content:'';
+  position:fixed;
+  top:50%;left:50%;
+  transform:translate(-50%,-50%);
+  width:500px;height:500px;
+  background:radial-gradient(circle,rgba(232,101,26,.06) 0%,transparent 70%);
+  pointer-events:none;
+  z-index:0;
+}
+
+/* ── PROGRESS HEADER ─────────────────────────── */
+#hdr{
+  width:100%;max-width:860px;
+  margin-bottom:14px;
+  position:relative;z-index:1;
+}
+
+#step-row{
+  display:flex;align-items:center;gap:10px;
+  margin-bottom:8px;
+}
+
+#step-badge{
+  background:rgba(232,101,26,.14);
+  color:var(--or);
+  font-size:10px;font-weight:700;
+  text-transform:uppercase;letter-spacing:.1em;
+  padding:3px 10px;border-radius:20px;
+  white-space:nowrap;
+}
+
+#step-ttl{
+  font-size:12px;font-weight:500;color:var(--muted);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+
+#pbar{
+  width:100%;height:2px;
+  background:rgba(255,255,255,.08);
+  border-radius:2px;overflow:hidden;
+}
+
+#pfill{
+  height:100%;width:0%;
+  background:var(--or);
+  border-radius:2px;
+  transition:width .08s linear;
+}
+
+/* ── MAIN LAYOUT ─────────────────────────────── */
+#wrap{
+  display:flex;align-items:center;gap:52px;
+  max-width:860px;width:100%;
+  position:relative;z-index:1;
+  flex:1;
+}
+
+/* ── PHONE FRAME ─────────────────────────────── */
+#phone-outer{
+  position:relative;flex-shrink:0;
+}
+
+/* side buttons */
+#phone-outer::before{
+  content:'';
+  position:absolute;top:110px;left:-11px;
+  width:3px;height:28px;
+  background:#1c1c1c;border-radius:2px;
+  box-shadow:0 38px 0 #1c1c1c,0 72px 0 #1c1c1c;
+}
+#phone-outer::after{
+  content:'';
+  position:absolute;top:140px;right:-11px;
+  width:3px;height:54px;
+  background:#1c1c1c;border-radius:2px;
+}
+
+#phone{
+  width:var(--phone-w);
+  height:var(--phone-h);
+  background:#0d0d0d;
+  border-radius:46px;
+  border:10px solid #1a1a1a;
+  box-shadow:
+    0 0 0 1px #2a2a2a,
+    0 32px 80px rgba(0,0,0,.9),
+    0 0 40px rgba(232,101,26,.08);
+  position:relative;
+  overflow:hidden;
+}
+
+/* dynamic island */
+#phone::before{
+  content:'';
+  position:absolute;
+  top:9px;left:50%;transform:translateX(-50%);
+  width:88px;height:24px;
+  background:#0d0d0d;
+  border-radius:20px;
+  z-index:300;
+}
+
+#pscreen{
+  position:absolute;inset:0;
+  border-radius:38px;
+  overflow:hidden;
+}
+
+/* ── SCREENS ─────────────────────────────────── */
+.scr{
+  position:absolute;inset:0;
+  opacity:0;
+  pointer-events:none;
+  z-index:1;
+  transition:opacity .45s ease;
+}
+.scr.on{opacity:1;z-index:2}
+
+/* ── CURSOR ──────────────────────────────────── */
+#cur{
+  position:absolute;
+  width:26px;height:26px;
+  pointer-events:none;
+  z-index:400;
+  opacity:0;
+  transition:
+    left .55s cubic-bezier(.25,.1,.25,1),
+    top .55s cubic-bezier(.25,.1,.25,1),
+    opacity .3s;
+  top:50%;left:50%;
+}
+#cur.vis{opacity:1}
+#cur svg{width:100%;height:100%;filter:drop-shadow(0 2px 6px rgba(0,0,0,.5))}
+
+.ripple{
+  position:absolute;
+  width:36px;height:36px;
+  border-radius:50%;
+  background:rgba(232,101,26,.35);
+  transform:translate(-50%,-50%) scale(0);
+  animation:ripple .55s ease-out forwards;
+  pointer-events:none;
+  z-index:399;
+}
+@keyframes ripple{to{transform:translate(-50%,-50%) scale(2.2);opacity:0}}
+
+/* ── EXPLANATION ─────────────────────────────── */
+#expl{flex:1;max-width:320px}
+
+.ep{display:none}
+.ep.on{display:block;animation:eup .5s ease forwards}
+
+@keyframes eup{
+  from{opacity:0;transform:translateY(14px)}
+  to{opacity:1;transform:translateY(0)}
+}
+
+.en{
+  font-family:'Bitter',serif;
+  font-size:68px;font-weight:900;
+  color:var(--or);opacity:.13;
+  line-height:1;margin-bottom:-4px;
+  user-select:none;
+}
+
+.et{
+  font-family:'Bitter',serif;
+  font-size:26px;font-weight:900;
+  color:#fff;line-height:1.1;
+  margin-bottom:14px;
+}
+
+.ed{
+  font-size:14px;font-weight:400;
+  color:#999;line-height:1.65;
+  margin-bottom:18px;
+}
+
+.eh{
+  display:flex;align-items:center;gap:10px;
+  font-size:11px;font-weight:700;
+  color:var(--or);text-transform:uppercase;
+  letter-spacing:.08em;
+}
+.eh::before{
+  content:'';width:20px;height:2px;
+  background:var(--or);flex-shrink:0;
+  border-radius:1px;
+}
+
+/* ── CONTROLS ────────────────────────────────── */
+#ctrl{
+  width:100%;max-width:860px;
+  margin-top:14px;
+  display:flex;align-items:center;justify-content:center;gap:12px;
+  position:relative;z-index:1;
+}
+
+.cbtn{
+  background:var(--surface);
+  border:1px solid var(--border-dark);
+  color:#fff;
+  width:38px;height:38px;
+  border-radius:50%;
+  cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  transition:all .15s;
+  font-size:13px;
+  flex-shrink:0;
+}
+.cbtn:hover{background:#222;border-color:#333}
+
+#pbtn{
+  width:50px;height:50px;
+  background:var(--or);
+  border-color:transparent;
+  font-size:15px;
+}
+#pbtn:hover{background:var(--or-dark)}
+
+#dots{display:flex;gap:6px;margin:0 4px}
+
+.dot{
+  width:7px;height:7px;
+  border-radius:4px;
+  background:#2a2a2a;
+  border:none;cursor:pointer;
+  transition:all .25s;padding:0;
+}
+.dot.on{background:var(--or);width:22px}
+
+/* ── END SCREEN ──────────────────────────────── */
+#end{
+  position:fixed;inset:0;
+  background:var(--bg);
+  display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  z-index:900;
+  opacity:0;pointer-events:none;
+  transition:opacity .6s ease;
+  padding:24px;
+  text-align:center;
+}
+#end.vis{opacity:1;pointer-events:all}
+
+.end-logo{
+  width:60px;height:60px;
+  background:var(--or);
+  border-radius:16px;
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Bitter',serif;
+  font-size:26px;font-weight:900;color:#fff;
+  margin-bottom:22px;
+  box-shadow:0 8px 32px rgba(232,101,26,.35);
+}
+
+.end-h{
+  font-family:'Bitter',serif;
+  font-size:34px;font-weight:900;
+  margin-bottom:10px;
+}
+
+.end-p{
+  font-size:15px;color:var(--muted);
+  line-height:1.6;margin-bottom:30px;
+  max-width:360px;
+}
+
+.end-cta{
+  background:var(--or);color:#fff;
+  font-family:'Bitter',serif;
+  font-size:15px;font-weight:800;
+  padding:15px 34px;border-radius:12px;
+  text-decoration:none;display:inline-block;
+  transition:all .15s;margin-bottom:14px;
+  box-shadow:0 4px 20px rgba(232,101,26,.35);
+}
+.end-cta:hover{background:var(--or-dark);transform:translateY(-2px)}
+
+.end-replay{
+  background:none;border:none;
+  color:var(--muted);font-size:13px;
+  cursor:pointer;text-decoration:underline;
+  font-family:'Barlow',sans-serif;
+}
+
+/* ═══════════════════════════════════════════════
+   SCREEN 1 – LOGIN
+═══════════════════════════════════════════════ */
+#s1{
+  background:#fff;
+  display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  padding:52px 26px 24px;
+}
+
+.flogo{
+  width:52px;height:52px;
+  background:var(--or);
+  border-radius:13px;
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Bitter',serif;
+  font-size:22px;font-weight:900;color:#fff;
+  margin-bottom:16px;
+  box-shadow:0 4px 16px rgba(232,101,26,.28);
+}
+
+.ltitle{
+  font-family:'Bitter',serif;
+  font-size:20px;font-weight:900;
+  color:var(--app-text);
+  margin-bottom:3px;text-align:center;
+}
+
+.lsub{
+  font-size:12px;color:var(--app-muted);
+  margin-bottom:22px;text-align:center;
+}
+
+.ff{width:100%;margin-bottom:12px}
+
+.fl{
+  display:block;
+  font-size:9px;font-weight:700;
+  text-transform:uppercase;letter-spacing:.1em;
+  color:#9ca3af;margin-bottom:4px;
+}
+
+.fim{
+  width:100%;
+  background:#f9fafb;
+  border:1.5px solid #e5e7eb;
+  border-radius:9px;
+  padding:10px 12px;
+  font-family:'Barlow',sans-serif;
+  font-size:12px;color:var(--app-text);
+  min-height:40px;
+  display:flex;align-items:center;
+  position:relative;
+  transition:border-color .15s,background .15s;
+}
+.fim.foc{border-color:var(--or);background:#fff}
+
+.typed-txt{white-space:nowrap;overflow:hidden}
+
+.cur-blink{
+  display:inline-block;
+  width:1.5px;height:13px;
+  background:var(--or);
+  margin-left:1px;
+  vertical-align:middle;
+  opacity:0;
+}
+.fim.foc .cur-blink{animation:cblink .8s step-end infinite}
+
+@keyframes cblink{0%,100%{opacity:1}50%{opacity:0}}
+
+.btn-p{
+  width:100%;
+  background:var(--or);color:#fff;
+  font-family:'Bitter',serif;
+  font-size:13px;font-weight:800;
+  padding:12px;border-radius:9px;
+  border:none;text-align:center;
+  margin-top:4px;cursor:default;
+  transition:all .15s;
+}
+.btn-p.clk{transform:scale(.97);background:var(--or-dark)}
+
+/* ═══════════════════════════════════════════════
+   SCREEN 2 – JOBS LIST
+═══════════════════════════════════════════════ */
+#s2{
+  background:var(--app-bg);
+  display:flex;flex-direction:column;
+}
+
+.anav{
+  background:#fff;
+  border-bottom:1px solid var(--app-border);
+  padding:46px 14px 10px;
+  display:flex;align-items:center;
+  justify-content:space-between;
+  flex-shrink:0;
+}
+
+.nlogo{
+  width:28px;height:28px;
+  background:var(--or);border-radius:7px;
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Bitter',serif;
+  font-size:12px;font-weight:900;color:#fff;
+}
+
+.ntitle{
+  font-family:'Bitter',serif;
+  font-size:14px;font-weight:800;
+  color:var(--app-text);
+}
+
+.nava{
+  width:26px;height:26px;
+  background:#e5e7eb;border-radius:50%;
+}
+
+.frow{
+  display:flex;gap:5px;
+  padding:10px 14px;
+  overflow-x:auto;scrollbar-width:none;
+  flex-shrink:0;
+}
+.frow::-webkit-scrollbar{display:none}
+
+.fp{
+  background:#fff;
+  border:1px solid var(--app-border);
+  border-radius:20px;
+  padding:4px 11px;
+  font-size:10px;font-weight:600;
+  color:var(--app-muted);
+  white-space:nowrap;flex-shrink:0;
+  transition:all .2s;
+}
+.fp.on{background:var(--or);border-color:var(--or);color:#fff}
+
+.jlist{
+  flex:1;overflow-y:auto;
+  padding:4px 14px 14px;
+  display:flex;flex-direction:column;gap:8px;
+  scrollbar-width:none;
+}
+.jlist::-webkit-scrollbar{display:none}
+
+.jcard{
+  background:#fff;
+  border:1px solid var(--app-border);
+  border-radius:10px;overflow:hidden;
+  opacity:0;transform:translateY(20px);
+  transition:opacity .25s,box-shadow .2s;
+}
+.jcard.up{animation:jup .4s ease forwards}
+.jcard:nth-child(2){animation-delay:.1s}
+.jcard:nth-child(3){animation-delay:.2s}
+.jcard.dim{opacity:.25}
+
+@keyframes jup{to{opacity:1;transform:translateY(0)}}
+
+.jch{
+  height:64px;
+  display:flex;align-items:flex-end;
+  padding:8px 10px;
+}
+.gk{background:linear-gradient(135deg,#1a0505,#5a0f0f)}
+.gf{background:linear-gradient(135deg,#0b180b,#1a4d1a)}
+.ge{background:linear-gradient(135deg,#00101f,#003060)}
+.gp{background:linear-gradient(135deg,#120520,#2d1060)}
+
+.jcat{
+  background:var(--or);color:#fff;
+  font-size:8px;font-weight:700;
+  padding:2px 6px;border-radius:8px;
+  text-transform:uppercase;letter-spacing:.05em;
+}
+
+.jbody{padding:8px 10px 10px}
+
+.jtitle{
+  font-family:'Bitter',serif;
+  font-size:12px;font-weight:800;
+  color:var(--app-text);margin-bottom:3px;
+}
+
+.jmeta{
+  font-size:10px;color:var(--app-muted);
+  display:flex;gap:8px;margin-bottom:7px;
+}
+
+.jbtn{
+  width:100%;background:var(--or);color:#fff;
+  font-family:'Bitter',serif;
+  font-size:10px;font-weight:700;
+  padding:6px;border-radius:6px;
+  border:none;text-align:center;
+}
+
+/* ═══════════════════════════════════════════════
+   SCREEN 3 – JOB DETAIL
+═══════════════════════════════════════════════ */
+#s3{background:#fff;display:flex;flex-direction:column}
+
+.dhdr{
+  height:130px;
+  background:linear-gradient(135deg,#0b180b,#1a4d1a);
+  display:flex;flex-direction:column;
+  justify-content:flex-end;padding:12px 14px;
+  flex-shrink:0;position:relative;
+}
+
+.bck{
+  position:absolute;top:46px;left:10px;
+  width:26px;height:26px;
+  background:rgba(255,255,255,.15);
+  border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  color:#fff;font-size:12px;
+}
+
+.dcat{
+  background:var(--or);color:#fff;
+  font-size:8px;font-weight:700;
+  padding:2px 6px;border-radius:8px;
+  text-transform:uppercase;
+  display:inline-block;margin-bottom:5px;
+}
+
+.dtitle{
+  font-family:'Bitter',serif;
+  font-size:17px;font-weight:900;color:#fff;
+}
+
+.dbody{
+  flex:1;padding:14px;
+  overflow-y:auto;scrollbar-width:none;
+}
+.dbody::-webkit-scrollbar{display:none}
+
+.dmeta{
+  display:flex;flex-direction:column;gap:7px;
+  margin-bottom:14px;padding-bottom:14px;
+  border-bottom:1px solid var(--app-border);
+}
+
+.mr{
+  display:flex;align-items:center;gap:7px;
+  font-size:11px;color:var(--app-muted);
+}
+
+.mi{font-size:12px;width:18px;text-align:center}
+
+.stitle{
+  font-family:'Bitter',serif;
+  font-size:12px;font-weight:800;
+  color:var(--app-text);margin-bottom:8px;
+}
+
+.sopt{
+  display:flex;align-items:center;gap:8px;
+  padding:9px 10px;
+  border:1.5px solid var(--app-border);
+  border-radius:8px;margin-bottom:5px;
+  transition:all .2s;cursor:default;
+}
+.sopt.ck{border-color:var(--or);background:rgba(232,101,26,.05)}
+
+.schk{
+  width:17px;height:17px;
+  border:2px solid #d1d5db;
+  border-radius:4px;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+  transition:all .2s;
+}
+.sopt.ck .schk{background:var(--or);border-color:var(--or)}
+
+.schi{
+  color:#fff;font-size:9px;font-weight:900;
+  opacity:0;transition:opacity .15s;
+}
+.sopt.ck .schi{opacity:1}
+
+.sname{font-size:11px;font-weight:600;color:var(--app-text)}
+.stime{font-size:9px;color:var(--app-muted);margin-top:1px}
+
+/* ═══════════════════════════════════════════════
+   SCREEN 4 – PROFILE FORM
+═══════════════════════════════════════════════ */
+#s4{background:#fff;display:flex;flex-direction:column}
+
+.fhdr{
+  padding:46px 14px 12px;
+  border-bottom:1px solid var(--app-border);
+  flex-shrink:0;
+}
+.fhdr-t{
+  font-family:'Bitter',serif;
+  font-size:16px;font-weight:900;color:var(--app-text);
+}
+.fhdr-s{font-size:11px;color:var(--app-muted);margin-top:2px}
+
+.fbody{
+  flex:1;padding:14px;
+  display:flex;flex-direction:column;gap:10px;
+  overflow-y:auto;scrollbar-width:none;
+}
+.fbody::-webkit-scrollbar{display:none}
+
+.trow{display:flex;gap:7px}
+
+.topt{
+  flex:1;padding:9px 6px;
+  border:1.5px solid var(--app-border);
+  border-radius:8px;
+  font-size:11px;font-weight:600;
+  color:var(--app-muted);text-align:center;
+  transition:all .2s;
+}
+.topt.sel{
+  border-color:var(--or);color:var(--or);
+  background:rgba(232,101,26,.06);
+}
+
+/* ═══════════════════════════════════════════════
+   SCREEN 5 – SUCCESS
+═══════════════════════════════════════════════ */
+#s5{
+  background:#fff;
+  display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  padding:48px 26px 28px;text-align:center;
+}
+
+.scircle{
+  width:76px;height:76px;border-radius:50%;
+  background:#ecfdf5;
+  display:flex;align-items:center;justify-content:center;
+  margin-bottom:18px;
+}
+
+.csvg{width:38px;height:38px}
+
+.cpath{
+  stroke:#059669;stroke-width:3;
+  stroke-linecap:round;stroke-linejoin:round;
+  fill:none;
+  stroke-dasharray:52;stroke-dashoffset:52;
+}
+.cpath.draw{animation:drawck .65s ease .2s forwards}
+
+@keyframes drawck{to{stroke-dashoffset:0}}
+
+.stitle2{
+  font-family:'Bitter',serif;
+  font-size:18px;font-weight:900;
+  color:var(--app-text);margin-bottom:7px;
+}
+
+.stxt{
+  font-size:12px;color:var(--app-muted);
+  line-height:1.55;margin-bottom:22px;
+}
+
+.wabtn{
+  background:#25D366;color:#fff;
+  font-family:'Barlow',sans-serif;
+  font-size:12px;font-weight:700;
+  padding:11px 20px;border-radius:9px;
+  display:flex;align-items:center;gap:7px;
+  border:none;cursor:default;
+  animation:none;
+}
+.wabtn.pulse{animation:wpulse 1.2s ease infinite}
+
+@keyframes wpulse{
+  0%,100%{box-shadow:0 0 0 0 rgba(37,211,102,.35)}
+  50%{box-shadow:0 0 0 8px rgba(37,211,102,0)}
+}
+
+/* ═══════════════════════════════════════════════
+   SCREEN 6 – MY APPLICATIONS
+═══════════════════════════════════════════════ */
+#s6{background:var(--app-bg);display:flex;flex-direction:column}
+
+.ahdr{
+  background:#fff;
+  border-bottom:1px solid var(--app-border);
+  padding:46px 14px 11px;
+  flex-shrink:0;
+}
+.ahdr-t{
+  font-family:'Bitter',serif;
+  font-size:15px;font-weight:900;color:var(--app-text);
+}
+
+.alist{
+  flex:1;padding:10px 14px;
+  display:flex;flex-direction:column;gap:8px;
+  overflow-y:auto;scrollbar-width:none;
+}
+.alist::-webkit-scrollbar{display:none}
+
+.acard{
+  background:#fff;
+  border:1px solid var(--app-border);
+  border-radius:10px;padding:11px 12px;
+}
+
+.atop{
+  display:flex;align-items:flex-start;
+  justify-content:space-between;gap:6px;
+  margin-bottom:5px;
+}
+
+.atitle{
+  font-family:'Bitter',serif;
+  font-size:12px;font-weight:800;color:var(--app-text);
+}
+
+.sbdg{
+  font-size:8px;font-weight:700;
+  padding:3px 7px;border-radius:8px;
+  text-transform:uppercase;letter-spacing:.04em;
+  transition:all .5s ease;
+  white-space:nowrap;flex-shrink:0;
+}
+.pending{background:#f3f4f6;color:#6b7280;border:1px solid #e5e7eb}
+.confirmed{
+  background:#ecfdf5;color:#059669;
+  border:1px solid #a7f3d0;
+  animation:bpulse .7s ease;
+}
+
+@keyframes bpulse{
+  0%{transform:scale(1)}
+  35%{transform:scale(1.12)}
+  65%{transform:scale(.96)}
+  100%{transform:scale(1)}
+}
+
+.ameta{font-size:10px;color:var(--app-muted)}
+
+/* ── RESPONSIVE ──────────────────────────────── */
+@media(max-width:680px){
+  body{padding:12px 16px;gap:0;justify-content:flex-start;overflow-y:auto;height:auto}
+  body::before{display:none}
+  #wrap{flex-direction:column;gap:16px;align-items:center}
+  :root{--phone-w:272px;--phone-h:558px}
+  #expl{max-width:100%;text-align:center}
+  .en{font-size:48px}
+  .et{font-size:20px}
+  .eh{justify-content:center}
+  .eh::before{display:none}
+  #hdr{margin-bottom:10px}
+  #ctrl{margin-top:10px}
+}
+
+@media(max-height:700px){
+  :root{--phone-w:260px;--phone-h:520px}
+  body{gap:0}
+  #hdr{margin-bottom:8px}
+  #ctrl{margin-top:8px}
+  .en{font-size:48px}
+  .et{font-size:20px}
+}
+</style>
+</head>
+<body>
+
+<!-- PROGRESS HEADER -->
+<div id="hdr">
+  <div id="step-row">
+    <span id="step-badge">Schritt 1 von 6</span>
+    <span id="step-ttl">App öffnen &amp; einloggen</span>
+  </div>
+  <div id="pbar"><div id="pfill"></div></div>
+</div>
+
+<!-- MAIN -->
+<div id="wrap">
+
+  <!-- PHONE -->
+  <div id="phone-outer">
+    <div id="phone">
+      <div id="pscreen">
+
+        <!-- S1: LOGIN -->
+        <div class="scr on" id="s1">
+          <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;padding:52px 26px 24px">
+            <div class="flogo">F</div>
+            <div class="ltitle">Willkommen zurück</div>
+            <div class="lsub">Melde dich mit deinen Zugangsdaten an</div>
+            <div class="ff" style="width:100%">
+              <span class="fl">E-Mail</span>
+              <div class="fim" id="ef"><span class="typed-txt" id="et"></span><span class="cur-blink" id="ec"></span></div>
+            </div>
+            <div class="ff" style="width:100%">
+              <span class="fl">Passwort</span>
+              <div class="fim" id="pf"><span class="typed-txt" id="pt"></span><span class="cur-blink" id="pc"></span></div>
+            </div>
+            <div class="btn-p" id="lbtn" style="width:100%">Anmelden</div>
+            <div style="margin-top:12px;font-size:10px;color:#9ca3af;text-align:center">Noch kein Konto? <span style="color:var(--or);font-weight:600">Registrieren</span></div>
+          </div>
+        </div>
+
+        <!-- S2: JOBS LIST -->
+        <div class="scr" id="s2">
+          <div class="anav">
+            <div class="nlogo">F</div>
+            <div class="ntitle">Aktuelle Einsätze</div>
+            <div class="nava"></div>
+          </div>
+          <div class="frow">
+            <div class="fp on" id="fa">Alle</div>
+            <div class="fp" id="fk">Konzert</div>
+            <div class="fp" id="ff2">Festival</div>
+            <div class="fp" id="fp2">Promotion</div>
+            <div class="fp" id="fe">ESL</div>
+          </div>
+          <div class="jlist">
+            <div class="jcard" id="jc1">
+              <div class="jch gk"><span class="jcat">Konzert</span></div>
+              <div class="jbody">
+                <div class="jtitle">Rock am Ring – Crew</div>
+                <div class="jmeta"><span>📅 14. Jun</span><span>📍 Nürburgring</span></div>
+                <div class="jbtn">Mehr erfahren</div>
+              </div>
+            </div>
+            <div class="jcard" id="jc2">
+              <div class="jch gf"><span class="jcat">Festival</span></div>
+              <div class="jbody">
+                <div class="jtitle">Rock Festival Leipzig</div>
+                <div class="jmeta"><span>📅 15. Jul</span><span>📍 Leipzig</span></div>
+                <div class="jbtn">Mehr erfahren</div>
+              </div>
+            </div>
+            <div class="jcard" id="jc3">
+              <div class="jch ge"><span class="jcat">ESL</span></div>
+              <div class="jbody">
+                <div class="jtitle">ESL One Cologne 2025</div>
+                <div class="jmeta"><span>📅 22. Aug</span><span>📍 Köln</span></div>
+                <div class="jbtn">Mehr erfahren</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- S3: JOB DETAIL -->
+        <div class="scr" id="s3">
+          <div class="dhdr">
+            <div class="bck">←</div>
+            <span class="dcat">Festival</span>
+            <div class="dtitle">Rock Festival Leipzig</div>
+          </div>
+          <div class="dbody">
+            <div class="dmeta">
+              <div class="mr"><span class="mi">📅</span><span>15. – 17. Juli 2025</span></div>
+              <div class="mr"><span class="mi">📍</span><span>Leipzig, Agra Gelände</span></div>
+              <div class="mr"><span class="mi">👥</span><span>Noch 4 Plätze verfügbar</span></div>
+            </div>
+            <div class="stitle">Schicht wählen</div>
+            <div class="sopt" id="sh1">
+              <div class="schk"><span class="schi">✓</span></div>
+              <div><div class="sname">Tagschicht</div><div class="stime">10:00 – 18:00 Uhr</div></div>
+            </div>
+            <div class="sopt" id="sh2">
+              <div class="schk"><span class="schi">✓</span></div>
+              <div><div class="sname">Nachtschicht</div><div class="stime">18:00 – 02:00 Uhr</div></div>
+            </div>
+            <div class="btn-p" id="abtn" style="margin-top:12px;width:100%">Jetzt bewerben</div>
+          </div>
+        </div>
+
+        <!-- S4: PROFILE FORM -->
+        <div class="scr" id="s4">
+          <div class="fhdr">
+            <div class="fhdr-t">Deine Angaben</div>
+            <div class="fhdr-s">Wird beim nächsten Mal automatisch gespeichert</div>
+          </div>
+          <div class="fbody">
+            <div class="ff">
+              <span class="fl">Vollständiger Name</span>
+              <div class="fim" id="nf"><span class="typed-txt" id="nt"></span><span class="cur-blink" id="nc"></span></div>
+            </div>
+            <div class="ff">
+              <span class="fl">Telefonnummer</span>
+              <div class="fim" id="tf2"><span class="typed-txt" id="tt"></span><span class="cur-blink" id="tc"></span></div>
+            </div>
+            <div class="ff">
+              <span class="fl">Anreise</span>
+              <div class="trow">
+                <div class="topt" id="pkw">🚗 PKW</div>
+                <div class="topt" id="zug">🚂 Zug / ÖPNV</div>
+              </div>
+            </div>
+            <div class="ff">
+              <span class="fl">PSA-Ausrüstung vorhanden</span>
+              <div class="trow">
+                <div class="topt" id="psaja">✓ Ja</div>
+                <div class="topt" id="psanein">✗ Nein</div>
+              </div>
+            </div>
+            <div class="btn-p" id="sbtn" style="margin-top:2px;width:100%">Bewerbung absenden</div>
+          </div>
+        </div>
+
+        <!-- S5: SUCCESS -->
+        <div class="scr" id="s5">
+          <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;padding:52px 26px 28px;text-align:center">
+            <div class="scircle">
+              <svg class="csvg" viewBox="0 0 50 50">
+                <path class="cpath" id="ck" d="M10 26 L20 36 L40 14"/>
+              </svg>
+            </div>
+            <div class="stitle2">Bewerbung eingegangen!</div>
+            <div class="stxt">Super! Deine Bewerbung wurde übermittelt. Wir bestätigen dir deinen Einsatz per WhatsApp.</div>
+            <button class="wabtn" id="wabtn">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+              WhatsApp kontaktieren
+            </button>
+          </div>
+        </div>
+
+        <!-- S6: MY APPLICATIONS -->
+        <div class="scr" id="s6">
+          <div class="ahdr">
+            <div class="ahdr-t">Meine Bewerbungen</div>
+          </div>
+          <div class="alist">
+            <div class="acard">
+              <div class="atop">
+                <div class="atitle">Rock Festival Leipzig</div>
+                <div class="sbdg pending" id="b1">Verfügbarkeit mitgeteilt</div>
+              </div>
+              <div class="ameta">📅 15. Jul 2025 · Tagschicht</div>
+            </div>
+            <div class="acard">
+              <div class="atop">
+                <div class="atitle">ESL One Cologne 2025</div>
+                <div class="sbdg pending" id="b2">Verfügbarkeit mitgeteilt</div>
+              </div>
+              <div class="ameta">📅 22. Aug 2025 · Tagschicht</div>
+            </div>
+            <div class="acard">
+              <div class="atop">
+                <div class="atitle">Rock am Ring – Crew</div>
+                <div class="sbdg confirmed">Fest geplant ✓</div>
+              </div>
+              <div class="ameta">📅 14. Jun 2025 · Tagschicht</div>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /pscreen -->
+
+      <!-- CURSOR -->
+      <div id="cur">
+        <svg viewBox="0 0 24 24">
+          <path d="M4 2l16 9-8.5 1.5L8 22z" fill="white" stroke="#111" stroke-width=".8" stroke-linejoin="round"/>
+        </svg>
+      </div>
+
+    </div><!-- /phone -->
+  </div><!-- /phone-outer -->
+
+  <!-- EXPLANATION -->
+  <div id="expl">
+    <div class="ep on" id="ep0">
+      <div class="en">01</div>
+      <h2 class="et">App öffnen &amp; einloggen</h2>
+      <p class="ed">Öffne fess.jobs und melde dich mit deiner E-Mail und deinem Passwort an. Beim ersten Mal einmal registrieren – fertig.</p>
+      <div class="eh">Tipp-Animation</div>
+    </div>
+    <div class="ep" id="ep1">
+      <div class="en">02</div>
+      <h2 class="et">Aufträge entdecken</h2>
+      <p class="ed">Hier siehst du alle aktuellen Einsätze. Filtere nach Konzert, Festival, Promotion oder ESL um schnell den passenden Job zu finden.</p>
+      <div class="eh">Filter-Klick</div>
+    </div>
+    <div class="ep" id="ep2">
+      <div class="en">03</div>
+      <h2 class="et">Auftrag anklicken &amp; bewerben</h2>
+      <p class="ed">Klicke auf einen Auftrag und wähle deine Schicht. Tag- oder Nachtschicht – du entscheidest. Dann einfach auf "Jetzt bewerben" tippen.</p>
+      <div class="eh">Schicht-Auswahl</div>
+    </div>
+    <div class="ep" id="ep3">
+      <div class="en">04</div>
+      <h2 class="et">Profil ausfüllen</h2>
+      <p class="ed">Fülle dein Profil aus – Name, Telefon, Anreise und PSA-Ausrüstung. Alles wird beim nächsten Mal automatisch gespeichert.</p>
+      <div class="eh">Auto-Save</div>
+    </div>
+    <div class="ep" id="ep4">
+      <div class="en">05</div>
+      <h2 class="et">Bestätigung &amp; WhatsApp</h2>
+      <p class="ed">Deine Bewerbung ist eingegangen! Du wirst per WhatsApp bestätigt sobald dein Einsatz fest eingeplant ist.</p>
+      <div class="eh">Sofort-Benachrichtigung</div>
+    </div>
+    <div class="ep" id="ep5">
+      <div class="en">06</div>
+      <h2 class="et">Meine Bewerbungen</h2>
+      <p class="ed">Unter "Meine Bewerbungen" siehst du immer deinen aktuellen Status – von "Verfügbarkeit mitgeteilt" bis "Fest geplant".</p>
+      <div class="eh">Live-Status</div>
+    </div>
+  </div>
+
+</div><!-- /wrap -->
+
+<!-- CONTROLS -->
+<div id="ctrl">
+  <button class="cbtn" id="prevbtn" title="Zurück">
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+  </button>
+  <div id="dots">
+    <button class="dot on" data-s="0"></button>
+    <button class="dot" data-s="1"></button>
+    <button class="dot" data-s="2"></button>
+    <button class="dot" data-s="3"></button>
+    <button class="dot" data-s="4"></button>
+    <button class="dot" data-s="5"></button>
+  </div>
+  <button id="pbtn" class="cbtn" title="Play/Pause">
+    <svg id="pico" width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+    <svg id="paico" width="14" height="14" viewBox="0 0 24 24" fill="currentColor" style="display:none"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+  </button>
+  <button class="cbtn" id="nextbtn" title="Weiter">
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+  </button>
+</div>
+
+<!-- END SCREEN -->
+<div id="end">
+  <div class="end-logo">F</div>
+  <h1 class="end-h">Bereit loszulegen?</h1>
+  <p class="end-p">Jetzt weißt du wie fess.jobs funktioniert. Melde dich an und bewirb dich auf deinen ersten Einsatz!</p>
+  <a class="end-cta" href="https://fessjobs.github.io/fess.jobs/login.html" target="_blank">Jetzt bewerben →</a><br>
+  <button class="end-replay" onclick="replay()">Tutorial wiederholen</button>
+</div>
+
+<script>
+const DURATIONS = [8000, 10000, 10000, 10000, 10000, 10000];
+const LABELS = [
+  ['Schritt 1 von 6', 'App öffnen & einloggen'],
+  ['Schritt 2 von 6', 'Aufträge entdecken'],
+  ['Schritt 3 von 6', 'Auftrag anklicken & bewerben'],
+  ['Schritt 4 von 6', 'Profil ausfüllen'],
+  ['Schritt 5 von 6', 'Bestätigung & WhatsApp'],
+  ['Schritt 6 von 6', 'Meine Bewerbungen'],
+];
+
+let step = 0;
+let playing = false;
+let pTimer = null;
+let startAt = 0;
+let pausedAt = 0;
+let stTimers = [];
+
+// ── HELPERS ──────────────────────────────────────
+const $  = id => document.getElementById(id);
+const cur = $('cur');
+
+function st(fn, ms) {
+  const t = setTimeout(fn, ms);
+  stTimers.push(t);
+  return t;
+}
+
+function clearST() {
+  stTimers.forEach(clearTimeout);
+  stTimers = [];
+}
+
+function moveCur(x, y, ms = 580) {
+  return new Promise(r => {
+    cur.style.transition = `left ${ms}ms cubic-bezier(.25,.1,.25,1),top ${ms}ms cubic-bezier(.25,.1,.25,1),opacity .3s`;
+    cur.style.left = x + 'px';
+    cur.style.top  = y + 'px';
+    setTimeout(r, ms);
+  });
+}
+
+function showCur(x, y) {
+  cur.style.transition = 'none';
+  cur.style.left = x + 'px';
+  cur.style.top  = y + 'px';
+  cur.classList.add('vis');
+}
+
+function hideCur() { cur.classList.remove('vis'); }
+
+function ripple(x, y) {
+  const r = document.createElement('div');
+  r.className = 'ripple';
+  r.style.left = x + 'px';
+  r.style.top  = y + 'px';
+  $('phone').appendChild(r);
+  setTimeout(() => r.remove(), 700);
+}
+
+function type(elId, txt, speed = 72) {
+  return new Promise(r => {
+    const el = $(elId);
+    el.textContent = '';
+    let i = 0;
+    const iv = setInterval(() => {
+      if (i < txt.length) { el.textContent += txt[i++]; }
+      else { clearInterval(iv); r(); }
+    }, speed);
+    stTimers.push(iv);
+  });
+}
+
+// ── STEP ANIMATIONS ───────────────────────────────
+function anim0() {
+  // Reset
+  $('et').textContent = ''; $('pt').textContent = '';
+  $('ef').classList.remove('foc'); $('pf').classList.remove('foc');
+  $('lbtn').classList.remove('clk');
+
+  showCur(134, 200);
+  st(async () => {
+    await moveCur(134, 316);
+    $('ef').classList.add('foc');
+    await type('et', 'max.mustermann@fess', 68);
+    st(async () => {
+      $('ef').classList.remove('foc');
+      await moveCur(134, 384);
+      $('pf').classList.add('foc');
+      st(async () => {
+        await type('pt', '••••••••', 100);
+        st(async () => {
+          $('pf').classList.remove('foc');
+          await moveCur(134, 446);
+          st(() => {
+            ripple(134, 446);
+            $('lbtn').classList.add('clk');
+            st(() => $('lbtn').classList.remove('clk'), 280);
+          }, 300);
+        }, 400);
+      }, 200);
+    }, 300);
+  }, 600);
+}
+
+function anim1() {
+  hideCur();
+  // Reset filters & cards
+  document.querySelectorAll('.fp').forEach(f => f.classList.remove('on'));
+  $('fa').classList.add('on');
+  ['jc1','jc2','jc3'].forEach(id => {
+    const c = $(id);
+    c.classList.remove('up','dim');
+    c.style.opacity = '0';
+    c.style.transform = 'translateY(20px)';
+  });
+
+  st(() => {
+    ['jc1','jc2','jc3'].forEach((id,i) => {
+      st(() => $(id).classList.add('up'), i * 140);
+    });
+  }, 400);
+
+  st(async () => {
+    showCur(168, 103);
+    await moveCur(168, 103, 300);
+    st(() => {
+      ripple(168, 103);
+      $('fa').classList.remove('on');
+      $('ff2').classList.add('on');
+      st(() => {
+        $('jc1').classList.add('dim');
+        $('jc3').classList.add('dim');
+      }, 250);
+    }, 200);
+    st(async () => {
+      await moveCur(134, 220);
+    }, 2200);
+  }, 3800);
+}
+
+function anim2() {
+  $('sh1').classList.remove('ck');
+  $('sh2').classList.remove('ck');
+  $('abtn').classList.remove('clk');
+
+  showCur(134, 300);
+  st(async () => {
+    await moveCur(50, 338);
+    ripple(50, 338);
+    $('sh1').classList.add('ck');
+    st(async () => {
+      await moveCur(134, 468);
+      ripple(134, 468);
+      $('abtn').classList.add('clk');
+      st(() => $('abtn').classList.remove('clk'), 280);
+    }, 2000);
+  }, 1400);
+}
+
+function anim3() {
+  $('nt').textContent = ''; $('tt').textContent = '';
+  $('nf').classList.remove('foc'); $('tf2').classList.remove('foc');
+  $('pkw').classList.remove('sel'); $('zug').classList.remove('sel');
+  $('psaja').classList.remove('sel'); $('psanein').classList.remove('sel');
+  hideCur();
+
+  st(async () => {
+    $('nf').classList.add('foc');
+    await type('nt', 'Max Mustermann', 78);
+    $('nf').classList.remove('foc');
+    st(async () => {
+      $('tf2').classList.add('foc');
+      await type('tt', '+49 176 12345678', 62);
+      $('tf2').classList.remove('foc');
+      st(() => {
+        $('pkw').classList.add('sel');
+        st(() => {
+          $('psaja').classList.add('sel');
+        }, 700);
+      }, 500);
+    }, 350);
+  }, 700);
+}
+
+function anim4() {
+  hideCur();
+  const cp = $('ck');
+  cp.classList.remove('draw');
+  $('wabtn').classList.remove('pulse');
+  void cp.offsetWidth;
+
+  st(() => cp.classList.add('draw'), 400);
+  st(() => $('wabtn').classList.add('pulse'), 3500);
+}
+
+function anim5() {
+  hideCur();
+  $('b1').className = 'sbdg pending'; $('b1').textContent = 'Verfügbarkeit mitgeteilt';
+  $('b2').className = 'sbdg pending'; $('b2').textContent = 'Verfügbarkeit mitgeteilt';
+
+  st(() => {
+    $('b1').className = 'sbdg confirmed';
+    $('b1').textContent = 'Fest geplant ✓';
+  }, 2800);
+  st(() => {
+    $('b2').className = 'sbdg confirmed';
+    $('b2').textContent = 'Fest geplant ✓';
+  }, 4800);
+}
+
+const ANIMS = [anim0, anim1, anim2, anim3, anim4, anim5];
+
+// ── NAVIGATION ────────────────────────────────────
+function goTo(idx) {
+  clearST();
+  stopTimer();
+
+  document.querySelectorAll('.scr').forEach((s,i) => {
+    s.classList.toggle('on', i === idx);
+  });
+  document.querySelectorAll('.ep').forEach((e,i) => {
+    e.classList.toggle('on', i === idx);
+  });
+  document.querySelectorAll('.dot').forEach((d,i) => {
+    d.classList.toggle('on', i === idx);
+  });
+
+  const [badge, ttl] = LABELS[idx];
+  $('step-badge').textContent = badge;
+  $('step-ttl').textContent = ttl;
+
+  step = idx;
+  pausedAt = 0;
+  updateProg(0);
+
+  st(() => ANIMS[idx](), 80);
+
+  if (playing) st(startTimer, 60);
+}
+
+function updateProg(frac) {
+  const total = DURATIONS.reduce((a,b) => a+b, 0);
+  const before = DURATIONS.slice(0, step).reduce((a,b) => a+b, 0);
+  $('pfill').style.width = ((before + frac * DURATIONS[step]) / total * 100) + '%';
+}
+
+// ── PLAYBACK ──────────────────────────────────────
+function startTimer() {
+  stopTimer();
+  startAt = Date.now() - pausedAt;
+  const dur = DURATIONS[step];
+  pTimer = setInterval(() => {
+    const el = Date.now() - startAt;
+    updateProg(Math.min(el / dur, 1));
+    if (el >= dur) {
+      stopTimer();
+      if (step >= 5) {
+        playing = false;
+        updBtn();
+        $('end').classList.add('vis');
+      } else {
+        goTo(step + 1);
+      }
+    }
+  }, 60);
+}
+
+function stopTimer() {
+  if (pTimer) { clearInterval(pTimer); pTimer = null; }
+}
+
+function play() {
+  playing = true;
+  updBtn();
+  startTimer();
+}
+
+function pause() {
+  playing = false;
+  pausedAt = Date.now() - startAt;
+  stopTimer();
+  updBtn();
+}
+
+function updBtn() {
+  $('pico').style.display  = playing ? 'none' : 'block';
+  $('paico').style.display = playing ? 'block' : 'none';
+}
+
+// ── EVENTS ────────────────────────────────────────
+$('pbtn').addEventListener('click', () => playing ? pause() : play());
+
+$('prevbtn').addEventListener('click', () => {
+  if (step > 0) { stopTimer(); goTo(step - 1); }
+});
+
+$('nextbtn').addEventListener('click', () => {
+  stopTimer();
+  if (step < 5) goTo(step + 1);
+  else { playing = false; updBtn(); $('end').classList.add('vis'); }
+});
+
+document.querySelectorAll('.dot').forEach(d => {
+  d.addEventListener('click', () => {
+    stopTimer();
+    goTo(parseInt(d.dataset.s));
+  });
+});
+
+function replay() {
+  $('end').classList.remove('vis');
+  goTo(0);
+  setTimeout(play, 600);
+}
+
+// ── INIT ──────────────────────────────────────────
+goTo(0);
+setTimeout(play, 1000);
+</script>
+</body>
+</html>
