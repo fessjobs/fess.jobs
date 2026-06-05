@@ -691,9 +691,11 @@ async function toggleDringend(id, current) {
 }
 
 async function toggleVollBesetzt(id, current) {
-  const { error } = await sb.from('auftraege').update({ voll_besetzt: !current }).eq('id', id);
+  // Wenn besetzt gesetzt wird -> dringend automatisch auf false
+  const updates = current ? { voll_besetzt: false } : { voll_besetzt: true, dringend: false };
+  const { error } = await sb.from('auftraege').update(updates).eq('id', id);
   if (error) { toast('Fehler', 'err'); return; }
-  toast(current ? 'Besetzt-Markierung entfernt' : '✅ Als vollständig besetzt markiert', 'ok');
+  toast(current ? 'Besetzt-Markierung entfernt' : '✅ Besetzt – Dringend automatisch entfernt', 'ok');
   loadAuftraege();
 }
 
