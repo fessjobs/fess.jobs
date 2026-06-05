@@ -894,7 +894,7 @@ function occC(p){return p>=80?'#22c55e':p>=40?'#f59e0b':'#E8651A';}
 function sf(f,el){CF=f;document.querySelectorAll('.filter-pill').forEach(b=>b.classList.remove('on'));if(el)el.classList.add('on');renderJobs();}
 function ss(v){CS=v;renderJobs();}
 function fevs(){
-  let a=ALL.filter(e=>e.sichtbar!==false);
+  let a=ALL.filter(e=>e.sichtbar===true||e.sichtbar===undefined||e.sichtbar===null);
   if(CF==='dringend')a=a.filter(e=>e.urg||e.dringend);
   else if(CF!=='alle')a=a.filter(e=>(e.k||e.kategorie)===CF);
   if(CS==='datum')a.sort((a,b)=>(a.dv||a.datum_von||'').localeCompare(b.dv||b.datum_von||''));
@@ -907,6 +907,7 @@ function jcard(e){
   const col=KC[kat]||'#E8651A',gr=KG[kat]||'gk',ic=KI[kat]||'🎵';
   const op=occ(e),bc=occC(op);
   const urg=e.urg||e.dringend;
+  const voll=e.voll||false;
   const name=e.n||e.name||'';
   const loc=e.loc||e.location||'';
   const ta=e.ta||e.taetigkeit||'';
@@ -917,7 +918,10 @@ function jcard(e){
   const stTag=st==='bestaetigt'
     ?`<span class="jcard-st st-best">${t('confirmed')}</span>`
     :`<span class="jcard-st st-ang">${t('requested')}</span>`;
-  return `<div class="jcard${urg?' urg':''}">
+  const applyBtn=voll
+    ?`<button class="jcard-btn" disabled style="background:#e5e7eb;color:#9ca3af;cursor:not-allowed">✅ Vollständig besetzt</button>`
+    :`<button class="jcard-btn" onclick="openModal('${e.id}')">${t('card_apply')}</button>`;
+  return `<div class="jcard${urg?' urg':''}${voll?' voll':''}">
   ${urg?`<div class="urg-strip">${t('urgent_strip')}</div>`:''}
   <div class="jcard-img ${gr}">
     <img src="${img}" alt="${name}" loading="lazy" onerror="this.style.display='none'">
@@ -926,7 +930,7 @@ function jcard(e){
     ${stTag}
     <div class="jcard-kat" style="background:${col}">${kat}</div>
     <div class="occ-wrap"><div class="occ-bg"><div class="occ-fill" style="width:${op}%;background:${bc}"></div></div><span class="occ-pct">${op}%</span></div>
-    ${e.voll?'<div class="voll-overlay"><div class="voll-badge">✅ Vollständig besetzt</div></div>':''}
+    ${voll?'<div class="voll-overlay"><div class="voll-badge">✅ Vollständig besetzt</div></div>':''}
   </div>
   <div class="jcard-body">
     <div class="jcard-name">${name}</div>
@@ -935,63 +939,10 @@ function jcard(e){
     <div class="jcard-row"><span>👷</span><span>${ta}</span></div>
     <div class="jcard-row"><span>👥</span><span>${pax} ${t('card_persons')}</span></div>
     <div class="jcard-shifts">${sh.map(s=>`<span class="jcard-shift">⏰ ${s}</span>`).join('')}</div>
-    ${e.voll
-      ? '<button class="jcard-btn" disabled style="background:#e5e7eb;color:#9ca3af;cursor:not-allowed">✅ Vollständig besetzt</button>'
-      : '<button class="jcard-btn" onclick="openModal(''+e.id+'')">'+t('card_apply')+'</button>'}
-  </div></div>`;
+    ${applyBtn}
+  </div>
+</div>`;
 }
-
-function renderJobs(){
-  const T=LANGS[LANG]||LANGS.de;
-  if(T.months)T.months.forEach((m,i)=>{MO[i]=m;});
-  const evs=fevs();
-  const jl=document.getElementById('jobsList');
-  if(!jl)return;
-  if(!evs.length){
-    jl.innerHTML=`<div style="text-align:center;padding:40px;color:var(--muted)"><div style="font-size:32px;margin-bottom:12px">📋</div><div style="font-size:14px;font-weight:600">${t('no_results')}</div></div>`;
-    return;
-  }
-  const months=[...new Set(evs.map(e=>mon(e)))].sort((a,b)=>a-b);
-  jl.innerHTML=months.map(m=>{
-    const me=evs.filter(e=>mon(e)===m);
-    // Check if any in this month are urgent
-    const hasUrg = me.some(e=>e.urg||e.dringend);
-    // Show urgent ones always on top outside accordion, rest inside
-    const urgEvs = me.filter(e=>e.urg||e.dringend);
-    const normEvs = me.filter(e=>!e.urg&&!e.dringend);
-    const urgHTML = urgEvs.length ? `<div class="month-urg-strip">${urgEvs.map(jcard).join('')}</div>` : '';
-    return `<div class="month-group" style="margin-bottom:8px">
-      ${urgHTML}
-      ${normEvs.length ? `<button class="month-toggle" onclick="this.classList.toggle('open');this.nextElementSibling.classList.toggle('open')">
-        <div><span class="mtag">${MO[m]}</span>${MO[m]} 2026 <span style="font-size:11px;font-weight:400;color:var(--muted)">(${normEvs.length} weitere)</span></div>
-        <div style="display:flex;align-items:center;gap:8px"><span class="marrow">▼</span></div>
-      </button>
-      <div class="month-body">${normEvs.map(jcard).join('')}</div>` : ''}
-    </div>`;
-  }).join('');
-}
-
-function renderProcess(){
-  const steps=PROC_STEPS_ALL[LANG]||PROC_STEPS_ALL.de;
-  const pg=document.getElementById('processGrid');
-  if(!pg)return;
-  pg.innerHTML=steps.map((s,i)=>`
-    <div class="proc-card"><div class="proc-num">${String(i+1).padStart(2,'0')}</div>
-    <div class="proc-icon">${s.icon}</div><div class="proc-title">${s.title}</div>
-    <div class="proc-desc">${s.desc}</div></div>`).join('');
-}
-
-function renderAbout(){
-  const feats=ABOUT_FEATS_ALL[LANG]||ABOUT_FEATS_ALL.de;
-  const af=document.getElementById('aboutFeatures');
-  if(!af)return;
-  af.innerHTML=feats.map(f=>`
-    <div class="feat"><div class="feat-icon">${f.icon}</div>
-    <div class="feat-text"><strong>${f.title}</strong><span>${f.desc}</span></div></div>`).join('');
-}
-
-// ── STORAGE ──
-function ls(k,v){try{if(v===undefined)return JSON.parse(localStorage.getItem(k));localStorage.setItem(k,JSON.stringify(v));}catch(e){return null;}}
 function loadProfile(){return ls('fess_profile');}
 function saveProfile(d){ls('fess_profile',d);}
 function loadHistory(){return ls('fess_history')||[];}
