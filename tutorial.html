@@ -330,18 +330,6 @@ body::before{
   font-family:'Barlow',sans-serif;
 }
 
-#skipbtn{
-  position:fixed;top:18px;right:20px;
-  background:rgba(255,255,255,.07);
-  border:1px solid rgba(255,255,255,.12);
-  color:rgba(255,255,255,.5);
-  font-family:'Barlow',sans-serif;
-  font-size:12px;font-weight:600;
-  padding:6px 14px;border-radius:20px;
-  cursor:pointer;z-index:800;
-  transition:all .2s;
-}
-#skipbtn:hover{background:rgba(255,255,255,.12);color:#fff}
 
 /* ═══════════════════════════════════════════════
    SCREEN 1 – LOGIN
@@ -786,6 +774,99 @@ body::before{
 
 .ameta{font-size:10px;color:var(--app-muted)}
 
+/* ═══════════════════════════════════════════════
+   SCREEN 7 – WHATSAPP CHATBOT
+═══════════════════════════════════════════════ */
+.wa-hdr{
+  background:#075E54;
+  padding:44px 12px 10px;
+  display:flex;align-items:center;gap:10px;
+  flex-shrink:0;
+}
+.wa-av{
+  width:36px;height:36px;
+  background:var(--or);border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Bitter',serif;font-size:14px;font-weight:900;color:#fff;
+  flex-shrink:0;
+}
+.wa-name{font-weight:700;font-size:13px;color:#fff;font-family:'Barlow',sans-serif}
+.wa-sub{font-size:10px;color:rgba(255,255,255,.65);font-family:'Barlow',sans-serif}
+
+.wa-body{
+  background:#ECE5DD;
+  flex:1;padding:10px;
+  overflow-y:auto;scrollbar-width:none;
+  display:flex;flex-direction:column;gap:7px;
+}
+.wa-body::-webkit-scrollbar{display:none}
+
+.wa-msg{
+  max-width:84%;
+  padding:7px 10px;
+  font-family:'Barlow',sans-serif;
+  font-size:11px;line-height:1.45;
+  color:#111;position:relative;
+  opacity:0;transform:translateY(6px);
+}
+.wa-msg.bot{
+  background:#fff;
+  border-radius:0 8px 8px 8px;
+  align-self:flex-start;
+}
+.wa-msg.user{
+  background:#DCF8C6;
+  border-radius:8px 0 8px 8px;
+  align-self:flex-end;
+}
+.wa-msg.pop{animation:wapop .35s ease forwards}
+@keyframes wapop{to{opacity:1;transform:translateY(0)}}
+
+.wa-footer{
+  background:#fff;
+  border-top:1px solid var(--app-border);
+  padding:6px 12px;text-align:center;
+  flex-shrink:0;
+}
+.wa-footer span{font-size:9px;color:#9ca3af;font-family:'Barlow',sans-serif}
+
+/* ═══════════════════════════════════════════════
+   SCREEN 8 – PWA INSTALL
+═══════════════════════════════════════════════ */
+.istep{
+  display:flex;align-items:flex-start;gap:11px;
+  padding:10px 11px;
+  border:1.5px solid var(--app-border);
+  border-radius:10px;margin-bottom:8px;
+  opacity:0;transform:translateX(-10px);
+}
+.istep.pop{animation:isteppop .4s ease forwards}
+@keyframes isteppop{to{opacity:1;transform:translateX(0)}}
+
+.inum{
+  width:22px;height:22px;flex-shrink:0;
+  background:var(--or);border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:10px;font-weight:800;color:#fff;
+  margin-top:1px;
+}
+.ititle{font-size:11px;font-weight:700;color:var(--app-text);margin-bottom:2px}
+.isub{font-size:10px;color:var(--app-muted);line-height:1.4}
+
+#appicon{
+  width:56px;height:56px;
+  background:var(--or);border-radius:13px;
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Bitter',serif;font-size:24px;font-weight:900;color:#fff;
+  margin:0 auto 5px;
+  box-shadow:0 4px 16px rgba(232,101,26,.3);
+  opacity:0;transform:scale(.6);
+  transition:opacity .4s ease,transform .4s cubic-bezier(.34,1.56,.64,1);
+}
+#appicon.pop{opacity:1;transform:scale(1)}
+#appname{font-size:10px;color:var(--app-muted);font-weight:600;opacity:0;transition:opacity .3s .2s}
+#appname.pop{opacity:1}
+
 /* ── RESPONSIVE ──────────────────────────────── */
 @media(max-width:680px){
   body{padding:12px 16px;gap:0;justify-content:flex-start;overflow-y:auto;height:auto}
@@ -997,6 +1078,64 @@ body::before{
           </div>
         </div>
 
+        <!-- S7: WHATSAPP CHATBOT -->
+        <div class="scr" id="s7">
+          <div style="display:flex;flex-direction:column;height:100%">
+            <div class="wa-hdr">
+              <div class="wa-av">F</div>
+              <div>
+                <div class="wa-name">fess.jobs Assistent</div>
+                <div class="wa-sub">SuperChat KI · online</div>
+              </div>
+            </div>
+            <div class="wa-body">
+              <div class="wa-msg bot" id="wm1">Hallo Max! 👋 Ich habe deine Bewerbung für das <b>Rock Festival Leipzig</b> erhalten.</div>
+              <div class="wa-msg bot" id="wm2">Bitte bestätige deine Schicht:<br><b>Tagschicht 10:00 – 18:00 Uhr</b></div>
+              <div class="wa-msg user" id="wm3">Ja, bestätigt! ✅</div>
+              <div class="wa-msg bot" id="wm4">Super! Du bist fest eingeplant. 🎉<br>Wir melden uns 3 Tage vorher nochmal mit allen Details.</div>
+            </div>
+            <div class="wa-footer">
+              <span>Automatisch bearbeitet von <b>SuperChat KI</b></span>
+            </div>
+          </div>
+        </div>
+
+        <!-- S8: PWA INSTALL -->
+        <div class="scr" id="s8">
+          <div style="background:#fff;height:100%;padding:48px 14px 14px;display:flex;flex-direction:column">
+            <div style="font-family:'Bitter',serif;font-size:15px;font-weight:900;color:var(--app-text);margin-bottom:2px">Als App installieren</div>
+            <div style="font-size:11px;color:var(--app-muted);margin-bottom:14px">Füge fess.jobs zum Startbildschirm hinzu</div>
+            <div class="istep" id="is1">
+              <div class="inum">1</div>
+              <div>
+                <div class="ititle">Safari öffnen, fess.jobs aufrufen</div>
+                <div class="isub">Tippe auf das ⬆ Teilen-Symbol in der unteren Leiste</div>
+              </div>
+            </div>
+            <div class="istep" id="is2">
+              <div class="inum">2</div>
+              <div>
+                <div class="ititle">„Zum Home-Bildschirm" tippen</div>
+                <div class="isub">Im Teilen-Menü nach unten scrollen und auswählen</div>
+              </div>
+            </div>
+            <div class="istep" id="is3">
+              <div class="inum">3</div>
+              <div>
+                <div class="ititle">„Hinzufügen" bestätigen</div>
+                <div class="isub">Das fess.jobs Icon erscheint sofort auf deinem Startbildschirm</div>
+              </div>
+            </div>
+            <div style="margin-top:auto;display:flex;justify-content:center;padding-top:10px;flex-direction:column;align-items:center">
+              <div id="appicon">F</div>
+              <div id="appname">fess.jobs</div>
+            </div>
+            <div style="text-align:center;margin-top:10px">
+              <div style="font-size:9px;color:#9ca3af;font-family:'Barlow',sans-serif">Android: Chrome Menü ⋮ → „Zum Startbildschirm hinzufügen"</div>
+            </div>
+          </div>
+        </div>
+
       </div><!-- /pscreen -->
 
       <!-- CURSOR -->
@@ -1047,12 +1186,21 @@ body::before{
       <p class="ed">Unter "Meine Bewerbungen" siehst du immer deinen aktuellen Status – von "Verfügbarkeit mitgeteilt" bis "Fest geplant".</p>
       <div class="eh">Live-Status</div>
     </div>
+    <div class="ep" id="ep6">
+      <div class="en">07</div>
+      <h2 class="et">Vollautomatisch per WhatsApp</h2>
+      <p class="ed">Nach deiner Bewerbung übernimmt unser KI-Chatbot (SuperChat) alles per WhatsApp – Bestätigung, Rückfragen und Erinnerungen. Einfach antworten, fertig.</p>
+      <div class="eh">SuperChat KI</div>
+    </div>
+    <div class="ep" id="ep7">
+      <div class="en">08</div>
+      <h2 class="et">Als App auf dem Handy</h2>
+      <p class="ed">Installiere fess.jobs direkt auf deinem Startbildschirm – funktioniert wie eine echte App, kein App Store nötig. Auf iPhone über Safari, auf Android über Chrome.</p>
+      <div class="eh">PWA installieren</div>
+    </div>
   </div>
 
 </div><!-- /wrap -->
-
-<!-- SKIP BUTTON -->
-<button id="skipbtn" onclick="skipTut()" title="Direkt zum Login">Überspringen →</button>
 
 <!-- CONTROLS -->
 <div id="ctrl">
@@ -1066,6 +1214,8 @@ body::before{
     <button class="dot" data-s="3"></button>
     <button class="dot" data-s="4"></button>
     <button class="dot" data-s="5"></button>
+    <button class="dot" data-s="6"></button>
+    <button class="dot" data-s="7"></button>
   </div>
   <button id="pbtn" class="cbtn" title="Play/Pause">
     <svg id="pico" width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
@@ -1086,14 +1236,16 @@ body::before{
 </div>
 
 <script>
-const DURATIONS = [8000, 10000, 10000, 10000, 10000, 10000];
+const DURATIONS = [8000, 10000, 10000, 10000, 10000, 10000, 10000, 10000];
 const LABELS = [
-  ['Schritt 1 von 6', 'App öffnen & einloggen'],
-  ['Schritt 2 von 6', 'Aufträge entdecken'],
-  ['Schritt 3 von 6', 'Auftrag anklicken & bewerben'],
-  ['Schritt 4 von 6', 'Profil ausfüllen'],
-  ['Schritt 5 von 6', 'Bestätigung & WhatsApp'],
-  ['Schritt 6 von 6', 'Meine Bewerbungen'],
+  ['Schritt 1 von 8', 'App öffnen & einloggen'],
+  ['Schritt 2 von 8', 'Aufträge entdecken'],
+  ['Schritt 3 von 8', 'Auftrag anklicken & bewerben'],
+  ['Schritt 4 von 8', 'Profil ausfüllen'],
+  ['Schritt 5 von 8', 'Bestätigung & WhatsApp'],
+  ['Schritt 6 von 8', 'Meine Bewerbungen'],
+  ['Schritt 7 von 8', 'Vollautomatisch per WhatsApp'],
+  ['Schritt 8 von 8', 'Als App installieren'],
 ];
 
 let step = 0;
@@ -1296,7 +1448,38 @@ function anim5() {
   }, 4800);
 }
 
-const ANIMS = [anim0, anim1, anim2, anim3, anim4, anim5];
+function anim6() {
+  hideCur();
+  document.querySelectorAll('.wa-msg').forEach(m => {
+    m.classList.remove('pop');
+    m.style.opacity = '0';
+    m.style.transform = 'translateY(6px)';
+  });
+  ['wm1','wm2','wm3','wm4'].forEach((id, i) => {
+    st(() => $(id).classList.add('pop'), i * 1500 + 600);
+  });
+}
+
+function anim7() {
+  hideCur();
+  document.querySelectorAll('.istep').forEach(s => {
+    s.classList.remove('pop');
+    s.style.opacity = '0';
+    s.style.transform = 'translateX(-10px)';
+  });
+  $('appicon').classList.remove('pop');
+  $('appname').classList.remove('pop');
+
+  ['is1','is2','is3'].forEach((id, i) => {
+    st(() => $(id).classList.add('pop'), i * 1300 + 500);
+  });
+  st(() => {
+    $('appicon').classList.add('pop');
+    $('appname').classList.add('pop');
+  }, 5200);
+}
+
+const ANIMS = [anim0, anim1, anim2, anim3, anim4, anim5, anim6, anim7];
 
 // ── NAVIGATION ────────────────────────────────────
 function goTo(idx) {
@@ -1342,7 +1525,7 @@ function startTimer() {
     updateProg(Math.min(el / dur, 1));
     if (el >= dur) {
       stopTimer();
-      if (step >= 5) {
+      if (step >= 7) {
         playing = false;
         updBtn();
         markSeen();
@@ -1398,11 +1581,6 @@ document.querySelectorAll('.dot').forEach(d => {
 
 function markSeen() {
   localStorage.setItem('fess_tutorial_seen', '1');
-}
-
-function skipTut() {
-  markSeen();
-  window.location.href = 'https://fessjobs.github.io/fess.jobs/login.html';
 }
 
 function replay() {
