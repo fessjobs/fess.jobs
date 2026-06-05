@@ -356,7 +356,8 @@ section{padding:60px 20px}
 .jcard{background:#fff;border:1px solid var(--border);border-radius:11px;overflow:hidden;transition:transform .18s,box-shadow .18s}
 .jcard:hover{transform:translateY(-3px);box-shadow:0 12px 40px rgba(0,0,0,.12)}
 .jcard.urg{border-color:var(--or)}
-.urg-strip{background:#dc2626;color:#fff;font-size:9px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;text-align:center;padding:3px 0}
+.urg-strip{background:var(--or);color:transparent;font-size:9px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;text-align:center;padding:3px 0}
+.urg-strip.dringend{background:#dc2626;color:#fff}
 .jcard-img{width:100%;height:148px;position:relative;overflow:hidden}
 .jcard-img img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .3s}
 .jcard:hover .jcard-img img{transform:scale(1.05)}
@@ -625,9 +626,11 @@ canvas.sig-canvas{width:100%;height:80px;cursor:crosshair;display:block;touch-ac
       <button class="filter-pill" onclick="sf('Sport',this)">🥊 Sport</button>
       <button class="filter-pill" onclick="sf('Kino',this)">🎬 Kino</button>
       <button class="filter-pill" onclick="sf('dringend',this)" style="border-color:var(--or);color:var(--or)" data-i18n="filter_urgent">🔥 Dringend</button>
-      <select class="jobs-sort" onchange="ss(this.value)">
-        <option value="datum" data-i18n="sort_date">↑ Datum</option>
-        <option value="pax" data-i18n="sort_pax">↓ Personenbedarf</option>
+      <select class="jobs-sort" onchange="ssf(this.value)">
+        <option value="datum">↑ Datum</option>
+        <option value="pax">↓ Personenbedarf</option>
+        <option value="besetzt">✅ Vollständig besetzt</option>
+        <option value="frei">🟢 Freie Schichten</option>
       </select>
     </div>
     <div id="jobsList"></div>
@@ -893,9 +896,20 @@ function occC(p){return p>=80?'#22c55e':p>=40?'#f59e0b':'#E8651A';}
 
 function sf(f,el){CF=f;document.querySelectorAll('.filter-pill').forEach(b=>b.classList.remove('on'));if(el)el.classList.add('on');renderJobs();}
 function ss(v){CS=v;renderJobs();}
+function ssf(v){
+  if(v==='besetzt'||v==='frei'){
+    CF=v;CS='datum';
+    document.querySelectorAll('.filter-pill').forEach(b=>b.classList.remove('on'));
+  } else {
+    CS=v;
+  }
+  renderJobs();
+}
 function fevs(){
   let a=ALL.filter(e=>e.viz!==false);
   if(CF==='dringend')a=a.filter(e=>e.urg||e.dringend);
+  else if(CF==='besetzt')a=a.filter(e=>e.voll);
+  else if(CF==='frei')a=a.filter(e=>!e.voll);
   else if(CF!=='alle')a=a.filter(e=>(e.k||e.kategorie)===CF);
   if(CS==='datum')a.sort((a,b)=>(a.dv||a.datum_von||'').localeCompare(b.dv||b.datum_von||''));
   else a.sort((a,b)=>(b.pax||b.pax_gesamt||0)-(a.pax||a.pax_gesamt||0));
@@ -918,7 +932,7 @@ function jcard(e){
     ?`<span class="jcard-st st-best">${t('confirmed')}</span>`
     :`<span class="jcard-st st-ang">${t('requested')}</span>`;
   return `<div class="jcard${urg?' urg':''}">
-  ${urg?`<div class="urg-strip">${t('urgent_strip')}</div>`:''}
+  <div class="${urg?'urg-strip dringend':'urg-strip'}">${urg?t('urgent_strip'):'&nbsp;'}</div>
   <div class="jcard-img ${gr}">
     <img src="${img}" alt="${name}" loading="lazy" onerror="this.style.display='none'">
     <div class="jcard-fb" style="display:none">${ic}</div>
