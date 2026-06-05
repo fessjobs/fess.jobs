@@ -330,6 +330,19 @@ body::before{
   font-family:'Barlow',sans-serif;
 }
 
+#skipbtn{
+  position:fixed;top:18px;right:20px;
+  background:rgba(255,255,255,.07);
+  border:1px solid rgba(255,255,255,.12);
+  color:rgba(255,255,255,.5);
+  font-family:'Barlow',sans-serif;
+  font-size:12px;font-weight:600;
+  padding:6px 14px;border-radius:20px;
+  cursor:pointer;z-index:800;
+  transition:all .2s;
+}
+#skipbtn:hover{background:rgba(255,255,255,.12);color:#fff}
+
 /* ═══════════════════════════════════════════════
    SCREEN 1 – LOGIN
 ═══════════════════════════════════════════════ */
@@ -1038,6 +1051,9 @@ body::before{
 
 </div><!-- /wrap -->
 
+<!-- SKIP BUTTON -->
+<button id="skipbtn" onclick="skipTut()" title="Direkt zum Login">Überspringen →</button>
+
 <!-- CONTROLS -->
 <div id="ctrl">
   <button class="cbtn" id="prevbtn" title="Zurück">
@@ -1065,7 +1081,7 @@ body::before{
   <div class="end-logo">F</div>
   <h1 class="end-h">Bereit loszulegen?</h1>
   <p class="end-p">Jetzt weißt du wie fess.jobs funktioniert. Melde dich an und bewirb dich auf deinen ersten Einsatz!</p>
-  <a class="end-cta" href="https://fessjobs.github.io/fess.jobs/login.html" target="_blank">Jetzt bewerben →</a><br>
+  <a class="end-cta" href="https://fessjobs.github.io/fess.jobs/login.html" onclick="markSeen()">Jetzt bewerben →</a><br>
   <button class="end-replay" onclick="replay()">Tutorial wiederholen</button>
 </div>
 
@@ -1329,6 +1345,7 @@ function startTimer() {
       if (step >= 5) {
         playing = false;
         updBtn();
+        markSeen();
         $('end').classList.add('vis');
       } else {
         goTo(step + 1);
@@ -1378,6 +1395,15 @@ document.querySelectorAll('.dot').forEach(d => {
     goTo(parseInt(d.dataset.s));
   });
 });
+
+function markSeen() {
+  localStorage.setItem('fess_tutorial_seen', '1');
+}
+
+function skipTut() {
+  markSeen();
+  window.location.href = 'https://fessjobs.github.io/fess.jobs/login.html';
+}
 
 function replay() {
   $('end').classList.remove('vis');
