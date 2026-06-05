@@ -96,7 +96,9 @@ body::before{
 
 /* ── MAIN LAYOUT ─────────────────────────────── */
 #wrap{
-  display:flex;align-items:center;gap:52px;
+  display:flex;align-items:center;
+  column-gap:52px;row-gap:14px;
+  flex-wrap:wrap;justify-content:center;align-content:center;
   max-width:860px;width:100%;
   position:relative;z-index:1;
   flex:1;
@@ -237,8 +239,7 @@ body::before{
 
 /* ── CONTROLS ────────────────────────────────── */
 #ctrl{
-  width:100%;max-width:860px;
-  margin-top:14px;
+  flex-basis:100%;
   display:flex;align-items:center;justify-content:center;gap:12px;
   position:relative;z-index:1;
 }
@@ -903,20 +904,18 @@ body::before{
     white-space:nowrap;
   }
 
-  /* Main layout: column, phone centered */
+  /* wrap: column, shrink to fit content – no expansion */
   #wrap{
     flex-direction:column;
     align-items:center;
-    gap:0;
-    flex:1;
+    column-gap:0;row-gap:0;
+    flex:0 0 auto;
     width:100%;
-    overflow:hidden;
+    overflow:visible;
   }
 
-  /* Scale the phone frame to ~68% – content stays
-     at designed resolution, just visually smaller.
-     Negative margin pulls the explanation up into
-     the "empty" space below the shrunken frame.     */
+  /* Scale the phone frame to ~68% – content stays crisp.
+     Negative margin pulls explanation up into empty space. */
   #phone-outer{
     transform:scale(.68);
     transform-origin:top center;
@@ -924,7 +923,7 @@ body::before{
     flex-shrink:0;
   }
 
-  /* Explanation: compact card below phone */
+  /* Explanation: compact, centered, directly below phone */
   #expl{
     max-width:100%;
     width:100%;
@@ -933,25 +932,17 @@ body::before{
     flex-shrink:0;
   }
   .en{display:none}
-  .et{
-    font-size:17px;
-    margin-bottom:5px;
-    line-height:1.15;
-  }
+  .et{font-size:17px;margin-bottom:5px;line-height:1.15}
   .ed{
-    font-size:12px;
-    color:#888;
-    line-height:1.45;
-    margin-bottom:0;
-    display:-webkit-box;
-    -webkit-line-clamp:2;
-    -webkit-box-orient:vertical;
-    overflow:hidden;
+    font-size:12px;color:#888;line-height:1.45;margin-bottom:0;
+    display:-webkit-box;-webkit-line-clamp:2;
+    -webkit-box-orient:vertical;overflow:hidden;
   }
   .eh{display:none}
 
-  /* Controls: compact, full-width */
+  /* Controls: directly below description */
   #ctrl{
+    flex-basis:auto;
     margin-top:10px;
     gap:10px;
     flex-shrink:0;
@@ -971,7 +962,7 @@ body::before{
   }
   .et{font-size:15px}
   .ed{-webkit-line-clamp:1;font-size:11px}
-  #ctrl{margin-top:6px}
+  #ctrl{margin-top:6px;flex-basis:auto}
   .cbtn{width:32px;height:32px}
   #pbtn{width:42px;height:42px}
 }
@@ -997,7 +988,7 @@ body::before{
   .en{display:none}
   .et{font-size:16px;margin-bottom:6px}
   .ed{font-size:12px;-webkit-line-clamp:3}
-  #ctrl{margin-top:6px}
+  #ctrl{margin-top:6px;flex-basis:auto}
   .cbtn{width:32px;height:32px}
   #pbtn{width:42px;height:42px}
   .dot{width:5px;height:5px}
@@ -1313,31 +1304,31 @@ body::before{
     </div>
   </div>
 
-</div><!-- /wrap -->
-
-<!-- CONTROLS -->
-<div id="ctrl">
-  <button class="cbtn" id="prevbtn" title="Zurück">
-    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
-  </button>
-  <div id="dots">
-    <button class="dot on" data-s="0"></button>
-    <button class="dot" data-s="1"></button>
-    <button class="dot" data-s="2"></button>
-    <button class="dot" data-s="3"></button>
-    <button class="dot" data-s="4"></button>
-    <button class="dot" data-s="5"></button>
-    <button class="dot" data-s="6"></button>
-    <button class="dot" data-s="7"></button>
+  <!-- CONTROLS -->
+  <div id="ctrl">
+    <button class="cbtn" id="prevbtn" title="Zurück">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+    </button>
+    <div id="dots">
+      <button class="dot on" data-s="0"></button>
+      <button class="dot" data-s="1"></button>
+      <button class="dot" data-s="2"></button>
+      <button class="dot" data-s="3"></button>
+      <button class="dot" data-s="4"></button>
+      <button class="dot" data-s="5"></button>
+      <button class="dot" data-s="6"></button>
+      <button class="dot" data-s="7"></button>
+    </div>
+    <button id="pbtn" class="cbtn" title="Play/Pause">
+      <svg id="pico" width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+      <svg id="paico" width="14" height="14" viewBox="0 0 24 24" fill="currentColor" style="display:none"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+    </button>
+    <button class="cbtn" id="nextbtn" title="Weiter">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+    </button>
   </div>
-  <button id="pbtn" class="cbtn" title="Play/Pause">
-    <svg id="pico" width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
-    <svg id="paico" width="14" height="14" viewBox="0 0 24 24" fill="currentColor" style="display:none"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
-  </button>
-  <button class="cbtn" id="nextbtn" title="Weiter">
-    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
-  </button>
-</div>
+
+</div><!-- /wrap -->
 
 <!-- END SCREEN -->
 <div id="end">
