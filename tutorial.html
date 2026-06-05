@@ -855,9 +855,8 @@ body::before{
 
 #appicon{
   width:56px;height:56px;
-  background:var(--or);border-radius:13px;
-  display:flex;align-items:center;justify-content:center;
-  font-family:'Bitter',serif;font-size:24px;font-weight:900;color:#fff;
+  border-radius:13px;
+  display:block;
   margin:0 auto 5px;
   box-shadow:0 4px 16px rgba(232,101,26,.3);
   opacity:0;transform:scale(.6);
@@ -914,7 +913,7 @@ body::before{
         <!-- S1: LOGIN -->
         <div class="scr on" id="s1">
           <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;padding:52px 26px 24px">
-            <div class="flogo">F</div>
+            <div class="flogo" style="font-size:14px;letter-spacing:-.5px">FESS</div>
             <div class="ltitle">Willkommen zurück</div>
             <div class="lsub">Melde dich mit deinen Zugangsdaten an</div>
             <div class="ff" style="width:100%">
@@ -933,7 +932,7 @@ body::before{
         <!-- S2: JOBS LIST -->
         <div class="scr" id="s2">
           <div class="anav">
-            <div class="nlogo">F</div>
+            <div class="nlogo" style="font-size:9px;letter-spacing:-.3px">FESS</div>
             <div class="ntitle">Aktuelle Einsätze</div>
             <div class="nava"></div>
           </div>
@@ -1082,7 +1081,7 @@ body::before{
         <div class="scr" id="s7">
           <div style="display:flex;flex-direction:column;height:100%">
             <div class="wa-hdr">
-              <div class="wa-av">F</div>
+              <img class="wa-av" src="icon-192.svg" alt="FESS" style="object-fit:cover;border-radius:50%;padding:0;background:none">
               <div>
                 <div class="wa-name">fess.jobs Assistent</div>
                 <div class="wa-sub">SuperChat KI · online</div>
@@ -1127,7 +1126,7 @@ body::before{
               </div>
             </div>
             <div style="margin-top:auto;display:flex;justify-content:center;padding-top:10px;flex-direction:column;align-items:center">
-              <div id="appicon">F</div>
+              <img id="appicon" src="icon-192.svg" alt="FESS">
               <div id="appname">fess.jobs</div>
             </div>
             <div style="text-align:center;margin-top:10px">
@@ -1228,7 +1227,7 @@ body::before{
 
 <!-- END SCREEN -->
 <div id="end">
-  <div class="end-logo">F</div>
+  <img src="icon-192.svg" alt="FESS" style="width:60px;height:60px;border-radius:16px;box-shadow:0 8px 32px rgba(232,101,26,.35);margin-bottom:22px;display:block">
   <h1 class="end-h">Bereit loszulegen?</h1>
   <p class="end-p">Jetzt weißt du wie fess.jobs funktioniert. Melde dich an und bewirb dich auf deinen ersten Einsatz!</p>
   <a class="end-cta" href="https://fessjobs.github.io/fess.jobs/login.html" onclick="markSeen()">Jetzt bewerben →</a><br>
