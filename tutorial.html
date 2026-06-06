@@ -19,11 +19,11 @@
 :root{
   --or:#E8651A;
   --or-dark:#d4580f;
-  --bg:#0f0f0f;
-  --surface:#161616;
-  --border-dark:#222;
-  --text:#fff;
-  --muted:#777;
+  --bg:#ffffff;
+  --surface:#f4f5f7;
+  --border-dark:#e5e7eb;
+  --text:#111827;
+  --muted:#6b7280;
   --app-bg:#f4f5f7;
   --app-white:#fff;
   --app-border:#e5e7eb;
@@ -48,16 +48,15 @@ body{
   gap:0;
 }
 
-/* subtle radial glow behind phone */
+/* orange accent bar at top */
 body::before{
   content:'';
   position:fixed;
-  top:50%;left:50%;
-  transform:translate(-50%,-50%);
-  width:500px;height:500px;
-  background:radial-gradient(circle,rgba(232,101,26,.06) 0%,transparent 70%);
+  top:0;left:0;right:0;
+  height:3px;
+  background:var(--or);
   pointer-events:none;
-  z-index:0;
+  z-index:10;
 }
 
 /* ── PROGRESS HEADER ─────────────────────────── */
@@ -89,7 +88,7 @@ body::before{
 
 #pbar{
   width:100%;height:2px;
-  background:rgba(255,255,255,.08);
+  background:rgba(0,0,0,.09);
   border-radius:2px;overflow:hidden;
 }
 
@@ -158,8 +157,8 @@ body::before{
   border:10px solid #1a1a1a;
   box-shadow:
     0 0 0 1px #2a2a2a,
-    0 32px 80px rgba(0,0,0,.9),
-    0 0 40px rgba(232,101,26,.08);
+    0 24px 64px rgba(0,0,0,.22),
+    0 8px 24px rgba(0,0,0,.1);
   position:relative;
   overflow:hidden;
 }
@@ -241,13 +240,13 @@ body::before{
 .et{
   font-family:'Bitter',serif;
   font-size:26px;font-weight:900;
-  color:#fff;line-height:1.1;
+  color:var(--text);line-height:1.1;
   margin-bottom:14px;
 }
 
 .ed{
   font-size:14px;font-weight:400;
-  color:#999;line-height:1.65;
+  color:var(--muted);line-height:1.65;
   margin-bottom:18px;
 }
 
@@ -271,9 +270,9 @@ body::before{
 }
 
 .cbtn{
-  background:var(--surface);
-  border:1px solid var(--border-dark);
-  color:#fff;
+  background:#fff;
+  border:1.5px solid var(--border-dark);
+  color:#374151;
   width:38px;height:38px;
   border-radius:50%;
   cursor:pointer;
@@ -281,8 +280,9 @@ body::before{
   transition:all .15s;
   font-size:13px;
   flex-shrink:0;
+  box-shadow:0 1px 4px rgba(0,0,0,.07);
 }
-.cbtn:hover{background:#222;border-color:#333}
+.cbtn:hover{background:var(--surface);border-color:#d1d5db}
 
 #pbtn{
   width:50px;height:50px;
@@ -297,7 +297,7 @@ body::before{
 .dot{
   width:7px;height:7px;
   border-radius:4px;
-  background:#2a2a2a;
+  background:#d1d5db;
   border:none;cursor:pointer;
   transition:all .25s;padding:0;
 }
@@ -361,8 +361,8 @@ body::before{
 .end-install{
   display:none;
   align-items:center;gap:10px;
-  background:rgba(232,101,26,.08);
-  border:1.5px solid rgba(232,101,26,.5);
+  background:#fff4ee;
+  border:1.5px solid rgba(232,101,26,.4);
   color:var(--or);
   font-family:'Barlow',sans-serif;
   font-size:14px;font-weight:700;
@@ -373,7 +373,7 @@ body::before{
   width:100%;max-width:280px;
   justify-content:center;
 }
-.end-install:hover{background:rgba(232,101,26,.18);border-color:var(--or)}
+.end-install:hover{background:#ffe8d6;border-color:var(--or)}
 
 #ios-install-hint{
   position:fixed;inset:0;
@@ -384,25 +384,26 @@ body::before{
 }
 #ios-install-hint.vis{display:flex}
 .ios-hint-box{
-  background:#1c1c1c;
-  border:1px solid #2a2a2a;
+  background:#ffffff;
+  border:1px solid var(--border-dark);
   border-radius:20px;
   padding:30px 24px;
   max-width:300px;width:100%;
   text-align:center;
-  box-shadow:0 24px 70px rgba(0,0,0,.6);
+  box-shadow:0 24px 70px rgba(0,0,0,.18);
 }
 .ios-hint-box h2{
   font-family:'Bitter',serif;
   font-size:20px;font-weight:900;
+  color:var(--text);
   margin-bottom:14px;
 }
 .ios-hint-steps{
   font-family:'Barlow',sans-serif;
-  font-size:14px;color:#bbb;line-height:1.7;
+  font-size:14px;color:var(--muted);line-height:1.7;
   margin-bottom:20px;text-align:left;
 }
-.ios-hint-steps strong{color:#fff}
+.ios-hint-steps strong{color:var(--text)}
 .ios-hint-ok{
   background:var(--or);color:#fff;
   border:none;padding:12px 36px;
@@ -964,11 +965,10 @@ body::before{
   }
 
   body{
-    padding:10px 0 12px;
+    padding:13px 0 12px;
     justify-content:flex-start;
     gap:0;
   }
-  body::before{display:none}
 
   #hdr{
     width:100%;
@@ -1051,8 +1051,7 @@ body::before{
 /* Mobile landscape */
 @media(max-height:480px) and (orientation:landscape){
   html,body{overflow:hidden;height:100dvh}
-  body{padding:6px 16px;flex-direction:column;gap:0}
-  body::before{display:none}
+  body{padding:9px 16px 6px;flex-direction:column;gap:0}
   #hdr{margin-bottom:4px}
   #wrap{flex-direction:row;gap:24px;align-items:flex-start;flex:1}
   #phone-outer{
