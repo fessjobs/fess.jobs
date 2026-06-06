@@ -100,6 +100,26 @@ body::before{
   transition:width .08s linear;
 }
 
+#hdr-install-btn{
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  width:100%;
+  margin-top:10px;
+  background:var(--or);color:#fff;
+  font-family:'Bitter',serif;
+  font-size:13px;font-weight:800;
+  padding:11px 20px;border-radius:10px;
+  border:none;cursor:pointer;
+  box-shadow:0 4px 18px rgba(232,101,26,.4);
+  transition:background .15s,transform .15s,box-shadow .15s;
+  letter-spacing:.01em;
+}
+#hdr-install-btn:hover{
+  background:var(--or-dark);
+  transform:translateY(-1px);
+  box-shadow:0 6px 22px rgba(232,101,26,.5);
+}
+#hdr-install-btn:active{transform:translateY(0)}
+
 /* ── MAIN LAYOUT ─────────────────────────────── */
 #wrap{
   display:flex;align-items:center;
@@ -1025,6 +1045,7 @@ body::before{
   #ctrl{margin-top:6px;flex-basis:auto}
   .cbtn{width:32px;height:32px}
   #pbtn{width:42px;height:42px}
+  #hdr-install-btn{font-size:12px;padding:9px 16px;margin-top:7px}
 }
 
 /* Mobile landscape */
@@ -1065,6 +1086,10 @@ body::before{
     <span id="step-ttl">App öffnen &amp; einloggen</span>
   </div>
   <div id="pbar"><div id="pfill"></div></div>
+  <button id="hdr-install-btn" onclick="triggerInstall()">
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="flex-shrink:0"><path d="M12 16l-4-4h3V4h2v8h3l-4 4z"/><path d="M20 20H4"/></svg>
+    App jetzt installieren
+  </button>
 </div>
 
 <!-- MAIN -->
@@ -1409,9 +1434,12 @@ body::before{
   <div class="ios-hint-box">
     <h2>App installieren</h2>
     <div class="ios-hint-steps">
-      1. Tippe auf das <strong>⬆ Teilen-Symbol</strong> in Safari<br>
+      <strong>iPhone / iPad (Safari)</strong><br>
+      1. Tippe auf das <strong>⬆ Teilen-Symbol</strong><br>
       2. Wähle <strong>„Zum Home-Bildschirm"</strong><br>
-      3. Bestätige mit <strong>„Hinzufügen"</strong>
+      3. Bestätige mit <strong>„Hinzufügen"</strong><br><br>
+      <strong>Android (Chrome)</strong><br>
+      Tippe auf <strong>⋮ Menü → „Zum Startbildschirm"</strong>
     </div>
     <button class="ios-hint-ok" onclick="document.getElementById('ios-install-hint').classList.remove('vis')">OK, verstanden</button>
   </div>
@@ -1776,9 +1804,16 @@ let installPrompt = null;
 const _isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent) && !window.MSStream;
 const _isStandalone = window.matchMedia('(display-mode: standalone)').matches || !!navigator.standalone;
 
+// Hide header install button if already running as installed app
+if (_isStandalone) {
+  const hb = $('hdr-install-btn');
+  if (hb) hb.style.display = 'none';
+}
+
 window.addEventListener('beforeinstallprompt', e => {
   e.preventDefault();
   installPrompt = e;
+  // Also show end-screen install button
   const btn = $('install-btn');
   if (btn) {
     $('install-lbl').textContent = 'App installieren';
@@ -1786,6 +1821,7 @@ window.addEventListener('beforeinstallprompt', e => {
   }
 });
 
+// Show end-screen button on iOS (header button is always visible there)
 if (_isIOS && !_isStandalone) {
   const btn = $('install-btn');
   if (btn) {
@@ -1800,9 +1836,10 @@ async function triggerInstall() {
     const { outcome } = await installPrompt.userChoice;
     if (outcome === 'accepted') {
       $('install-btn').style.display = 'none';
+      $('hdr-install-btn').style.display = 'none';
     }
     installPrompt = null;
-  } else if (_isIOS) {
+  } else {
     document.getElementById('ios-install-hint').classList.add('vis');
   }
 }
