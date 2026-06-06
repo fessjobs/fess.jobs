@@ -42,6 +42,14 @@ body{background:var(--or);font-family:var(--font);min-height:100vh;min-height:10
 .pending-icon{font-size:52px;margin-bottom:12px}
 .pending-title{font-family:'Bitter',serif;font-weight:900;font-size:20px;color:#111827;margin-bottom:8px}
 .pending-text{font-size:12px;color:#6b7280;line-height:1.7}
+.wa-support-btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;background:#25D366;color:#fff;border:none;border-radius:10px;font-family:'Bitter',serif;font-weight:800;font-size:13px;padding:12px;cursor:pointer;text-decoration:none;margin-top:16px;transition:background .15s}
+.wa-support-btn:hover{background:#1da951}
+.wa-support-btn svg{flex-shrink:0}
+.signout-link{text-align:center;margin-top:14px}
+.signout-link button{background:none;border:none;font-size:11px;color:#9ca3af;cursor:pointer;font-family:var(--font);padding:0}
+.signout-link button:hover{color:#6b7280;text-decoration:underline}
+.realtime-dot{display:inline-block;width:7px;height:7px;background:#10b981;border-radius:50%;margin-right:5px;animation:pulse-dot 2s ease-in-out infinite}
+@keyframes pulse-dot{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(.8)}}
 .loading{display:inline-block;width:16px;height:16px;border:2px solid rgba(255,255,255,.4);border-top-color:#fff;border-radius:50%;animation:spin .6s linear infinite;vertical-align:middle;margin-right:6px}
 @keyframes spin{to{transform:rotate(360deg)}}
 .footer-links{text-align:center;margin-top:18px;font-size:11px;color:rgba(255,255,255,.75)}
@@ -116,9 +124,18 @@ body{background:var(--or);font-family:var(--font);min-height:100vh;min-height:10
     <div class="pending-box">
       <div class="pending-icon">⏳</div>
       <div class="pending-title">Anfrage eingegangen!</div>
-      <p class="pending-text">Deine Registrierung als <strong>FESS Crew</strong> wird geprüft.<br><br>
-      Du erhältst eine WhatsApp-Nachricht sobald dein Zugang freigeschaltet wurde.</p>
-      <button class="btn-main" style="margin-top:18px" onclick="doSignOut()">Abmelden</button>
+      <p class="pending-text">
+        Deine Registrierung als <strong>FESS Crew</strong> wird geprüft.<br><br>
+        Wir schalten deinen Zugang innerhalb von <strong>24 Stunden</strong> frei.
+        Sobald es so weit ist, wirst du <span class="realtime-dot"></span>automatisch eingeloggt.
+      </p>
+      <a class="wa-support-btn" id="wa-support-link" href="https://wa.me/491633626855?text=Hallo%20FESS%20Team%2C%20ich%20habe%20mich%20bei%20fess.jobs%20registriert%2C%20aber%20nach%2024%20Stunden%20noch%20keinen%20Zugang%20erhalten.%20K%C3%B6nnt%20ihr%20mir%20helfen%3F" target="_blank">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a7.66 7.66 0 00-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+        Kein Zugang nach 24h? Support kontaktieren
+      </a>
+      <div class="signout-link">
+        <button onclick="doSignOut()">Abmelden</button>
+      </div>
     </div>
   </div>
 </div>
@@ -173,19 +190,42 @@ async function redirectUser(user){
   try {
     const { data: p } = await sb.from('profiles').select('role,status').eq('id', user.id).single();
     if(p?.role === 'admin'){ window.location.href = 'admin-fess2025.html'; return; }
-    if(p?.status === 'pending'){ showPending(); return; }
+    if(p?.status === 'pending'){ showPending(user); return; }
     if(p?.status === 'blocked'){ await sb.auth.signOut(); showMsg('Zugang gesperrt. Kontakt: admin@fess.jobs', 'err'); return; }
   } catch(e){ /* profiles table not set up yet, allow access */ }
   window.location.href = 'index.html';
 }
 
-function showPending(){
+let _realtimeChannel = null;
+
+function showPending(user){
   document.querySelectorAll('.tab').forEach(t=>t.style.display='none');
   document.querySelectorAll('.form-view').forEach(v=>v.classList.remove('on'));
   document.getElementById('view-pending').classList.add('on');
+  // Update WhatsApp link with user email for better support context
+  if(user?.email){
+    const msg = encodeURIComponent(`Hallo FESS Team, ich habe mich bei fess.jobs mit ${user.email} registriert, aber nach 24 Stunden noch keinen Zugang erhalten. Könnt ihr mir helfen?`);
+    const el = document.getElementById('wa-support-link');
+    if(el) el.href = `https://wa.me/491633626855?text=${msg}`;
+  }
+  // Auto-login via Realtime when admin approves
+  if(user?.id && !_realtimeChannel){
+    _realtimeChannel = sb.channel('pending-approval')
+      .on('postgres_changes',{event:'UPDATE',schema:'public',table:'profiles',filter:`id=eq.${user.id}`},
+        payload => {
+          if(payload.new?.status && payload.new.status !== 'pending'){
+            window.location.href = 'index.html';
+          }
+        })
+      .subscribe();
+  }
 }
 
-async function doSignOut(){ await sb.auth.signOut(); location.reload(); }
+async function doSignOut(){
+  if(_realtimeChannel) sb.removeChannel(_realtimeChannel);
+  await sb.auth.signOut();
+  location.reload();
+}
 
 // ── Check existing session ──
 sb.auth.getSession().then(({ data: { session }}) => {
@@ -237,8 +277,8 @@ async function doRegister(){
       });
     } catch(e){ console.warn('profiles:', e); }
   }
-  // Show pending or email confirm message
-  showPending();
+  // Show pending screen – Realtime listener waits for admin approval
+  showPending(data.user);
 }
 
 // ── FORGOT PASSWORD ──
