@@ -1,0 +1,1195 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Stagehand Schulung – fess.jobs</title>
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="theme-color" content="#E8651A">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bitter:wght@700;800;900&family=Barlow:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+:root{
+  --or:#E8651A;
+  --or-dark:#d4580f;
+  --or-light:#fff4ee;
+  --bg:#ffffff;
+  --surface:#f4f5f7;
+  --border:#e5e7eb;
+  --text:#111827;
+  --muted:#6b7280;
+  --danger:#dc2626;
+  --danger-bg:#fef2f2;
+  --danger-border:#fecaca;
+  --warn-bg:#fffbeb;
+  --warn-border:#fde68a;
+  --warn-text:#92400e;
+  --green:#059669;
+  --green-bg:#ecfdf5;
+}
+
+html,body{
+  height:100%;
+  overflow:hidden;
+  background:var(--bg);
+  color:var(--text);
+  font-family:'Barlow',sans-serif;
+}
+
+/* ── TOP BAR ─────────────────────────────────── */
+#topbar{
+  position:fixed;top:0;left:0;right:0;
+  height:3px;background:var(--or);z-index:100;
+}
+
+/* ── HEADER ──────────────────────────────────── */
+#hdr{
+  position:fixed;top:3px;left:0;right:0;
+  background:#fff;
+  border-bottom:1px solid var(--border);
+  padding:10px 16px 8px;
+  z-index:90;
+  box-shadow:0 1px 0 rgba(0,0,0,.04);
+}
+
+#hdr-top{
+  display:flex;align-items:center;justify-content:space-between;
+  margin-bottom:8px;
+}
+
+.fess-logo{
+  font-family:'Bitter',serif;
+  font-size:15px;font-weight:900;
+  color:var(--or);letter-spacing:-.3px;
+}
+
+#schulung-label{
+  font-size:10px;font-weight:700;
+  text-transform:uppercase;letter-spacing:.1em;
+  color:var(--muted);
+}
+
+#step-info{
+  display:flex;align-items:center;gap:8px;
+}
+
+#step-badge{
+  background:var(--or-light);
+  color:var(--or);
+  font-size:10px;font-weight:700;
+  text-transform:uppercase;letter-spacing:.08em;
+  padding:3px 9px;border-radius:20px;
+  white-space:nowrap;
+}
+
+#step-title{
+  font-size:11px;font-weight:600;color:var(--muted);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  max-width:180px;
+}
+
+#pbar{
+  height:3px;background:var(--surface);
+  border-radius:2px;overflow:hidden;
+}
+#pfill{
+  height:100%;width:0;
+  background:var(--or);
+  border-radius:2px;
+  transition:width .1s linear;
+}
+
+/* ── SLIDES CONTAINER ────────────────────────── */
+#slides{
+  position:fixed;
+  top:73px;left:0;right:0;bottom:72px;
+  overflow:hidden;
+}
+
+.slide{
+  position:absolute;inset:0;
+  display:flex;flex-direction:column;
+  opacity:0;pointer-events:none;
+  transition:opacity .4s ease;
+  overflow-y:auto;
+  -webkit-overflow-scrolling:touch;
+  scrollbar-width:none;
+}
+.slide::-webkit-scrollbar{display:none}
+.slide.active{opacity:1;pointer-events:all}
+
+/* ── SLIDE ICON AREA ─────────────────────────── */
+.slide-icon{
+  flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+  padding:28px 20px 16px;
+  background:var(--surface);
+  border-bottom:1px solid var(--border);
+  min-height:140px;
+}
+
+/* ── SLIDE BODY ──────────────────────────────── */
+.slide-body{
+  flex:1;padding:20px 20px 16px;
+  display:flex;flex-direction:column;gap:12px;
+}
+
+.slide-label{
+  font-size:10px;font-weight:700;
+  text-transform:uppercase;letter-spacing:.1em;
+  color:var(--or);
+}
+
+.slide-title{
+  font-family:'Bitter',serif;
+  font-size:22px;font-weight:900;
+  color:var(--text);line-height:1.15;
+}
+
+.slide-text{
+  font-size:14px;color:var(--muted);
+  line-height:1.65;
+}
+
+/* ── CALLOUT BOXES ───────────────────────────── */
+.callout{
+  border-radius:10px;padding:12px 14px;
+  font-size:13px;line-height:1.55;
+}
+.callout-danger{
+  background:var(--danger-bg);
+  border:1.5px solid var(--danger-border);
+  color:var(--danger);
+}
+.callout-warn{
+  background:var(--warn-bg);
+  border:1.5px solid var(--warn-border);
+  color:var(--warn-text);
+}
+.callout-green{
+  background:var(--green-bg);
+  border:1.5px solid #a7f3d0;
+  color:var(--green);
+}
+.callout-orange{
+  background:var(--or-light);
+  border:1.5px solid rgba(232,101,26,.3);
+  color:var(--or-dark);
+}
+.callout strong{display:block;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;margin-bottom:4px;opacity:.8}
+
+/* ── ITEM LIST ───────────────────────────────── */
+.item-list{
+  display:flex;flex-direction:column;gap:8px;
+}
+
+.item{
+  display:flex;align-items:flex-start;gap:10px;
+  padding:10px 12px;
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:10px;
+  opacity:0;transform:translateY(8px);
+}
+.item.pop{animation:ipop .35s ease forwards}
+@keyframes ipop{to{opacity:1;transform:translateY(0)}}
+
+.item-icon{
+  font-size:18px;flex-shrink:0;
+  line-height:1.2;margin-top:1px;
+}
+
+.item-content{}
+.item-title{
+  font-size:13px;font-weight:700;color:var(--text);
+  margin-bottom:2px;
+}
+.item-sub{font-size:12px;color:var(--muted);line-height:1.45}
+
+.badge{
+  display:inline-block;
+  font-size:9px;font-weight:800;
+  text-transform:uppercase;letter-spacing:.06em;
+  padding:2px 7px;border-radius:8px;
+  margin-left:6px;vertical-align:middle;
+}
+.badge-danger{background:var(--danger-bg);color:var(--danger);border:1px solid var(--danger-border)}
+.badge-warn{background:var(--warn-bg);color:#b45309;border:1px solid var(--warn-border)}
+.badge-ok{background:var(--green-bg);color:var(--green);border:1px solid #a7f3d0}
+
+/* ── NUMBER STEPS ────────────────────────────── */
+.steps{display:flex;flex-direction:column;gap:8px}
+
+.step-row{
+  display:flex;align-items:flex-start;gap:10px;
+  opacity:0;transform:translateX(-8px);
+}
+.step-row.pop{animation:spop .35s ease forwards}
+@keyframes spop{to{opacity:1;transform:translateX(0)}}
+
+.step-num{
+  width:26px;height:26px;flex-shrink:0;
+  background:var(--or);border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:11px;font-weight:800;color:#fff;
+  margin-top:2px;
+}
+.step-num.red{background:var(--danger)}
+.step-content{}
+.step-title{font-size:13px;font-weight:700;color:var(--text);margin-bottom:2px}
+.step-sub{font-size:12px;color:var(--muted);line-height:1.45}
+
+/* ── SVG ANIMATIONS ──────────────────────────── */
+.anim-wrap{
+  display:flex;align-items:center;justify-content:center;
+  width:100%;
+}
+
+/* Slide 1 – stage spotlight */
+.stage-svg circle.spot{
+  opacity:0;
+  animation:spotfade 2s ease 0.5s infinite alternate;
+}
+@keyframes spotfade{to{opacity:.7}}
+
+.stage-svg .figure{
+  animation:figbob 2s ease-in-out infinite alternate;
+  transform-origin:50% 100%;
+}
+@keyframes figbob{to{transform:translateY(-3px)}}
+
+/* Slide 2 – tools pulse */
+.tool-icon{
+  font-size:44px;
+  animation:toolpop .6s cubic-bezier(.34,1.56,.64,1) both;
+}
+@keyframes toolpop{from{transform:scale(0);opacity:0}to{transform:scale(1);opacity:1}}
+
+/* Slide 3 – PPE items */
+.psa-grid{
+  display:grid;grid-template-columns:1fr 1fr;
+  gap:8px;width:100%;max-width:260px;
+}
+.psa-item{
+  display:flex;flex-direction:column;align-items:center;
+  background:#fff;border:1.5px solid var(--border);
+  border-radius:10px;padding:10px 8px;
+  opacity:0;transform:scale(.85);
+}
+.psa-item.pflicht{border-color:var(--danger-border);background:var(--danger-bg)}
+.psa-item.pop{animation:psapop .4s cubic-bezier(.34,1.56,.64,1) forwards}
+@keyframes psapop{to{opacity:1;transform:scale(1)}}
+.psa-icon{font-size:28px;margin-bottom:4px}
+.psa-name{font-size:10px;font-weight:700;color:var(--text);text-align:center}
+.psa-flag{font-size:9px;font-weight:700;color:var(--danger);text-transform:uppercase;letter-spacing:.06em}
+
+/* Slide 4 – warning signs */
+.warn-svg{animation:warnspin 0s}
+.shield-icon{
+  font-size:52px;
+  animation:shieldpulse 2s ease infinite;
+}
+@keyframes shieldpulse{
+  0%,100%{transform:scale(1)}
+  50%{transform:scale(1.06)}
+}
+
+/* Slide 5 – lift diagram */
+.lift-icon{
+  font-size:46px;
+  animation:liftbob 1.8s ease-in-out infinite alternate;
+}
+@keyframes liftbob{to{transform:translateY(-4px)}}
+
+/* Slide 6 – radio waves */
+.radio-wrap{position:relative;display:inline-flex;align-items:center;justify-content:center}
+.radio-icon{font-size:46px;position:relative;z-index:1}
+.radio-ring{
+  position:absolute;
+  border-radius:50%;
+  border:2px solid rgba(232,101,26,.3);
+  animation:radring 2s ease-out infinite;
+}
+.radio-ring:nth-child(2){animation-delay:.6s}
+.radio-ring:nth-child(3){animation-delay:1.2s}
+@keyframes radring{
+  0%{width:60px;height:60px;opacity:.8;transform:translate(-50%,-50%)}
+  100%{width:130px;height:130px;opacity:0;transform:translate(-50%,-50%)}
+}
+
+/* Slide 7 – app checkin */
+.app-icon{font-size:46px;animation:appbounce .7s cubic-bezier(.34,1.56,.64,1) both}
+@keyframes appbounce{from{transform:scale(0) rotate(-10deg)}to{transform:scale(1) rotate(0)}}
+
+/* Slide 8 – emergency */
+.emergency-icon{
+  font-size:52px;
+  animation:emergpulse .8s ease infinite alternate;
+}
+@keyframes emergpulse{to{transform:scale(1.1)}}
+
+/* ── VOICEOVER BUTTON ────────────────────────── */
+.vo-btn{
+  display:flex;align-items:center;gap:7px;
+  background:#fff;
+  border:1.5px solid var(--border);
+  color:var(--muted);
+  font-family:'Barlow',sans-serif;
+  font-size:12px;font-weight:600;
+  padding:9px 16px;border-radius:22px;
+  cursor:pointer;
+  transition:all .15s;
+  flex-shrink:0;
+  align-self:flex-start;
+  box-shadow:0 1px 4px rgba(0,0,0,.06);
+}
+.vo-btn:hover{border-color:var(--or);color:var(--or)}
+.vo-btn.speaking{
+  background:var(--or-light);
+  border-color:var(--or);
+  color:var(--or);
+}
+.vo-btn svg{flex-shrink:0}
+
+/* ── BOTTOM CONTROLS ─────────────────────────── */
+#ctrl{
+  position:fixed;bottom:0;left:0;right:0;
+  height:72px;
+  background:#fff;
+  border-top:1px solid var(--border);
+  display:flex;align-items:center;justify-content:center;
+  gap:12px;
+  z-index:90;
+  padding:0 20px;
+}
+
+.cbtn{
+  width:40px;height:40px;
+  background:#fff;
+  border:1.5px solid var(--border);
+  color:#374151;
+  border-radius:50%;
+  cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  transition:all .15s;
+  flex-shrink:0;
+  box-shadow:0 1px 4px rgba(0,0,0,.07);
+}
+.cbtn:hover{background:var(--surface);border-color:#d1d5db}
+
+#pbtn{
+  width:52px;height:52px;
+  background:var(--or);
+  border-color:transparent;
+  color:#fff;
+  box-shadow:0 4px 14px rgba(232,101,26,.4);
+}
+#pbtn:hover{background:var(--or-dark)}
+
+#dots{display:flex;gap:6px;margin:0 4px}
+.dot{
+  width:7px;height:7px;
+  border-radius:4px;
+  background:#d1d5db;
+  border:none;cursor:pointer;
+  transition:all .25s;padding:0;
+}
+.dot.on{background:var(--or);width:20px}
+
+/* ── END SCREEN ──────────────────────────────── */
+#end{
+  position:fixed;inset:0;
+  background:#fff;
+  display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  z-index:200;
+  opacity:0;pointer-events:none;
+  transition:opacity .5s ease;
+  padding:32px 24px;
+  text-align:center;
+}
+#end.vis{opacity:1;pointer-events:all}
+
+.cert-icon{
+  font-size:64px;
+  margin-bottom:4px;
+  animation:certpop .6s cubic-bezier(.34,1.56,.64,1) both;
+}
+@keyframes certpop{from{transform:scale(0)}to{transform:scale(1)}}
+
+.cert-name{
+  display:inline-flex;align-items:center;gap:6px;
+  background:var(--or-light);border:1.5px solid rgba(232,101,26,.3);
+  color:var(--or);
+  font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;
+  padding:4px 12px;border-radius:20px;
+  margin-bottom:18px;
+}
+
+.cert-h{
+  font-family:'Bitter',serif;
+  font-size:28px;font-weight:900;
+  color:var(--text);
+  margin-bottom:10px;
+  line-height:1.15;
+}
+
+.cert-sub{
+  font-size:14px;color:var(--muted);
+  line-height:1.6;margin-bottom:28px;
+  max-width:320px;
+}
+
+.cert-cta{
+  background:var(--or);color:#fff;
+  font-family:'Bitter',serif;
+  font-size:14px;font-weight:800;
+  padding:14px 32px;border-radius:12px;
+  text-decoration:none;display:inline-block;
+  transition:all .15s;margin-bottom:14px;
+  box-shadow:0 4px 18px rgba(232,101,26,.35);
+}
+.cert-cta:hover{background:var(--or-dark);transform:translateY(-2px)}
+
+.cert-replay{
+  background:none;border:none;
+  color:var(--muted);font-size:13px;
+  cursor:pointer;text-decoration:underline;
+  font-family:'Barlow',sans-serif;
+}
+
+/* ── RESPONSIVE TWEAKS ───────────────────────── */
+@media(max-width:400px){
+  .slide-title{font-size:20px}
+  .slide-text{font-size:13px}
+  .slide-icon{min-height:120px;padding:20px 16px 12px}
+}
+
+@media(max-height:620px){
+  #slides{top:66px;bottom:68px}
+  .slide-icon{min-height:100px;padding:14px 16px 10px}
+  .slide-body{padding:14px 16px 12px;gap:10px}
+  .slide-title{font-size:19px}
+}
+</style>
+</head>
+<body>
+
+<div id="topbar"></div>
+
+<!-- HEADER -->
+<div id="hdr">
+  <div id="hdr-top">
+    <div class="fess-logo">FESS</div>
+    <div id="schulung-label">Schulung · Stagehand</div>
+  </div>
+  <div id="step-info">
+    <span id="step-badge">Schritt 1 von 8</span>
+    <span id="step-title">Willkommen</span>
+  </div>
+  <div id="pbar" style="margin-top:8px"><div id="pfill"></div></div>
+</div>
+
+<!-- SLIDES -->
+<div id="slides">
+
+  <!-- ═══ SLIDE 1: WILLKOMMEN ═══ -->
+  <div class="slide active" id="s1">
+    <div class="slide-icon">
+      <div class="anim-wrap">
+        <svg class="stage-svg" width="220" height="110" viewBox="0 0 220 110">
+          <!-- Stage floor -->
+          <rect x="10" y="80" width="200" height="20" rx="4" fill="#e5e7eb"/>
+          <!-- Stage -->
+          <rect x="30" y="55" width="160" height="28" rx="3" fill="#d1d5db"/>
+          <!-- Truss -->
+          <rect x="20" y="18" width="180" height="8" rx="3" fill="#374151"/>
+          <!-- Light rigs -->
+          <rect x="38" y="10" width="6" height="16" rx="2" fill="#4b5563"/>
+          <rect x="88" y="10" width="6" height="16" rx="2" fill="#4b5563"/>
+          <rect x="128" y="10" width="6" height="16" rx="2" fill="#4b5563"/>
+          <rect x="176" y="10" width="6" height="16" rx="2" fill="#4b5563"/>
+          <!-- Spotlights (animated) -->
+          <polygon points="41,26 20,80 62,80" fill="rgba(232,101,26,.15)" class="spot"/>
+          <polygon points="131,26 105,80 157,80" fill="rgba(232,101,26,.12)" class="spot" style="animation-delay:.6s"/>
+          <!-- Figure on stage -->
+          <g class="figure" transform="translate(105,35)">
+            <circle cx="0" cy="-14" r="5" fill="#374151"/>
+            <line x1="0" y1="-9" x2="0" y2="8" stroke="#374151" stroke-width="2.5" stroke-linecap="round"/>
+            <line x1="0" y1="-3" x2="-8" y2="4" stroke="#374151" stroke-width="2" stroke-linecap="round"/>
+            <line x1="0" y1="-3" x2="8" y2="4" stroke="#374151" stroke-width="2" stroke-linecap="round"/>
+            <line x1="0" y1="8" x2="-5" y2="20" stroke="#374151" stroke-width="2" stroke-linecap="round"/>
+            <line x1="0" y1="8" x2="5" y2="20" stroke="#374151" stroke-width="2" stroke-linecap="round"/>
+          </g>
+        </svg>
+      </div>
+    </div>
+    <div class="slide-body">
+      <div class="slide-label">Einführung</div>
+      <h2 class="slide-title">Willkommen zur Stagehand-Schulung</h2>
+      <p class="slide-text">In dieser Schulung lernst du alles, was du für deinen Einsatz als Stagehand bei FESS wissen musst – von deinen Aufgaben über die Pflicht-PSA bis zu den wichtigsten Sicherheitsregeln.</p>
+      <div class="callout callout-orange">
+        <strong>Pflichtschulung</strong>
+        Diese Schulung ist vor jedem ersten Einsatz verpflichtend abzuschließen. Dauer: ca. 10 Minuten.
+      </div>
+      <button class="vo-btn" onclick="speak(0)">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
+        Vorlesen
+      </button>
+    </div>
+  </div>
+
+  <!-- ═══ SLIDE 2: TÄTIGKEITEN ═══ -->
+  <div class="slide" id="s2">
+    <div class="slide-icon">
+      <div style="display:flex;gap:20px;align-items:center;justify-content:center">
+        <div class="tool-icon" id="t1" style="animation-delay:.1s">🏗️</div>
+        <div class="tool-icon" id="t2" style="animation-delay:.3s;opacity:0;transform:scale(0)">📦</div>
+        <div class="tool-icon" id="t3" style="animation-delay:.5s;opacity:0;transform:scale(0)">🎤</div>
+        <div class="tool-icon" id="t4" style="animation-delay:.7s;opacity:0;transform:scale(0)">🔧</div>
+      </div>
+    </div>
+    <div class="slide-body">
+      <div class="slide-label">Aufgaben</div>
+      <h2 class="slide-title">Was macht ein Stagehand?</h2>
+      <div class="item-list" id="task-list">
+        <div class="item" id="ta1">
+          <div class="item-icon">🏗️</div>
+          <div class="item-content">
+            <div class="item-title">Auf- & Abbau</div>
+            <div class="item-sub">Bühne, Traversen, Absperrungen, Podeste und technisches Equipment</div>
+          </div>
+        </div>
+        <div class="item" id="ta2">
+          <div class="item-icon">📦</div>
+          <div class="item-content">
+            <div class="item-title">Equipment-Handling</div>
+            <div class="item-sub">Flightcases transportieren, be- und entladen, Lagerung organisieren</div>
+          </div>
+        </div>
+        <div class="item" id="ta3">
+          <div class="item-icon">🎤</div>
+          <div class="item-content">
+            <div class="item-title">Technik-Support</div>
+            <div class="item-sub">Ton-, Licht- und Videotechnik-Crews unterstützen</div>
+          </div>
+        </div>
+        <div class="item" id="ta4">
+          <div class="item-icon">👷</div>
+          <div class="item-content">
+            <div class="item-title">Crew Chief folgen</div>
+            <div class="item-sub">Stets auf Anweisungen des Crew Chiefs warten und diese präzise umsetzen</div>
+          </div>
+        </div>
+      </div>
+      <button class="vo-btn" onclick="speak(1)">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
+        Vorlesen
+      </button>
+    </div>
+  </div>
+
+  <!-- ═══ SLIDE 3: PSA PFLICHT ═══ -->
+  <div class="slide" id="s3">
+    <div class="slide-icon">
+      <div class="psa-grid" id="psa-grid">
+        <div class="psa-item pflicht" id="ps1">
+          <div class="psa-icon">⛑️</div>
+          <div class="psa-name">Schutzhelm</div>
+          <div class="psa-flag">⚠ Pflicht</div>
+        </div>
+        <div class="psa-item pflicht" id="ps2">
+          <div class="psa-icon">🥾</div>
+          <div class="psa-name">Sicherheitsschuhe</div>
+          <div class="psa-flag">⚠ Pflicht</div>
+        </div>
+        <div class="psa-item pflicht" id="ps3">
+          <div class="psa-icon">🧤</div>
+          <div class="psa-name">Arbeitshandschuhe</div>
+          <div class="psa-flag">⚠ Pflicht</div>
+        </div>
+        <div class="psa-item pflicht" id="ps4">
+          <div class="psa-icon">🦺</div>
+          <div class="psa-name">Warnweste</div>
+          <div class="psa-flag">⚠ Pflicht</div>
+        </div>
+      </div>
+    </div>
+    <div class="slide-body">
+      <div class="slide-label">PSA</div>
+      <h2 class="slide-title">Persönliche Schutzausrüstung</h2>
+      <div class="callout callout-danger">
+        <strong>⛔ Kein PSA = Kein Einsatz</strong>
+        Ohne vollständige PSA darfst du den Arbeitsbereich nicht betreten. Das ist gesetzlich vorgeschrieben (PSA-BV) und wird vor Ort kontrolliert.
+      </div>
+      <div class="item-list">
+        <div class="item">
+          <div class="item-icon">⛑️</div>
+          <div class="item-content">
+            <div class="item-title">Schutzhelm EN 397 <span class="badge badge-danger">Pflicht</span></div>
+            <div class="item-sub">In allen gekennzeichneten Bereichen, beim Auf- und Abbau immer tragen</div>
+          </div>
+        </div>
+        <div class="item">
+          <div class="item-icon">🥾</div>
+          <div class="item-content">
+            <div class="item-title">Sicherheitsschuhe S3 <span class="badge badge-danger">Pflicht</span></div>
+            <div class="item-sub">Stahlkappe + Durchtrittschutz. Turnschuhe sind nicht erlaubt</div>
+          </div>
+        </div>
+        <div class="item">
+          <div class="item-icon">🧤</div>
+          <div class="item-content">
+            <div class="item-title">Arbeitshandschuhe <span class="badge badge-danger">Pflicht</span></div>
+            <div class="item-sub">Beim Tragen und Heben von Equipment immer anlegen</div>
+          </div>
+        </div>
+        <div class="item">
+          <div class="item-icon">🦺</div>
+          <div class="item-content">
+            <div class="item-title">Warnweste EN ISO 20471 <span class="badge badge-danger">Pflicht</span></div>
+            <div class="item-sub">Im Backstage- und Transportbereich sowie bei Dunkelheit</div>
+          </div>
+        </div>
+      </div>
+      <button class="vo-btn" onclick="speak(2)">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
+        Vorlesen
+      </button>
+    </div>
+  </div>
+
+  <!-- ═══ SLIDE 4: SICHERHEITSREGELN ═══ -->
+  <div class="slide" id="s4">
+    <div class="slide-icon">
+      <div class="shield-icon">🛡️</div>
+    </div>
+    <div class="slide-body">
+      <div class="slide-label">Sicherheit</div>
+      <h2 class="slide-title">Die 5 goldenen Regeln</h2>
+      <div class="steps" id="rule-steps">
+        <div class="step-row" id="r1">
+          <div class="step-num">1</div>
+          <div class="step-content">
+            <div class="step-title">🚫 Nur zugewiesene Bereiche</div>
+            <div class="step-sub">Betritt niemals einen Bereich, der dir nicht explizit zugewiesen wurde. Sperrungen haben immer einen Grund.</div>
+          </div>
+        </div>
+        <div class="step-row" id="r2">
+          <div class="step-num">2</div>
+          <div class="step-content">
+            <div class="step-title">👂 Crew Chief ist Priorität</div>
+            <div class="step-sub">Anweisungen des Crew Chiefs haben immer Vorrang – auch wenn etwas logischer erscheint.</div>
+          </div>
+        </div>
+        <div class="step-row" id="r3">
+          <div class="step-num">3</div>
+          <div class="step-content">
+            <div class="step-title">⚠️ Gefahr sofort melden</div>
+            <div class="step-sub">Unsichere Situationen, Schäden am Equipment oder gefährliches Verhalten sofort dem Crew Chief melden.</div>
+          </div>
+        </div>
+        <div class="step-row" id="r4">
+          <div class="step-num">4</div>
+          <div class="step-content">
+            <div class="step-title">🚧 Absperrungen respektieren</div>
+            <div class="step-sub">Flatterband, Gitter und Pylonen niemals eigenmächtig entfernen oder umgehen.</div>
+          </div>
+        </div>
+        <div class="step-row" id="r5">
+          <div class="step-num" style="background:var(--danger)">5</div>
+          <div class="step-content">
+            <div class="step-title">🚭 Null-Toleranz bei Drogen & Alkohol</div>
+            <div class="step-sub">Kein Alkohol, keine Drogen während des Einsatzes. Führt zum sofortigen Ausschluss und Meldung an FESS.</div>
+          </div>
+        </div>
+      </div>
+      <button class="vo-btn" onclick="speak(3)" style="margin-top:4px">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
+        Vorlesen
+      </button>
+    </div>
+  </div>
+
+  <!-- ═══ SLIDE 5: HEBEN & TRAGEN ═══ -->
+  <div class="slide" id="s5">
+    <div class="slide-icon">
+      <div class="lift-icon">🏋️</div>
+    </div>
+    <div class="slide-body">
+      <div class="slide-label">Ergonomie & Körperschutz</div>
+      <h2 class="slide-title">Richtiges Heben & Tragen</h2>
+      <p class="slide-text">Rücken- und Gelenkprobleme sind die häufigste Verletzungsursache bei Stagehands. So schützt du dich:</p>
+      <div class="steps" id="lift-steps">
+        <div class="step-row" id="l1">
+          <div class="step-num">1</div>
+          <div class="step-content">
+            <div class="step-title">Knie beugen – nicht den Rücken</div>
+            <div class="step-sub">Hocke dich hin, greife die Last, hebe dann mit den Beinen – nie mit geradem Rücken bücken</div>
+          </div>
+        </div>
+        <div class="step-row" id="l2">
+          <div class="step-num">2</div>
+          <div class="step-content">
+            <div class="step-title">Last nah am Körper halten</div>
+            <div class="step-sub">Je weiter vom Körper entfernt, desto mehr Belastung auf der Wirbelsäule</div>
+          </div>
+        </div>
+        <div class="step-row" id="l3">
+          <div class="step-num" style="background:var(--danger)">!</div>
+          <div class="step-content">
+            <div class="step-title">Ab 25 kg: immer zu zweit <span class="badge badge-danger">Pflicht</span></div>
+            <div class="step-sub">Schwere Flightcases niemals alleine heben. Kollegen rufen, kein Held sein</div>
+          </div>
+        </div>
+        <div class="step-row" id="l4">
+          <div class="step-num">4</div>
+          <div class="step-content">
+            <div class="step-title">Rollen & Dolly nutzen</div>
+            <div class="step-sub">Flightcases haben Rollen – nutze sie. Nie schleifen oder ziehen auf unebenem Boden</div>
+          </div>
+        </div>
+      </div>
+      <div class="callout callout-warn" style="margin-top:4px">
+        <strong>⚠ Verletzung passiert?</strong>
+        Sofort stoppen, Crew Chief informieren. Nie „durcharbeiten" – das macht Verletzungen schlimmer.
+      </div>
+      <button class="vo-btn" onclick="speak(4)">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
+        Vorlesen
+      </button>
+    </div>
+  </div>
+
+  <!-- ═══ SLIDE 6: KOMMUNIKATION ═══ -->
+  <div class="slide" id="s6">
+    <div class="slide-icon">
+      <div class="radio-wrap" id="radio-wrap">
+        <div class="radio-ring" style="left:50%;top:50%"></div>
+        <div class="radio-ring" style="left:50%;top:50%"></div>
+        <div class="radio-ring" style="left:50%;top:50%"></div>
+        <div class="radio-icon">📻</div>
+      </div>
+    </div>
+    <div class="slide-body">
+      <div class="slide-label">Teamarbeit & Kommunikation</div>
+      <h2 class="slide-title">Klar & sicher kommunizieren</h2>
+      <div class="item-list" id="comm-list">
+        <div class="item" id="c1">
+          <div class="item-icon">📻</div>
+          <div class="item-content">
+            <div class="item-title">Funk-Kanal merken</div>
+            <div class="item-sub">Beim Briefing Kanal notieren. Funk immer eingeschaltet und auf Empfang</div>
+          </div>
+        </div>
+        <div class="item" id="c2">
+          <div class="item-icon">✋</div>
+          <div class="item-content">
+            <div class="item-title">Handzeichen kennen</div>
+            <div class="item-sub">STOPP = flache Hand hoch. OK = Daumen hoch. Laut ist laut – Handzeichen retten Leben</div>
+          </div>
+        </div>
+        <div class="item" id="c3">
+          <div class="item-icon">🗣️</div>
+          <div class="item-content">
+            <div class="item-title">Kurz & klar</div>
+            <div class="item-sub">"Ich brauche Hilfe bei Case 4" statt langer Erklärungen. Im Zweifel fragen, nicht raten</div>
+          </div>
+        </div>
+        <div class="item" id="c4">
+          <div class="item-icon">📍</div>
+          <div class="item-content">
+            <div class="item-title">Position nicht verlassen</div>
+            <div class="item-sub">Niemals ohne Rückmeldung deinen Bereich verlassen. Immer dem Crew Chief Bescheid geben</div>
+          </div>
+        </div>
+      </div>
+      <button class="vo-btn" onclick="speak(5)">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
+        Vorlesen
+      </button>
+    </div>
+  </div>
+
+  <!-- ═══ SLIDE 7: FESS ABLAUF ═══ -->
+  <div class="slide" id="s7">
+    <div class="slide-icon">
+      <div class="app-icon" id="app-anim">📱</div>
+    </div>
+    <div class="slide-body">
+      <div class="slide-label">FESS-Prozess</div>
+      <h2 class="slide-title">Dein Ablauf vor Ort</h2>
+      <div class="steps" id="fess-steps">
+        <div class="step-row" id="f1">
+          <div class="step-num">1</div>
+          <div class="step-content">
+            <div class="step-title">15 Min. vor Beginn erscheinen</div>
+            <div class="step-sub">Pünktlichkeit ist Professionalität. Bei Verspätung sofort den Crew Chief per Funk informieren</div>
+          </div>
+        </div>
+        <div class="step-row" id="f2">
+          <div class="step-num">2</div>
+          <div class="step-content">
+            <div class="step-title">Beim Crew Chief einchecken</div>
+            <div class="step-sub">Name mitteilen, Aufgabe und Bereich erfragen. Briefing komplett anhören</div>
+          </div>
+        </div>
+        <div class="step-row" id="f3">
+          <div class="step-num">3</div>
+          <div class="step-content">
+            <div class="step-title">PSA anlegen & Bereich übernehmen</div>
+            <div class="step-sub">Komplette Schutzausrüstung anlegen, bevor du den Arbeitsbereich betrittst</div>
+          </div>
+        </div>
+        <div class="step-row" id="f4">
+          <div class="step-num">4</div>
+          <div class="step-content">
+            <div class="step-title">Zeiterfassung in der App</div>
+            <div class="step-sub">Start und Ende des Einsatzes in fess.jobs erfassen – das ist Grundlage deiner Vergütung</div>
+          </div>
+        </div>
+        <div class="step-row" id="f5">
+          <div class="step-num" style="background:var(--green)">✓</div>
+          <div class="step-content">
+            <div class="step-title">Ordentliche Abmeldung</div>
+            <div class="step-sub">Nach dem Einsatz Crew Chief abmelden, Equipment zurückgeben, Bereich sauber übergeben</div>
+          </div>
+        </div>
+      </div>
+      <button class="vo-btn" onclick="speak(6)" style="margin-top:4px">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
+        Vorlesen
+      </button>
+    </div>
+  </div>
+
+  <!-- ═══ SLIDE 8: NOTFALL ═══ -->
+  <div class="slide" id="s8">
+    <div class="slide-icon">
+      <div class="emergency-icon">🚨</div>
+    </div>
+    <div class="slide-body">
+      <div class="slide-label">Notfall & Erste Hilfe</div>
+      <h2 class="slide-title">Was tun im Notfall?</h2>
+      <div class="callout callout-danger" style="margin-bottom:4px">
+        <strong>⛑ Notruf: 112</strong>
+        Bei schweren Verletzungen sofort 112 anrufen. Unfallort, Anzahl Verletzte, Art der Verletzung angeben.
+      </div>
+      <div class="steps" id="emerg-steps">
+        <div class="step-row" id="e1">
+          <div class="step-num red">1</div>
+          <div class="step-content">
+            <div class="step-title">🛑 Sofort stoppen</div>
+            <div class="step-sub">Arbeitsabschnitt unterbrechen, eigene Sicherheit sicherstellen</div>
+          </div>
+        </div>
+        <div class="step-row" id="e2">
+          <div class="step-num red">2</div>
+          <div class="step-content">
+            <div class="step-title">📢 Crew Chief & Sicherheitsdienst rufen</div>
+            <div class="step-sub">Lautstark rufen oder per Funk – Standort und Situation klar benennen</div>
+          </div>
+        </div>
+        <div class="step-row" id="e3">
+          <div class="step-num red">3</div>
+          <div class="step-content">
+            <div class="step-title">🩹 Erste Hilfe leisten</div>
+            <div class="step-sub">Ersthelfer holen. Erste-Hilfe-Kästen sind an der Backstage-Zentrale. Nicht zögern</div>
+          </div>
+        </div>
+        <div class="step-row" id="e4">
+          <div class="step-num red">4</div>
+          <div class="step-content">
+            <div class="step-title">🚧 Unfallstelle sichern</div>
+            <div class="step-sub">Niemanden die Unfallstelle betreten lassen. Zeugen bis zur Unfallaufnahme festhalten</div>
+          </div>
+        </div>
+        <div class="step-row" id="e5">
+          <div class="step-num red">5</div>
+          <div class="step-content">
+            <div class="step-title">📋 Unfall dokumentieren</div>
+            <div class="step-sub">Jeder Unfall – auch kleine – muss gemeldet und im Unfallbuch eingetragen werden</div>
+          </div>
+        </div>
+      </div>
+      <button class="vo-btn" onclick="speak(7)" style="margin-top:4px">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
+        Vorlesen
+      </button>
+    </div>
+  </div>
+
+</div><!-- /slides -->
+
+<!-- CONTROLS -->
+<div id="ctrl">
+  <button class="cbtn" id="prevbtn">
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+  </button>
+  <div id="dots">
+    <button class="dot on" data-s="0"></button>
+    <button class="dot" data-s="1"></button>
+    <button class="dot" data-s="2"></button>
+    <button class="dot" data-s="3"></button>
+    <button class="dot" data-s="4"></button>
+    <button class="dot" data-s="5"></button>
+    <button class="dot" data-s="6"></button>
+    <button class="dot" data-s="7"></button>
+  </div>
+  <button id="pbtn" class="cbtn">
+    <svg id="pico" width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+    <svg id="paico" width="14" height="14" viewBox="0 0 24 24" fill="currentColor" style="display:none"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+  </button>
+  <button class="cbtn" id="nextbtn">
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+  </button>
+</div>
+
+<!-- END / CERTIFICATE -->
+<div id="end">
+  <div class="cert-icon">🎓</div>
+  <div class="cert-name">
+    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+    Schulung abgeschlossen
+  </div>
+  <h1 class="cert-h">Gut gemacht!</h1>
+  <p class="cert-sub">Du hast die Stagehand-Schulung abgeschlossen. Denke immer an deine PSA, höre auf den Crew Chief und melde Gefährdungen sofort.</p>
+  <a class="cert-cta" href="index.html">Zu meinen Aufträgen →</a><br>
+  <button class="cert-replay" onclick="replay()">Nochmal durchgehen</button>
+</div>
+
+<script>
+const DURATIONS = [9000, 11000, 12000, 12000, 12000, 11000, 12000, 12000];
+const LABELS = [
+  ['Schritt 1 von 8', 'Willkommen'],
+  ['Schritt 2 von 8', 'Deine Aufgaben'],
+  ['Schritt 3 von 8', 'Pflicht-PSA'],
+  ['Schritt 4 von 8', '5 goldene Regeln'],
+  ['Schritt 5 von 8', 'Heben & Tragen'],
+  ['Schritt 6 von 8', 'Kommunikation'],
+  ['Schritt 7 von 8', 'FESS-Ablauf'],
+  ['Schritt 8 von 8', 'Notfall & Erste Hilfe'],
+];
+
+const VOICEOVER = [
+  'Willkommen zur Stagehand-Schulung von FESS. In den nächsten Minuten lernst du alles, was du für deinen sicheren und professionellen Einsatz brauchst. Die Schulung dauert ca. 10 Minuten und ist vor deinem ersten Einsatz Pflicht.',
+  'Als Stagehand bist du für Aufbau und Abbau von Bühne und Technik zuständig. Du transportierst Equipment, unterstützt die Technik-Crew und führst alle Aufgaben nach Anweisung des Crew Chiefs aus. Arbeite immer im Team und frage bei Unklarheiten sofort nach.',
+  'Ohne PSA kein Einsatz. Das ist gesetzlich vorgeschrieben. Du brauchst einen Schutzhelm nach EN 397, Sicherheitsschuhe der Kategorie S3 mit Stahlkappe, Arbeitshandschuhe beim Tragen von Equipment und eine Warnweste im Backstage- und Transportbereich. Turnschuhe und fehlende Ausrüstung führen zum sofortigen Ausschluss vom Einsatz.',
+  'Die 5 goldenen Sicherheitsregeln: Erstens, betritt nur zugewiesene Bereiche. Zweitens, folge immer dem Crew Chief. Drittens, melde Gefahren sofort. Viertens, respektiere alle Absperrungen. Fünftens, null Toleranz bei Alkohol und Drogen. Verstöße führen zum sofortigen Ausschluss und werden an FESS gemeldet.',
+  'Rückenprobleme sind die häufigste Verletzung bei Stagehands. Beuge immer die Knie und halte den Rücken gerade. Halte die Last nah am Körper. Ab 25 Kilogramm MUSS immer zu zweit gehoben werden – das ist Pflicht, kein Angebot. Nutze Rollen und Dollies für Flightcases. Bei Verletzung sofort stoppen und den Crew Chief informieren.',
+  'Gute Kommunikation verhindert Unfälle. Merke dir beim Briefing deinen Funk-Kanal. Lerne die Handzeichen: flache Hand bedeutet STOPP, Daumen hoch bedeutet OK. Kommuniziere kurz und klar. Verlasse deinen Bereich niemals ohne Rückmeldung an den Crew Chief.',
+  'Dein Ablauf vor Ort: Erscheine 15 Minuten vor Beginn. Melde dich beim Crew Chief an und höre das Briefing vollständig. Lege deine PSA an, bevor du den Arbeitsbereich betrittst. Erfasse Start und Ende deines Einsatzes in der fess.jobs App. Melde dich nach dem Einsatz ordentlich ab und übergebe deinen Bereich sauber.',
+  'Im Notfall: Stoppe sofort und sichere dich selbst. Rufe laut nach dem Crew Chief und dem Sicherheitsdienst oder gib per Funk Bescheid. Leiste Erste Hilfe oder hole einen Ersthelfer. Sichere die Unfallstelle ab. Bei schweren Verletzungen sofort den Notruf 112 anrufen. Jeder Unfall, auch kleine, muss gemeldet und dokumentiert werden.',
+];
+
+let step = 0;
+let playing = false;
+let pTimer = null;
+let startAt = 0;
+let pausedAt = 0;
+let stTimers = [];
+
+const $ = id => document.getElementById(id);
+
+function st(fn, ms) {
+  const t = setTimeout(fn, ms);
+  stTimers.push(t);
+  return t;
+}
+function clearST() { stTimers.forEach(clearTimeout); stTimers = []; }
+
+// ── SLIDE ANIMATIONS ──────────────────────────
+function anim(idx) {
+  // reset scroll
+  document.querySelectorAll('.slide')[idx].scrollTop = 0;
+
+  if (idx === 1) {
+    ['t2','t3','t4'].forEach((id,i) => {
+      const el = $(id);
+      el.style.opacity = '0'; el.style.transform = 'scale(0)';
+      st(() => { el.style.animation = 'toolpop .5s cubic-bezier(.34,1.56,.64,1) forwards'; }, i * 300 + 200);
+    });
+    ['ta1','ta2','ta3','ta4'].forEach((id,i) => {
+      const el = $(id);
+      el.classList.remove('pop');
+      el.style.opacity = '0'; el.style.transform = 'translateY(8px)';
+      st(() => el.classList.add('pop'), i * 200 + 600);
+    });
+  }
+
+  if (idx === 2) {
+    ['ps1','ps2','ps3','ps4'].forEach((id,i) => {
+      const el = $(id);
+      el.classList.remove('pop');
+      el.style.opacity = '0'; el.style.transform = 'scale(.85)';
+      st(() => el.classList.add('pop'), i * 250 + 300);
+    });
+  }
+
+  if (idx === 3) {
+    ['r1','r2','r3','r4','r5'].forEach((id,i) => {
+      const el = $(id);
+      el.classList.remove('pop');
+      el.style.opacity = '0'; el.style.transform = 'translateX(-8px)';
+      st(() => el.classList.add('pop'), i * 350 + 300);
+    });
+  }
+
+  if (idx === 4) {
+    ['l1','l2','l3','l4'].forEach((id,i) => {
+      const el = $(id);
+      el.classList.remove('pop');
+      el.style.opacity = '0'; el.style.transform = 'translateX(-8px)';
+      st(() => el.classList.add('pop'), i * 400 + 400);
+    });
+  }
+
+  if (idx === 5) {
+    ['c1','c2','c3','c4'].forEach((id,i) => {
+      const el = $(id);
+      el.classList.remove('pop');
+      el.style.opacity = '0'; el.style.transform = 'translateY(8px)';
+      st(() => el.classList.add('pop'), i * 280 + 400);
+    });
+  }
+
+  if (idx === 6) {
+    $('app-anim').style.animation = 'none';
+    void $('app-anim').offsetWidth;
+    $('app-anim').style.animation = 'appbounce .7s cubic-bezier(.34,1.56,.64,1) both';
+    ['f1','f2','f3','f4','f5'].forEach((id,i) => {
+      const el = $(id);
+      el.classList.remove('pop');
+      el.style.opacity = '0'; el.style.transform = 'translateX(-8px)';
+      st(() => el.classList.add('pop'), i * 300 + 500);
+    });
+  }
+
+  if (idx === 7) {
+    ['e1','e2','e3','e4','e5'].forEach((id,i) => {
+      const el = $(id);
+      el.classList.remove('pop');
+      el.style.opacity = '0'; el.style.transform = 'translateX(-8px)';
+      st(() => el.classList.add('pop'), i * 350 + 400);
+    });
+  }
+}
+
+// ── NAVIGATION ─────────────────────────────────
+function goTo(idx) {
+  speechSynthesis.cancel();
+  clearST();
+  stopTimer();
+
+  document.querySelectorAll('.slide').forEach((s,i) => s.classList.toggle('active', i === idx));
+  document.querySelectorAll('.dot').forEach((d,i) => d.classList.toggle('on', i === idx));
+
+  const [badge, title] = LABELS[idx];
+  $('step-badge').textContent = badge;
+  $('step-title').textContent = title;
+
+  step = idx;
+  pausedAt = 0;
+  updateProg(0);
+
+  st(() => anim(idx), 80);
+  if (playing) st(startTimer, 60);
+}
+
+function updateProg(frac) {
+  const total = DURATIONS.reduce((a,b) => a+b, 0);
+  const before = DURATIONS.slice(0, step).reduce((a,b) => a+b, 0);
+  $('pfill').style.width = ((before + frac * DURATIONS[step]) / total * 100) + '%';
+}
+
+// ── PLAYBACK ───────────────────────────────────
+function startTimer() {
+  stopTimer();
+  startAt = Date.now() - pausedAt;
+  const dur = DURATIONS[step];
+  pTimer = setInterval(() => {
+    const el = Date.now() - startAt;
+    updateProg(Math.min(el / dur, 1));
+    if (el >= dur) {
+      stopTimer();
+      if (step >= 7) {
+        playing = false; updBtn();
+        $('end').classList.add('vis');
+      } else {
+        goTo(step + 1);
+      }
+    }
+  }, 60);
+}
+
+function stopTimer() { if (pTimer) { clearInterval(pTimer); pTimer = null; } }
+function play() { playing = true; updBtn(); startTimer(); }
+function pause() { playing = false; pausedAt = Date.now() - startAt; stopTimer(); updBtn(); }
+function updBtn() {
+  $('pico').style.display  = playing ? 'none' : 'block';
+  $('paico').style.display = playing ? 'block' : 'none';
+}
+
+// ── VOICEOVER ──────────────────────────────────
+function speak(idx) {
+  if (!('speechSynthesis' in window)) return;
+  const btns = document.querySelectorAll('.vo-btn');
+  const btn = btns[idx];
+
+  if (speechSynthesis.speaking) {
+    speechSynthesis.cancel();
+    btns.forEach(b => b.classList.remove('speaking'));
+    return;
+  }
+
+  const u = new SpeechSynthesisUtterance(VOICEOVER[idx]);
+  u.lang = 'de-DE';
+  u.rate = 0.88;
+  u.pitch = 1;
+
+  // prefer a German voice
+  const voices = speechSynthesis.getVoices();
+  const de = voices.find(v => v.lang.startsWith('de')) || null;
+  if (de) u.voice = de;
+
+  u.onstart = () => btn.classList.add('speaking');
+  u.onend = u.onerror = () => btn.classList.remove('speaking');
+
+  speechSynthesis.speak(u);
+}
+
+// load voices async (Chrome needs this)
+if (typeof speechSynthesis !== 'undefined' && speechSynthesis.onvoiceschanged !== undefined) {
+  speechSynthesis.onvoiceschanged = () => {};
+}
+
+// ── EVENTS ─────────────────────────────────────
+$('pbtn').addEventListener('click', () => playing ? pause() : play());
+$('prevbtn').addEventListener('click', () => { if (step > 0) { stopTimer(); goTo(step - 1); } });
+$('nextbtn').addEventListener('click', () => {
+  stopTimer();
+  if (step < 7) goTo(step + 1);
+  else { playing = false; updBtn(); $('end').classList.add('vis'); }
+});
+document.querySelectorAll('.dot').forEach(d => {
+  d.addEventListener('click', () => { stopTimer(); goTo(parseInt(d.dataset.s)); });
+});
+
+function replay() {
+  $('end').classList.remove('vis');
+  goTo(0);
+  setTimeout(play, 600);
+}
+
+// ── INIT ──────────────────────────────────────
+goTo(0);
+setTimeout(play, 1200);
+</script>
+</body>
+</html>
