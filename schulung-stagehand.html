@@ -464,6 +464,25 @@ html,body{
   font-family:'Barlow',sans-serif;
 }
 
+/* ── LANG SWITCHER ───────────────────────────── */
+#lang-sw{display:flex;gap:4px}
+.lb{
+  font-size:11px;font-weight:700;
+  padding:4px 9px;border-radius:16px;
+  border:1.5px solid var(--border);
+  background:#fff;color:var(--muted);
+  cursor:pointer;transition:all .15s;
+  font-family:'Barlow',sans-serif;
+}
+.lb.on{background:var(--or);color:#fff;border-color:var(--or)}
+
+/* RTL support */
+[dir="rtl"] .step-row{transform:translateX(8px)}
+[dir="rtl"] .step-row.pop{animation:spop-rtl .35s ease forwards}
+@keyframes spop-rtl{to{opacity:1;transform:translateX(0)}}
+[dir="rtl"] .item{transform:translateY(8px)}
+[dir="rtl"] .cert-name{flex-direction:row-reverse}
+
 /* ── RESPONSIVE TWEAKS ───────────────────────── */
 @media(max-width:400px){
   .slide-title{font-size:20px}
@@ -486,8 +505,15 @@ html,body{
 <!-- HEADER -->
 <div id="hdr">
   <div id="hdr-top">
-    <div class="fess-logo">FESS</div>
-    <div id="schulung-label">Schulung · Stagehand</div>
+    <div>
+      <div class="fess-logo">FESS</div>
+      <div id="schulung-label">Schulung · Stagehand</div>
+    </div>
+    <div id="lang-sw">
+      <button class="lb on" onclick="setLang('de')">DE</button>
+      <button class="lb" onclick="setLang('en')">EN</button>
+      <button class="lb" onclick="setLang('ar')">AR</button>
+    </div>
   </div>
   <div id="step-info">
     <span id="step-badge">Schritt 1 von 8</span>
@@ -540,7 +566,7 @@ html,body{
       </div>
       <button class="vo-btn" onclick="speak(0)">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
-        Vorlesen
+        <span class="vo-lbl">Vorlesen</span>
       </button>
     </div>
   </div>
@@ -590,7 +616,7 @@ html,body{
       </div>
       <button class="vo-btn" onclick="speak(1)">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
-        Vorlesen
+        <span class="vo-lbl">Vorlesen</span>
       </button>
     </div>
   </div>
@@ -660,7 +686,7 @@ html,body{
       </div>
       <button class="vo-btn" onclick="speak(2)">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
-        Vorlesen
+        <span class="vo-lbl">Vorlesen</span>
       </button>
     </div>
   </div>
@@ -712,7 +738,7 @@ html,body{
       </div>
       <button class="vo-btn" onclick="speak(3)" style="margin-top:4px">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
-        Vorlesen
+        <span class="vo-lbl">Vorlesen</span>
       </button>
     </div>
   </div>
@@ -762,7 +788,7 @@ html,body{
       </div>
       <button class="vo-btn" onclick="speak(4)">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
-        Vorlesen
+        <span class="vo-lbl">Vorlesen</span>
       </button>
     </div>
   </div>
@@ -812,7 +838,7 @@ html,body{
       </div>
       <button class="vo-btn" onclick="speak(5)">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
-        Vorlesen
+        <span class="vo-lbl">Vorlesen</span>
       </button>
     </div>
   </div>
@@ -864,7 +890,7 @@ html,body{
       </div>
       <button class="vo-btn" onclick="speak(6)" style="margin-top:4px">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
-        Vorlesen
+        <span class="vo-lbl">Vorlesen</span>
       </button>
     </div>
   </div>
@@ -920,7 +946,7 @@ html,body{
       </div>
       <button class="vo-btn" onclick="speak(7)" style="margin-top:4px">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
-        Vorlesen
+        <span class="vo-lbl">Vorlesen</span>
       </button>
     </div>
   </div>
@@ -956,37 +982,339 @@ html,body{
   <div class="cert-icon">🎓</div>
   <div class="cert-name">
     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-    Schulung abgeschlossen
+    <span id="cert-name-txt">Schulung abgeschlossen</span>
   </div>
-  <h1 class="cert-h">Gut gemacht!</h1>
-  <p class="cert-sub">Du hast die Stagehand-Schulung abgeschlossen. Denke immer an deine PSA, höre auf den Crew Chief und melde Gefährdungen sofort.</p>
-  <a class="cert-cta" href="index.html">Zu meinen Aufträgen →</a><br>
-  <button class="cert-replay" onclick="replay()">Nochmal durchgehen</button>
+  <h1 class="cert-h" id="cert-h">Gut gemacht!</h1>
+  <p class="cert-sub" id="cert-sub">Du hast die Stagehand-Schulung abgeschlossen. Denke immer an deine PSA, höre auf den Crew Chief und melde Gefährdungen sofort.</p>
+  <a class="cert-cta" href="index.html" id="cert-cta">Zu meinen Aufträgen →</a><br>
+  <a class="cert-cta" href="stundennachweis.html" id="cert-stunden" style="background:var(--surface);color:var(--text);box-shadow:none;border:1.5px solid var(--border);margin-top:10px">🕐 Stunden erfassen</a><br>
+  <button class="cert-replay" id="cert-replay" onclick="replay()">Nochmal durchgehen</button>
 </div>
 
 <script>
 const DURATIONS = [9000, 11000, 12000, 12000, 12000, 11000, 12000, 12000];
-const LABELS = [
-  ['Schritt 1 von 8', 'Willkommen'],
-  ['Schritt 2 von 8', 'Deine Aufgaben'],
-  ['Schritt 3 von 8', 'Pflicht-PSA'],
-  ['Schritt 4 von 8', '5 goldene Regeln'],
-  ['Schritt 5 von 8', 'Heben & Tragen'],
-  ['Schritt 6 von 8', 'Kommunikation'],
-  ['Schritt 7 von 8', 'FESS-Ablauf'],
-  ['Schritt 8 von 8', 'Notfall & Erste Hilfe'],
-];
 
-const VOICEOVER = [
-  'Willkommen zur Stagehand-Schulung von FESS. In den nächsten Minuten lernst du alles, was du für deinen sicheren und professionellen Einsatz brauchst. Die Schulung dauert ca. 10 Minuten und ist vor deinem ersten Einsatz Pflicht.',
-  'Als Stagehand bist du für Aufbau und Abbau von Bühne und Technik zuständig. Du transportierst Equipment, unterstützt die Technik-Crew und führst alle Aufgaben nach Anweisung des Crew Chiefs aus. Arbeite immer im Team und frage bei Unklarheiten sofort nach.',
-  'Ohne PSA kein Einsatz. Das ist gesetzlich vorgeschrieben. Du brauchst einen Schutzhelm nach EN 397, Sicherheitsschuhe der Kategorie S3 mit Stahlkappe, Arbeitshandschuhe beim Tragen von Equipment und eine Warnweste im Backstage- und Transportbereich. Turnschuhe und fehlende Ausrüstung führen zum sofortigen Ausschluss vom Einsatz.',
-  'Die 5 goldenen Sicherheitsregeln: Erstens, betritt nur zugewiesene Bereiche. Zweitens, folge immer dem Crew Chief. Drittens, melde Gefahren sofort. Viertens, respektiere alle Absperrungen. Fünftens, null Toleranz bei Alkohol und Drogen. Verstöße führen zum sofortigen Ausschluss und werden an FESS gemeldet.',
-  'Rückenprobleme sind die häufigste Verletzung bei Stagehands. Beuge immer die Knie und halte den Rücken gerade. Halte die Last nah am Körper. Ab 25 Kilogramm MUSS immer zu zweit gehoben werden – das ist Pflicht, kein Angebot. Nutze Rollen und Dollies für Flightcases. Bei Verletzung sofort stoppen und den Crew Chief informieren.',
-  'Gute Kommunikation verhindert Unfälle. Merke dir beim Briefing deinen Funk-Kanal. Lerne die Handzeichen: flache Hand bedeutet STOPP, Daumen hoch bedeutet OK. Kommuniziere kurz und klar. Verlasse deinen Bereich niemals ohne Rückmeldung an den Crew Chief.',
-  'Dein Ablauf vor Ort: Erscheine 15 Minuten vor Beginn. Melde dich beim Crew Chief an und höre das Briefing vollständig. Lege deine PSA an, bevor du den Arbeitsbereich betrittst. Erfasse Start und Ende deines Einsatzes in der fess.jobs App. Melde dich nach dem Einsatz ordentlich ab und übergebe deinen Bereich sauber.',
-  'Im Notfall: Stoppe sofort und sichere dich selbst. Rufe laut nach dem Crew Chief und dem Sicherheitsdienst oder gib per Funk Bescheid. Leiste Erste Hilfe oder hole einen Ersthelfer. Sichere die Unfallstelle ab. Bei schweren Verletzungen sofort den Notruf 112 anrufen. Jeder Unfall, auch kleine, muss gemeldet und dokumentiert werden.',
-];
+// ── TRANSLATIONS ────────────────────────────────
+const T = {
+  de: {
+    schulung_label: 'Schulung · Stagehand',
+    vo_btn: 'Vorlesen',
+    labels: [
+      ['Schritt 1 von 8', 'Willkommen'],
+      ['Schritt 2 von 8', 'Deine Aufgaben'],
+      ['Schritt 3 von 8', 'Pflicht-PSA'],
+      ['Schritt 4 von 8', '5 goldene Regeln'],
+      ['Schritt 5 von 8', 'Heben & Tragen'],
+      ['Schritt 6 von 8', 'Kommunikation'],
+      ['Schritt 7 von 8', 'FESS-Ablauf'],
+      ['Schritt 8 von 8', 'Notfall & Erste Hilfe'],
+    ],
+    voiceover: [
+      'Willkommen zur Stagehand-Schulung von FESS. In den nächsten Minuten lernst du alles, was du für deinen sicheren und professionellen Einsatz brauchst. Die Schulung dauert ca. 10 Minuten und ist vor deinem ersten Einsatz Pflicht.',
+      'Als Stagehand bist du für Aufbau und Abbau von Bühne und Technik zuständig. Du transportierst Equipment, unterstützt die Technik-Crew und führst alle Aufgaben nach Anweisung des Crew Chiefs aus. Arbeite immer im Team und frage bei Unklarheiten sofort nach.',
+      'Ohne PSA kein Einsatz. Das ist gesetzlich vorgeschrieben. Du brauchst einen Schutzhelm nach EN 397, Sicherheitsschuhe der Kategorie S3 mit Stahlkappe, Arbeitshandschuhe beim Tragen von Equipment und eine Warnweste im Backstage- und Transportbereich. Turnschuhe und fehlende Ausrüstung führen zum sofortigen Ausschluss vom Einsatz.',
+      'Die 5 goldenen Sicherheitsregeln: Erstens, betritt nur zugewiesene Bereiche. Zweitens, folge immer dem Crew Chief. Drittens, melde Gefahren sofort. Viertens, respektiere alle Absperrungen. Fünftens, null Toleranz bei Alkohol und Drogen. Verstöße führen zum sofortigen Ausschluss und werden an FESS gemeldet.',
+      'Rückenprobleme sind die häufigste Verletzung bei Stagehands. Beuge immer die Knie und halte den Rücken gerade. Halte die Last nah am Körper. Ab 25 Kilogramm MUSS immer zu zweit gehoben werden – das ist Pflicht, kein Angebot. Nutze Rollen und Dollies für Flightcases. Bei Verletzung sofort stoppen und den Crew Chief informieren.',
+      'Gute Kommunikation verhindert Unfälle. Merke dir beim Briefing deinen Funk-Kanal. Lerne die Handzeichen: flache Hand bedeutet STOPP, Daumen hoch bedeutet OK. Kommuniziere kurz und klar. Verlasse deinen Bereich niemals ohne Rückmeldung an den Crew Chief.',
+      'Dein Ablauf vor Ort: Erscheine 15 Minuten vor Beginn. Melde dich beim Crew Chief an und höre das Briefing vollständig. Lege deine PSA an, bevor du den Arbeitsbereich betrittst. Erfasse Start und Ende deines Einsatzes in der fess.jobs App. Melde dich nach dem Einsatz ordentlich ab und übergebe deinen Bereich sauber.',
+      'Im Notfall: Stoppe sofort und sichere dich selbst. Rufe laut nach dem Crew Chief und dem Sicherheitsdienst oder gib per Funk Bescheid. Leiste Erste Hilfe oder hole einen Ersthelfer. Sichere die Unfallstelle ab. Bei schweren Verletzungen sofort den Notruf 112 anrufen. Jeder Unfall, auch kleine, muss gemeldet und dokumentiert werden.',
+    ],
+    psa: [['Schutzhelm','⚠ Pflicht'],['Sicherheitsschuhe','⚠ Pflicht'],['Arbeitshandschuhe','⚠ Pflicht'],['Warnweste','⚠ Pflicht']],
+    s: [
+      { label:'Einführung', title:'Willkommen zur Stagehand-Schulung', text:'In dieser Schulung lernst du alles, was du für deinen Einsatz als Stagehand bei FESS wissen musst – von deinen Aufgaben über die Pflicht-PSA bis zu den wichtigsten Sicherheitsregeln.', callout:'<strong>Pflichtschulung</strong>Diese Schulung ist vor jedem ersten Einsatz verpflichtend abzuschließen. Dauer: ca. 10 Minuten.' },
+      { label:'Aufgaben', title:'Was macht ein Stagehand?', text:'', callout:'' },
+      { label:'PSA', title:'Persönliche Schutzausrüstung', text:'', callout:'<strong>⛔ Kein PSA = Kein Einsatz</strong>Ohne vollständige PSA darfst du den Arbeitsbereich nicht betreten. Das ist gesetzlich vorgeschrieben (PSA-BV) und wird vor Ort kontrolliert.' },
+      { label:'Sicherheit', title:'Die 5 goldenen Regeln', text:'', callout:'' },
+      { label:'Ergonomie & Körperschutz', title:'Richtiges Heben & Tragen', text:'Rücken- und Gelenkprobleme sind die häufigste Verletzungsursache bei Stagehands. So schützt du dich:', callout:'<strong>⚠ Verletzung passiert?</strong>Sofort stoppen, Crew Chief informieren. Nie „durcharbeiten" – das macht Verletzungen schlimmer.' },
+      { label:'Teamarbeit & Kommunikation', title:'Klar & sicher kommunizieren', text:'', callout:'' },
+      { label:'FESS-Prozess', title:'Dein Ablauf vor Ort', text:'', callout:'' },
+      { label:'Notfall & Erste Hilfe', title:'Was tun im Notfall?', text:'', callout:'<strong>⛑ Notruf: 112</strong>Bei schweren Verletzungen sofort 112 anrufen. Unfallort, Anzahl Verletzte, Art der Verletzung angeben.' },
+    ],
+    tasks: [
+      { icon:'🏗️', t:'Auf- & Abbau', s:'Bühne, Traversen, Absperrungen, Podeste und technisches Equipment' },
+      { icon:'📦', t:'Equipment-Handling', s:'Flightcases transportieren, be- und entladen, Lagerung organisieren' },
+      { icon:'🎤', t:'Technik-Support', s:'Ton-, Licht- und Videotechnik-Crews unterstützen' },
+      { icon:'👷', t:'Crew Chief folgen', s:'Stets auf Anweisungen des Crew Chiefs warten und diese präzise umsetzen' },
+    ],
+    rules: [
+      { t:'🚫 Nur zugewiesene Bereiche', s:'Betritt niemals einen Bereich, der dir nicht explizit zugewiesen wurde. Sperrungen haben immer einen Grund.', red:false },
+      { t:'👂 Crew Chief ist Priorität', s:'Anweisungen des Crew Chiefs haben immer Vorrang – auch wenn etwas logischer erscheint.', red:false },
+      { t:'⚠️ Gefahr sofort melden', s:'Unsichere Situationen, Schäden am Equipment oder gefährliches Verhalten sofort dem Crew Chief melden.', red:false },
+      { t:'🚧 Absperrungen respektieren', s:'Flatterband, Gitter und Pylonen niemals eigenmächtig entfernen oder umgehen.', red:false },
+      { t:'🚭 Null-Toleranz bei Drogen & Alkohol', s:'Kein Alkohol, keine Drogen während des Einsatzes. Führt zum sofortigen Ausschluss und Meldung an FESS.', red:true },
+    ],
+    lift: [
+      { t:'Knie beugen – nicht den Rücken', s:'Hocke dich hin, greife die Last, hebe dann mit den Beinen – nie mit geradem Rücken bücken', red:false, badge:'' },
+      { t:'Last nah am Körper halten', s:'Je weiter vom Körper entfernt, desto mehr Belastung auf der Wirbelsäule', red:false, badge:'' },
+      { t:'Ab 25 kg: immer zu zweit', s:'Schwere Flightcases niemals alleine heben. Kollegen rufen, kein Held sein', red:true, badge:'<span class="badge badge-danger">Pflicht</span>' },
+      { t:'Rollen & Dolly nutzen', s:'Flightcases haben Rollen – nutze sie. Nie schleifen oder ziehen auf unebenem Boden', red:false, badge:'' },
+    ],
+    comm: [
+      { icon:'📻', t:'Funk-Kanal merken', s:'Beim Briefing Kanal notieren. Funk immer eingeschaltet und auf Empfang' },
+      { icon:'✋', t:'Handzeichen kennen', s:'STOPP = flache Hand hoch. OK = Daumen hoch. Laut ist laut – Handzeichen retten Leben' },
+      { icon:'🗣️', t:'Kurz & klar', s:'"Ich brauche Hilfe bei Case 4" statt langer Erklärungen. Im Zweifel fragen, nicht raten' },
+      { icon:'📍', t:'Position nicht verlassen', s:'Niemals ohne Rückmeldung deinen Bereich verlassen. Immer dem Crew Chief Bescheid geben' },
+    ],
+    fess: [
+      { t:'15 Min. vor Beginn erscheinen', s:'Pünktlichkeit ist Professionalität. Bei Verspätung sofort den Crew Chief per Funk informieren', green:false },
+      { t:'Beim Crew Chief einchecken', s:'Name mitteilen, Aufgabe und Bereich erfragen. Briefing komplett anhören', green:false },
+      { t:'PSA anlegen & Bereich übernehmen', s:'Komplette Schutzausrüstung anlegen, bevor du den Arbeitsbereich betrittst', green:false },
+      { t:'Zeiterfassung in der App', s:'Start und Ende des Einsatzes in fess.jobs erfassen – das ist Grundlage deiner Vergütung', green:false },
+      { t:'Ordentliche Abmeldung', s:'Nach dem Einsatz Crew Chief abmelden, Equipment zurückgeben, Bereich sauber übergeben', green:true },
+    ],
+    emerg: [
+      { t:'🛑 Sofort stoppen', s:'Arbeitsabschnitt unterbrechen, eigene Sicherheit sicherstellen' },
+      { t:'📢 Crew Chief & Sicherheitsdienst rufen', s:'Lautstark rufen oder per Funk – Standort und Situation klar benennen' },
+      { t:'🩹 Erste Hilfe leisten', s:'Ersthelfer holen. Erste-Hilfe-Kästen sind an der Backstage-Zentrale. Nicht zögern' },
+      { t:'🚧 Unfallstelle sichern', s:'Niemanden die Unfallstelle betreten lassen. Zeugen bis zur Unfallaufnahme festhalten' },
+      { t:'📋 Unfall dokumentieren', s:'Jeder Unfall – auch kleine – muss gemeldet und im Unfallbuch eingetragen werden' },
+    ],
+    cert: { name:'Schulung abgeschlossen', h:'Gut gemacht!', sub:'Du hast die Stagehand-Schulung abgeschlossen. Denke immer an deine PSA, höre auf den Crew Chief und melde Gefährdungen sofort.', cta:'Zu meinen Aufträgen →', stunden:'🕐 Stunden erfassen', replay:'Nochmal durchgehen' },
+    voLang: 'de-DE',
+  },
+
+  en: {
+    schulung_label: 'Training · Stagehand',
+    vo_btn: 'Read aloud',
+    labels: [
+      ['Step 1 of 8', 'Welcome'],
+      ['Step 2 of 8', 'Your Tasks'],
+      ['Step 3 of 8', 'Mandatory PPE'],
+      ['Step 4 of 8', '5 Golden Rules'],
+      ['Step 5 of 8', 'Lifting & Carrying'],
+      ['Step 6 of 8', 'Communication'],
+      ['Step 7 of 8', 'FESS Process'],
+      ['Step 8 of 8', 'Emergency & First Aid'],
+    ],
+    voiceover: [
+      'Welcome to the FESS Stagehand training. In the next few minutes you will learn everything you need for a safe and professional deployment. The training takes about 10 minutes and is mandatory before your first shift.',
+      'As a Stagehand you are responsible for setting up and dismantling stages and technical equipment. You transport equipment, support the technical crew, and carry out all tasks as directed by the Crew Chief. Always work as a team and ask immediately if anything is unclear.',
+      'No PPE means no deployment. This is required by law. You need a safety helmet to EN 397, safety shoes category S3 with steel cap, work gloves when handling equipment, and a high-vis vest in the backstage and transport area. Trainers and missing equipment will result in immediate exclusion from the deployment.',
+      'The 5 golden safety rules: One, only enter assigned areas. Two, always follow the Crew Chief. Three, report hazards immediately. Four, respect all barriers. Five, zero tolerance for alcohol and drugs. Violations lead to immediate exclusion and will be reported to FESS.',
+      'Back problems are the most common injury among Stagehands. Always bend your knees and keep your back straight. Hold the load close to your body. Above 25 kilograms it is mandatory to always lift with two people. Use wheels and dollies for flight cases. If you are injured, stop immediately and inform the Crew Chief.',
+      'Good communication prevents accidents. Note your radio channel during the briefing. Learn the hand signals: flat hand means STOP, thumbs up means OK. Communicate briefly and clearly. Never leave your area without reporting to the Crew Chief.',
+      'Your on-site procedure: Arrive 15 minutes before start. Sign in with the Crew Chief and listen to the full briefing. Put on your PPE before entering the work area. Record start and end of your deployment in the fess.jobs app. Sign off properly after the deployment and hand over your area clean.',
+      'In an emergency: Stop immediately and secure yourself. Call loudly for the Crew Chief and security or report by radio. Provide first aid or get a first aider. Secure the accident scene. For serious injuries call 112 immediately. Every accident, even minor ones, must be reported and documented.',
+    ],
+    psa: [['Safety Helmet','⚠ Mandatory'],['Safety Shoes','⚠ Mandatory'],['Work Gloves','⚠ Mandatory'],['Hi-Vis Vest','⚠ Mandatory']],
+    s: [
+      { label:'Introduction', title:'Welcome to the Stagehand Training', text:'This training covers everything you need for a safe and professional deployment as a Stagehand with FESS – from your tasks to mandatory PPE and the most important safety rules.', callout:'<strong>Mandatory Training</strong>This training must be completed before your first deployment. Duration: approx. 10 minutes.' },
+      { label:'Tasks', title:'What does a Stagehand do?', text:'', callout:'' },
+      { label:'PPE', title:'Personal Protective Equipment', text:'', callout:'<strong>⛔ No PPE = No Deployment</strong>Without full PPE you may not enter the work area. This is required by law (PPE Regulation) and will be checked on site.' },
+      { label:'Safety', title:'The 5 Golden Rules', text:'', callout:'' },
+      { label:'Ergonomics & Body Protection', title:'Correct Lifting & Carrying', text:'Back and joint problems are the most common cause of injury among Stagehands. Here is how to protect yourself:', callout:'<strong>⚠ Injured?</strong>Stop immediately and inform the Crew Chief. Never "work through it" – this makes injuries worse.' },
+      { label:'Teamwork & Communication', title:'Communicate clearly & safely', text:'', callout:'' },
+      { label:'FESS Process', title:'Your On-Site Procedure', text:'', callout:'' },
+      { label:'Emergency & First Aid', title:'What to do in an emergency?', text:'', callout:'<strong>⛑ Emergency: 112</strong>For serious injuries call 112 immediately. Give location, number of injured and type of injury.' },
+    ],
+    tasks: [
+      { icon:'🏗️', t:'Setup & Teardown', s:'Stage, trusses, barriers, risers and all technical equipment' },
+      { icon:'📦', t:'Equipment Handling', s:'Transport flight cases, load and unload, organise storage' },
+      { icon:'🎤', t:'Technical Support', s:'Assist sound, lighting and video crews' },
+      { icon:'👷', t:'Follow the Crew Chief', s:'Always wait for Crew Chief instructions and execute them precisely' },
+    ],
+    rules: [
+      { t:'🚫 Assigned areas only', s:'Never enter an area that has not been explicitly assigned to you. Barriers always have a reason.', red:false },
+      { t:'👂 Crew Chief has priority', s:'Crew Chief instructions always take precedence – even if something seems more logical.', red:false },
+      { t:'⚠️ Report hazards immediately', s:'Report unsafe situations, equipment damage or dangerous behaviour to the Crew Chief immediately.', red:false },
+      { t:'🚧 Respect barriers', s:'Never remove or bypass barrier tape, fences or cones without authorisation.', red:false },
+      { t:'🚭 Zero tolerance for alcohol & drugs', s:'No alcohol, no drugs during the deployment. Results in immediate exclusion and report to FESS.', red:true },
+    ],
+    lift: [
+      { t:'Bend your knees – not your back', s:'Squat down, grip the load, then lift with your legs – never bend with a straight back', red:false, badge:'' },
+      { t:'Keep the load close to your body', s:'The further the load is from your body, the greater the strain on your spine', red:false, badge:'' },
+      { t:'Above 25 kg: always lift with two', s:'Never lift heavy flight cases alone. Call a colleague – no heroics', red:true, badge:'<span class="badge badge-danger">Mandatory</span>' },
+      { t:'Use wheels & dollies', s:'Flight cases have wheels – use them. Never drag or pull on uneven ground', red:false, badge:'' },
+    ],
+    comm: [
+      { icon:'📻', t:'Remember your radio channel', s:'Note the channel during the briefing. Keep radio switched on and listening' },
+      { icon:'✋', t:'Know hand signals', s:'STOP = flat hand raised. OK = thumbs up. It is loud – hand signals save lives' },
+      { icon:'🗣️', t:'Brief & clear', s:'"I need help at case 4" instead of long explanations. When in doubt, ask – don\'t guess' },
+      { icon:'📍', t:'Do not leave your position', s:'Never leave your area without reporting to the Crew Chief' },
+    ],
+    fess: [
+      { t:'Arrive 15 min before start', s:'Punctuality is professionalism. If late, inform the Crew Chief by radio immediately', green:false },
+      { t:'Check in with the Crew Chief', s:'Give your name, ask for your task and area. Listen to the full briefing', green:false },
+      { t:'Put on PPE & take over your area', s:'Put on full protective equipment before entering the work area', green:false },
+      { t:'Time tracking in the app', s:'Record start and end of your deployment in fess.jobs – this is the basis of your payment', green:false },
+      { t:'Proper sign-off', s:'After the deployment: inform Crew Chief, return equipment, hand over your area clean', green:true },
+    ],
+    emerg: [
+      { t:'🛑 Stop immediately', s:'Interrupt the work section, ensure your own safety' },
+      { t:'📢 Call Crew Chief & security', s:'Shout or report by radio – clearly state location and situation' },
+      { t:'🩹 Provide first aid', s:'Get a first aider. First aid kits are at the backstage centre. Do not hesitate' },
+      { t:'🚧 Secure the accident scene', s:'Do not let anyone enter the accident site. Keep witnesses until the report is complete' },
+      { t:'📋 Document the accident', s:'Every accident – even minor – must be reported and entered in the accident book' },
+    ],
+    cert: { name:'Training completed', h:'Well done!', sub:'You have completed the Stagehand training. Always remember your PPE, listen to the Crew Chief and report hazards immediately.', cta:'My assignments →', stunden:'🕐 Log hours', replay:'Go through again' },
+    voLang: 'en-US',
+  },
+
+  ar: {
+    schulung_label: 'تدريب · Stagehand',
+    vo_btn: 'استماع',
+    labels: [
+      ['الخطوة 1 من 8', 'مرحبًا'],
+      ['الخطوة 2 من 8', 'مهامك'],
+      ['الخطوة 3 من 8', 'معدات الوقاية'],
+      ['الخطوة 4 من 8', 'القواعد الذهبية'],
+      ['الخطوة 5 من 8', 'الرفع والحمل'],
+      ['الخطوة 6 من 8', 'التواصل'],
+      ['الخطوة 7 من 8', 'إجراءات FESS'],
+      ['الخطوة 8 من 8', 'الطوارئ والإسعاف'],
+    ],
+    voiceover: [
+      'مرحبًا بك في تدريب FESS للـ Stagehand. خلال الدقائق القادمة ستتعلم كل ما تحتاجه لنشر آمن ومهني. يستغرق التدريب حوالي 10 دقائق وهو إلزامي قبل أول وردية.',
+      'بصفتك Stagehand، أنت مسؤول عن تركيب وتفكيك المسارح والمعدات التقنية. تنقل المعدات، وتدعم فريق التقنية، وتنفذ جميع المهام بتوجيه من Crew Chief. اعمل دائمًا كفريق واسأل فورًا عند أي غموض.',
+      'بدون معدات الوقاية لا يوجد عمل. هذا مطلوب قانونًا. تحتاج إلى خوذة أمان وفق EN 397، وحذاء سلامة S3 مع مقدمة فولاذية، وقفازات عمل، وسترة تحذيرية. الأحذية الرياضية والمعدات المفقودة تؤدي إلى الاستبعاد الفوري.',
+      'القواعد الذهبية الخمس للسلامة: أولًا، ادخل فقط المناطق المخصصة لك. ثانيًا، اتبع دائمًا تعليمات Crew Chief. ثالثًا، أبلغ عن المخاطر فورًا. رابعًا، احترم جميع الحواجز. خامسًا، تساهل صفري مع الكحول والمخدرات.',
+      'مشاكل الظهر هي الإصابة الأكثر شيوعًا. اثنِ ركبتيك دائمًا وحافظ على استقامة ظهرك. احمل الحمل قريبًا من جسمك. فوق 25 كيلوجرامًا يجب دائمًا الرفع بشخصين. استخدم العجلات والعربات. عند الإصابة توقف فورًا وأبلغ Crew Chief.',
+      'التواصل الجيد يمنع الحوادث. سجّل قناة الراديو خلال الإحاطة. تعلم إشارات اليد: اليد المسطوحة تعني توقف، والإبهام لأعلى يعني حسنًا. تواصل بإيجاز ووضوح. لا تترك منطقتك أبدًا دون إبلاغ Crew Chief.',
+      'إجراءاتك في الموقع: اصل قبل 15 دقيقة من البدء. سجّل حضورك مع Crew Chief واستمع للإحاطة كاملة. ارتدِ معدات الوقاية قبل دخول منطقة العمل. سجّل وقت العمل في تطبيق fess.jobs. أبلغ عن انتهاء خدمتك وسلّم منطقتك نظيفة.',
+      'في حالة الطوارئ: توقف فورًا وتأكد من سلامتك. اتصل بـ Crew Chief وخدمة الأمن بصوت عالٍ أو عبر الراديو. قدّم الإسعافات الأولية. أمّن موقع الحادث. في حالة الإصابات الخطيرة اتصل بـ 112 فورًا. يجب توثيق كل حادث.',
+    ],
+    psa: [['خوذة الأمان','⚠ إلزامي'],['حذاء السلامة','⚠ إلزامي'],['قفازات العمل','⚠ إلزامي'],['سترة التحذير','⚠ إلزامي']],
+    s: [
+      { label:'مقدمة', title:'مرحبًا بك في تدريب Stagehand', text:'يغطي هذا التدريب كل ما تحتاجه لعمل آمن ومحترف كـ Stagehand مع FESS — من المهام إلى معدات الوقاية الشخصية الإلزامية وقواعد السلامة الأساسية.', callout:'<strong>تدريب إلزامي</strong>هذا التدريب إلزامي قبل أول مهمة. المدة: حوالي 10 دقائق.' },
+      { label:'المهام', title:'ما الذي يفعله الـ Stagehand؟', text:'', callout:'' },
+      { label:'معدات الوقاية الشخصية', title:'معدات الوقاية الشخصية', text:'', callout:'<strong>⛔ بدون معدات = لا عمل</strong>بدون معدات الوقاية الكاملة لا يُسمح لك بدخول منطقة العمل. هذا مطلوب قانونيًا ويُفحص في الموقع.' },
+      { label:'السلامة', title:'القواعد الذهبية الخمس', text:'', callout:'' },
+      { label:'بيئة العمل', title:'الرفع والحمل الصحيح', text:'مشاكل الظهر والمفاصل هي أكثر أسباب الإصابة شيوعًا. هكذا تحمي نفسك:', callout:'<strong>⚠ تعرضت لإصابة؟</strong>توقف فورًا وأبلغ Crew Chief. لا تكمل العمل — هذا يجعل الإصابات أسوأ.' },
+      { label:'العمل الجماعي والتواصل', title:'التواصل بوضوح وأمان', text:'', callout:'' },
+      { label:'إجراءات FESS', title:'إجراءاتك في الموقع', text:'', callout:'' },
+      { label:'الطوارئ والإسعافات الأولية', title:'ماذا تفعل في حالة الطوارئ؟', text:'', callout:'<strong>⛑ رقم الطوارئ: 112</strong>في حالة الإصابات الخطيرة اتصل بـ 112 فورًا. أعطِ موقع الحادث وعدد المصابين ونوع الإصابة.' },
+    ],
+    tasks: [
+      { icon:'🏗️', t:'التركيب والتفكيك', s:'المسرح والتراوسات والحواجز والمنصات والمعدات التقنية' },
+      { icon:'📦', t:'التعامل مع المعدات', s:'نقل حقائب الرحلات وتحميلها وتفريغها وتنظيم التخزين' },
+      { icon:'🎤', t:'دعم فريق التقنية', s:'مساعدة أطقم الصوت والإضاءة والفيديو' },
+      { icon:'👷', t:'اتباع Crew Chief', s:'انتظر دائمًا تعليمات Crew Chief ونفذها بدقة' },
+    ],
+    rules: [
+      { t:'🚫 المناطق المخصصة فقط', s:'لا تدخل أبدًا منطقة لم يُخصص لك العمل بها. القيود لها دائمًا سبب.', red:false },
+      { t:'👂 Crew Chief هو الأولوية', s:'تعليمات Crew Chief لها الأولوية دائمًا — حتى لو بدا شيء ما أكثر منطقية.', red:false },
+      { t:'⚠️ الإبلاغ الفوري عن المخاطر', s:'أبلغ فورًا عن الحالات غير الآمنة وتلف المعدات والسلوك الخطير لـ Crew Chief.', red:false },
+      { t:'🚧 احترام الحواجز', s:'لا تزل أبدًا أشرطة التحذير أو الحواجز أو المخروطات من تلقاء نفسك.', red:false },
+      { t:'🚭 تساهل صفري مع الكحول والمخدرات', s:'لا كحول ولا مخدرات أثناء العمل. يؤدي إلى الاستبعاد الفوري والإبلاغ إلى FESS.', red:true },
+    ],
+    lift: [
+      { t:'اثنِ ركبتيك — ليس ظهرك', s:'انحنِ للأسفل واقبض على الحمل، ثم ارفع بساقيك', red:false, badge:'' },
+      { t:'احمل الثقل قريبًا من جسمك', s:'كلما ابتعد الثقل عن جسمك، زاد الضغط على العمود الفقري', red:false, badge:'' },
+      { t:'فوق 25 كجم: ارفع بشخصين دائمًا', s:'لا ترفع حقائب الرحلات الثقيلة بمفردك أبدًا. اطلب مساعدة زميل', red:true, badge:'<span class="badge badge-danger">إلزامي</span>' },
+      { t:'استخدم العجلات والعربات', s:'حقائب الرحلات لها عجلات — استخدمها. لا تسحبها على أرضية وعرة', red:false, badge:'' },
+    ],
+    comm: [
+      { icon:'📻', t:'تذكر قناة الراديو', s:'سجّل القناة عند الإحاطة. ابقِ جهاز الراديو مفتوحًا ومستعدًا للاستقبال' },
+      { icon:'✋', t:'تعرف على إشارات اليد', s:'يد مسطوحة = توقف. إبهام لأعلى = حسنًا. إشارات اليد تنقذ الأرواح' },
+      { icon:'🗣️', t:'كن قصيرًا وواضحًا', s:'"أحتاج مساعدة عند الحقيبة 4" بدلًا من شرح طويل. في حالة الشك، اسأل ولا تخمن' },
+      { icon:'📍', t:'لا تترك موقعك', s:'لا تترك منطقتك أبدًا دون إبلاغ Crew Chief' },
+    ],
+    fess: [
+      { t:'الوصول قبل 15 دقيقة من البدء', s:'الالتزام بالمواعيد هو الاحترافية. في حالة التأخر، أبلغ Crew Chief فورًا', green:false },
+      { t:'تسجيل الحضور مع Crew Chief', s:'قدّم اسمك، واسأل عن مهمتك ومنطقتك. استمع للإحاطة كاملة', green:false },
+      { t:'ارتدِ معدات الوقاية وتسلّم المنطقة', s:'ارتدِ كامل معدات الحماية قبل دخول منطقة العمل', green:false },
+      { t:'تسجيل الوقت في التطبيق', s:'سجّل بداية ونهاية خدمتك في تطبيق fess.jobs — هذا أساس مكافأتك', green:false },
+      { t:'المغادرة المنظمة', s:'بعد الخدمة: أبلغ Crew Chief، أعد المعدات، وسلّم منطقتك نظيفة', green:true },
+    ],
+    emerg: [
+      { t:'🛑 توقف فورًا', s:'اقطع قسم العمل، وتأكد من سلامتك الشخصية' },
+      { t:'📢 اتصل بـ Crew Chief وخدمة الأمن', s:'اصرخ بصوت عالٍ أو أبلغ عبر الراديو — حدد الموقع والوضع بوضوح' },
+      { t:'🩹 قدّم الإسعافات الأولية', s:'احضر مسعفًا. صناديق الإسعافات الأولية موجودة في المركز الخلفي' },
+      { t:'🚧 أمّن موقع الحادث', s:'لا تدع أحدًا يدخل موقع الحادث. احتفظ بالشهود حتى تسجيل الحادث' },
+      { t:'📋 وثّق الحادث', s:'كل حادث — حتى الصغيرة — يجب الإبلاغ عنه وتسجيله في سجل الحوادث' },
+    ],
+    cert: { name:'اكتمل التدريب', h:'أحسنت!', sub:'لقد أكملت تدريب Stagehand. تذكر دائمًا معدات الوقاية، واستمع إلى Crew Chief، وأبلغ عن المخاطر فورًا.', cta:'إلى مهامي ←', stunden:'🕐 تسجيل الساعات', replay:'إعادة المراجعة' },
+    voLang: 'ar-SA',
+  },
+};
+
+let lang = 'de';
+
+// ── RENDER HELPERS ──────────────────────────────
+function itemHTML(items, ids) {
+  return items.map((item, i) => `
+    <div class="item" id="${ids[i]}">
+      <div class="item-icon">${item.icon}</div>
+      <div class="item-content">
+        <div class="item-title">${item.t}</div>
+        <div class="item-sub">${item.s}</div>
+      </div>
+    </div>`).join('');
+}
+
+function stepHTML(items, ids, defColor) {
+  return items.map((item, i) => `
+    <div class="step-row" id="${ids[i]}">
+      <div class="step-num" style="${item.red ? 'background:var(--danger)' : item.green ? 'background:var(--green)' : ''}">${item.green ? '✓' : item.red ? '!' : i + 1}</div>
+      <div class="step-content">
+        <div class="step-title">${item.t}${item.badge || ''}</div>
+        <div class="step-sub">${item.s}</div>
+      </div>
+    </div>`).join('');
+}
+
+function setLang(l) {
+  lang = l;
+  const t = T[l];
+  document.documentElement.lang = l;
+  document.documentElement.dir = l === 'ar' ? 'rtl' : 'ltr';
+  document.querySelectorAll('.lb').forEach(b => b.classList.toggle('on', b.textContent === l.toUpperCase()));
+
+  // Header
+  document.getElementById('schulung-label').textContent = t.schulung_label;
+
+  // Slide labels, titles, texts, callouts
+  t.s.forEach((sd, i) => {
+    const el = document.getElementById('s' + (i + 1));
+    if (!el) return;
+    el.querySelector('.slide-label').textContent = sd.label;
+    el.querySelector('.slide-title').textContent = sd.title;
+    const tx = el.querySelector('.slide-text');
+    if (tx) tx.textContent = sd.text;
+    const cl = el.querySelector('.callout');
+    if (cl) cl.innerHTML = cl.querySelector('strong') ? sd.callout : sd.callout;
+    if (cl && sd.callout) cl.innerHTML = sd.callout;
+  });
+
+  // PSA grid names
+  const psaNames = document.querySelectorAll('.psa-name');
+  const psaFlags = document.querySelectorAll('.psa-flag');
+  t.psa.forEach(([n, f], i) => {
+    if (psaNames[i]) psaNames[i].textContent = n;
+    if (psaFlags[i]) psaFlags[i].textContent = f;
+  });
+
+  // Item lists
+  document.getElementById('task-list').innerHTML = itemHTML(t.tasks, ['ta1','ta2','ta3','ta4']);
+  document.getElementById('comm-list').innerHTML = itemHTML(t.comm, ['c1','c2','c3','c4']);
+  document.getElementById('rule-steps').innerHTML = stepHTML(t.rules, ['r1','r2','r3','r4','r5']);
+  document.getElementById('lift-steps').innerHTML = stepHTML(t.lift, ['l1','l2','l3','l4']);
+  document.getElementById('fess-steps').innerHTML = stepHTML(t.fess, ['f1','f2','f3','f4','f5']);
+  document.getElementById('emerg-steps').innerHTML = stepHTML(t.emerg, ['e1','e2','e3','e4','e5']);
+
+  // VO button labels
+  document.querySelectorAll('.vo-lbl').forEach(el => el.textContent = t.vo_btn);
+
+  // End screen
+  document.getElementById('cert-name-txt').textContent = t.cert.name;
+  document.getElementById('cert-h').textContent = t.cert.h;
+  document.getElementById('cert-sub').textContent = t.cert.sub;
+  document.getElementById('cert-cta').textContent = t.cert.cta;
+  document.getElementById('cert-stunden').textContent = t.cert.stunden;
+  document.getElementById('cert-replay').textContent = t.cert.replay;
+
+  // Step info for current step
+  const [badge, title] = t.labels[step];
+  document.getElementById('step-badge').textContent = badge;
+  document.getElementById('step-title').textContent = title;
+
+  // Stop voiceover
+  if ('speechSynthesis' in window) speechSynthesis.cancel();
+  document.querySelectorAll('.vo-btn').forEach(b => b.classList.remove('speaking'));
+
+  // Re-animate
+  setTimeout(() => anim(step), 100);
+}
 
 let step = 0;
 let playing = false;
@@ -1090,7 +1418,7 @@ function goTo(idx) {
   document.querySelectorAll('.slide').forEach((s,i) => s.classList.toggle('active', i === idx));
   document.querySelectorAll('.dot').forEach((d,i) => d.classList.toggle('on', i === idx));
 
-  const [badge, title] = LABELS[idx];
+  const [badge, title] = T[lang].labels[idx];
   $('step-badge').textContent = badge;
   $('step-title').textContent = title;
 
@@ -1148,15 +1476,14 @@ function speak(idx) {
     return;
   }
 
-  const u = new SpeechSynthesisUtterance(VOICEOVER[idx]);
-  u.lang = 'de-DE';
-  u.rate = 0.88;
+  const u = new SpeechSynthesisUtterance(T[lang].voiceover[idx]);
+  u.lang = T[lang].voLang;
+  u.rate = lang === 'ar' ? 0.82 : 0.88;
   u.pitch = 1;
 
-  // prefer a German voice
   const voices = speechSynthesis.getVoices();
-  const de = voices.find(v => v.lang.startsWith('de')) || null;
-  if (de) u.voice = de;
+  const match = voices.find(v => v.lang.startsWith(lang === 'ar' ? 'ar' : lang)) || null;
+  if (match) u.voice = match;
 
   u.onstart = () => btn.classList.add('speaking');
   u.onend = u.onerror = () => btn.classList.remove('speaking');
