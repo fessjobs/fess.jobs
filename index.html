@@ -1130,6 +1130,7 @@ async function openBewStatusModal(aufId,aufName,status){
       </div></div>`:''}
     <div class="bew-detail-actions">
       ${status==='bestaetigt'?`<button class="bew-detail-btn" style="background:var(--or);color:#fff" onclick="openChatModal('${aufId}','${aufName.replace(/'/g,"\'")}')">💬 Nachricht an FESS senden</button>`:''}
+      ${status==='bestaetigt'?`<a class="bew-detail-btn" href="anu-stundenzettel.html?job=${aufId}" style="background:#059669;color:#fff;text-align:center;text-decoration:none;display:block;border-radius:8px;padding:11px;font-size:13px;font-weight:700">🕐 Stunden erfassen (ANÜ)</a>`:''}
       <a class="bew-detail-btn" href="https://wa.me/491633626855?text=${encodeURIComponent('Hallo FESS, ich habe eine Frage zu meinem Einsatz: '+aufName)}" target="_blank" style="background:#25D366;color:#fff">📱 WhatsApp Support</a>
       ${status!=='abgelehnt'?`<button class="bew-detail-btn" style="background:#fef2f2;color:#dc2626;border:1px solid #fecaca" onclick="cancelSchicht('${aufId}','${aufName.replace(/'/g,"\'")}')">✗ Einsatz absagen</button>`:''}
       <button onclick="closeM()" style="width:100%;background:#f3f4f6;color:#6b7280;border:none;border-radius:8px;padding:10px;font-size:12px;cursor:pointer;font-family:var(--font)">Schließen</button>

@@ -1240,12 +1240,19 @@ function renderDispoSummary(auf, crew) {
   const occ = auf.pax_gesamt > 0 ? Math.round(best/auf.pax_gesamt*100) : 0;
   const occColor = occ>=80?'#22c55e':occ>=50?'#f59e0b':'#dc2626';
 
+  const isFullyBooked = offen === 0 && best >= (auf.pax_gesamt||1);
   sumDiv.style.display = 'block';
   sumDiv.innerHTML = `<div class="dispo-summary-grid">
     <div class="dispo-sum-card"><div class="dispo-sum-n" style="color:${occColor}">${best}/${auf.pax_gesamt||0}</div><div class="dispo-sum-l">Besetzt (${occ}%)</div></div>
     <div class="dispo-sum-card"><div class="dispo-sum-n" style="color:#dc2626">${offen}</div><div class="dispo-sum-l">Noch offen</div></div>
     <div class="dispo-sum-card"><div class="dispo-sum-n" style="color:#d97706">${neu}</div><div class="dispo-sum-l">Neue Bewerbungen</div></div>
     <div class="dispo-sum-card"><div class="dispo-sum-n" style="color:#7c3aed">${res}</div><div class="dispo-sum-l">Reserviert</div></div>
+  </div>
+  <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">
+    <button class="tbtn${isFullyBooked?' primary':''}" onclick="generateKonkretisierung()" ${!isFullyBooked?'title="Alle Plätze müssen besetzt sein"':''}>
+      📋 ANÜ Konkretisierung erstellen${isFullyBooked?' ✓':''}
+    </button>
+    <a href="anu-stundenzettel.html?job=${auf.id}" target="_blank" class="tbtn" style="text-decoration:none">🕐 Stundenzettel öffnen</a>
   </div>`;
 }
 
@@ -1256,7 +1263,7 @@ function renderDispoBody(auf, crew) {
   body.innerHTML = `<div class="dispo-auf-section">
     <div class="dispo-auf-title">
       <span>📋 ${auf.name} <span style="font-size:12px;font-weight:400;color:var(--muted)">· ${auf.location||''} · ${fmtD(auf)}</span></span>
-      <span class="badge badge-bl">${auf.kategorie||''}</span>
+      <div style="display:flex;align-items:center;gap:6px"><span class="badge badge-bl">${auf.kategorie||''}</span><a href="anu-stundenzettel.html?job=${auf.id}" target="_blank" class="tbtn" style="font-size:10px;padding:4px 10px;text-decoration:none">🕐 ANÜ Stundenzettel</a></div>
     </div>
     ${shifts.map((sh, si) => renderShiftBlock(auf, crew, sh, si)).join('')}
   </div>`;
@@ -2120,6 +2127,91 @@ function toggleChecklist(aufId,field,value){
   saveChecklist(cl);
   const rate=parseFloat(document.getElementById('an-rate')?.value)||18;
   renderChecklist(getFilteredAuftraege(),rate,cl);
+}
+
+// ══ ANÜ KONKRETISIERUNG ══
+async function generateKonkretisierung(){
+  if(typeof window.jspdf==='undefined'){toast('jsPDF lädt noch…','info');return;}
+  const auf=DISPO_CURRENT_AUF;
+  if(!auf){toast('Kein Auftrag ausgewählt','err');return;}
+  const crew=DISPO_CREW.filter(b=>b.status==='bestaetigt');
+  const {jsPDF}=window.jspdf;
+  const doc=new jsPDF({orientation:'portrait',unit:'mm',format:'a4'});
+  const W=210,M=14;let y=14;
+  // Header
+  doc.setFillColor(232,101,26);doc.rect(0,0,W,20,'F');
+  doc.setFont('helvetica','bold');doc.setFontSize(14);doc.setTextColor(255,255,255);
+  doc.text('ANÜ Konkretisierung',M,13);
+  doc.setFontSize(8);doc.text('fess.jobs | Arbeitnehmerüberlassung',W-M,13,{align:'right'});
+  doc.setTextColor(17,24,39);y=28;
+  // Sub-header
+  doc.setFont('helvetica','bold');doc.setFontSize(10);
+  doc.text('FESS Personaldienstleistungen – Überlassungsvertrag',M,y);y+=5;
+  doc.setFont('helvetica','normal');doc.setFontSize(8.5);
+  doc.setTextColor(107,114,128);
+  doc.text(`Erstellt am ${new Date().toLocaleDateString('de-DE')}  ·  Dieses Dokument konkretisiert den Arbeitnehmerüberlassungsvertrag`,M,y);
+  doc.setTextColor(17,24,39);y+=8;
+  // Job info box
+  doc.setFillColor(249,250,251);doc.setDrawColor(229,231,235);doc.roundedRect(M,y,W-2*M,42,2,2,'FD');
+  const labelW=30;
+  const rows2=[
+    ['Veranstaltung / Einsatz:',auf.name||'–'],['Einsatzort / Örtlichkeit:',auf.location||'–'],
+    ['Einsatzdatum:',fmtD(auf)],['Kategorie / Bereich:',auf.kategorie||'–'],
+    ['Tätigkeit der AN:',auf.taetigkeit||'–'],['Schichtzeiten:',(auf.schichtzeiten||[]).join(', ')||'–']
+  ];
+  rows2.forEach((r,ri)=>{
+    const cx=ri%2===0?M+3:M+100;const cy=y+6+Math.floor(ri/2)*10;
+    doc.setFont('helvetica','bold');doc.setFontSize(8);doc.text(r[0],cx,cy);
+    doc.setFont('helvetica','normal');doc.text(r[1],cx+labelW,cy,{maxWidth:60});
+  });
+  y+=48;
+  // Vertragspartner
+  doc.setFont('helvetica','bold');doc.setFontSize(9);doc.text('VERTRAGSPARTNER',M,y);y+=4;
+  doc.setFillColor(249,250,251);doc.roundedRect(M,y,W-2*M,28,2,2,'FD');
+  doc.setFont('helvetica','bold');doc.setFontSize(8);
+  doc.text('Verleiher (AN-Überlassung):',M+3,y+6);
+  doc.setFont('helvetica','normal');
+  doc.text('FESS Personaldienstleistungen · fess.jobs · info@fess-recruitment.de',M+3,y+12);
+  doc.setFont('helvetica','bold');doc.text('Entleiher (Auftraggeber):',M+3,y+20);
+  doc.setFont('helvetica','normal');doc.text('_______________________________________________________________',M+3,y+20);
+  y+=34;
+  // Crew table
+  doc.setFont('helvetica','bold');doc.setFontSize(9);doc.text(`EINGESETZTE ARBEITNEHMER (${crew.length} Personen)`,M,y);y+=4;
+  const colW=[6,48,50,38,40];
+  const hdrs=['#','Name','Tätigkeit','Schicht','Status'];
+  doc.setFillColor(232,101,26);doc.rect(M,y,W-2*M,7,'F');
+  doc.setTextColor(255,255,255);doc.setFont('helvetica','bold');doc.setFontSize(8);
+  let cx2=M+2;hdrs.forEach((h,hi)=>{doc.text(h,cx2,y+5);cx2+=colW[hi];});
+  doc.setTextColor(17,24,39);y+=7;
+  crew.forEach((b,bi)=>{
+    const bg=bi%2===0?[255,255,255]:[249,250,251];
+    doc.setFillColor(...bg);doc.rect(M,y,W-2*M,7,'F');
+    doc.setFont('helvetica','normal');doc.setFontSize(8);
+    cx2=M+2;
+    [`${bi+1}`,`${b.vorname||''} ${b.nachname||''}`.trim(),b.schicht||auf.taetigkeit||'Stagehand',b.schicht||'–','Bestätigt'].forEach((v,vi)=>{
+      doc.text(v.substring(0,vi===1?22:vi===2?22:15),cx2,y+5);cx2+=colW[vi];
+    });
+    doc.setDrawColor(229,231,235);doc.line(M,y+7,W-M,y+7);
+    y+=7;
+  });
+  y+=10;
+  // Signatures
+  if(y>240){doc.addPage();y=20;}
+  doc.setFont('helvetica','bold');doc.setFontSize(9);doc.text('UNTERSCHRIFTEN',M,y);y+=4;
+  doc.setFillColor(249,250,251);doc.roundedRect(M,y,W-2*M,38,2,2,'FD');
+  doc.setFont('helvetica','normal');doc.setFontSize(8);
+  const half=(W-2*M)/2-4;
+  doc.text('Verleiher / FESS.jobs:',M+3,y+6);doc.line(M+3,y+22,M+3+half,y+22);
+  doc.text('Entleiher / Auftraggeber:',M+half+10,y+6);doc.line(M+half+10,y+22,W-M-3,y+22);
+  doc.text('Ort, Datum:',M+3,y+30);doc.line(M+22,y+30,M+3+half,y+30);
+  doc.text('Stempel:',M+half+10,y+30);doc.line(M+half+18,y+30,W-M-3,y+30);
+  y+=44;
+  // Footer
+  doc.setFont('helvetica','normal');doc.setFontSize(7);doc.setTextColor(107,114,128);
+  doc.text('Dieses Dokument wurde automatisch über fess.jobs erstellt und dient als Anlage zum ANÜ-Rahmenvertrag.',M,287,{baseline:'bottom'});
+
+  doc.save(`FESS_Konkretisierung_${(auf.name||'').replace(/[^a-z0-9]/gi,'_')}_${auf.datum_von||''}.pdf`);
+  toast('📋 Konkretisierung erstellt','ok');
 }
 
 function exportPDF(){
