@@ -628,19 +628,11 @@ async function confirmAndSave(){
       taetigkeit:role,
       psa_check:psa,
       sicherheit_check:safety,
-      reisekosten,
-      bonus,
       pdf_url:pdfUrl
     };
     if(sb){
       try{
-        let{error:rowErr}=await sb.from('stundennachweise').upsert([rec],{onConflict:'mitarbeiter_name,auftrag_id,datum'});
-        if(rowErr&&(rowErr.message||'').toLowerCase().includes('bonus')||rowErr&&(rowErr.message||'').toLowerCase().includes('reisekosten')){
-          // Fallback: retry without optional columns if DB schema is outdated
-          const recFallback={...rec};delete recFallback.reisekosten;delete recFallback.bonus;
-          const{error:rowErr2}=await sb.from('stundennachweise').upsert([recFallback],{onConflict:'mitarbeiter_name,auftrag_id,datum'});
-          rowErr=rowErr2;
-        }
+        const{error:rowErr}=await sb.from('stundennachweise').insert([rec]);
         if(rowErr){console.error('Save row err:',rowErr);saveErrors.push(CREW[i]+': '+rowErr.message);}
         else saved++;
       }catch(err){console.warn('Save row err:',err);saveErrors.push(CREW[i]+': '+err.message);}
