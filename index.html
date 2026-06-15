@@ -1130,10 +1130,12 @@ async function openBewStatusModal(aufId,aufName,status){
       </div></div>`:''}
     <div class="bew-detail-actions">
       ${status==='bestaetigt'?`<button class="bew-detail-btn" style="background:var(--or);color:#fff" onclick="openChatModal('${aufId}','${aufName.replace(/'/g,"\'")}')">💬 Nachricht an FESS senden</button>`:''}
+      ${status==='bestaetigt'?`<a class="bew-detail-btn" href="anu-stundenzettel.html?job=${aufId}" style="background:#059669;color:#fff;text-align:center;text-decoration:none;display:block;border-radius:8px;padding:11px;font-size:13px;font-weight:700">🕐 Stunden erfassen (ANÜ)</a>`:''}
       <a class="bew-detail-btn" href="https://wa.me/491633626855?text=${encodeURIComponent('Hallo FESS, ich habe eine Frage zu meinem Einsatz: '+aufName)}" target="_blank" style="background:#25D366;color:#fff">📱 WhatsApp Support</a>
       ${status!=='abgelehnt'?`<button class="bew-detail-btn" style="background:#fef2f2;color:#dc2626;border:1px solid #fecaca" onclick="cancelSchicht('${aufId}','${aufName.replace(/'/g,"\'")}')">✗ Einsatz absagen</button>`:''}
       <button onclick="closeM()" style="width:100%;background:#f3f4f6;color:#6b7280;border:none;border-radius:8px;padding:10px;font-size:12px;cursor:pointer;font-family:var(--font)">Schließen</button>
     </div>`;
+  _lockScroll();
   document.getElementById('MB').classList.add('open');
 }
 
@@ -1440,9 +1442,19 @@ async function doSub(e,formEl){
 function openModal(id){
   const e=ALL.find(x=>String(x.id)===String(id));
   if(!e)return;
+  // Tutorial gate: first time ever, show Stagehand Schulung before application
+  if(!localStorage.getItem('fess_schulung_done')){
+    localStorage.setItem('fess_pending_job',String(id));
+    window.location.href='schulung-stagehand.html?return=1';
+    return;
+  }
+  _openModalDirect(e);
+}
+function _openModalDirect(e){
   const name=e.n||e.name;
   const loc=e.loc||e.location;
   document.getElementById('MBody').innerHTML=mkForm(e.id,name,fmtD(e),loc,false);
+  _lockScroll();
   document.getElementById('MB').classList.add('open');
   const eid='f'+(e.id||'').toString().replace(/[^a-z0-9]/gi,'');
   const container=document.getElementById('schichtSel'+eid);
@@ -1459,9 +1471,13 @@ function openModal(id){
 }
 function openGen(type){
   document.getElementById('MBody').innerHTML=mkForm(null,'Allgemeine Bewerbung – '+type,'','Deutschlandweit',true);
+  _lockScroll();
   document.getElementById('MB').classList.add('open');
 }
-function closeM(){document.getElementById('MB').classList.remove('open');}
+let _scrollLock=0;
+function _lockScroll(){_scrollLock=window.scrollY;document.body.style.cssText='overflow:hidden;position:fixed;top:-'+_scrollLock+'px;width:100%';}
+function _unlockScroll(){document.body.style.cssText='';window.scrollTo(0,_scrollLock);}
+function closeM(){document.getElementById('MB').classList.remove('open');_unlockScroll();}
 
 function cookieSet(v){try{localStorage.setItem('fess_cookies',v);}catch(e){}document.getElementById('cookieBanner').classList.remove('show');}
 function checkCookies(){try{if(!localStorage.getItem('fess_cookies'))setTimeout(()=>document.getElementById('cookieBanner').classList.add('show'),1500);}catch(e){}}
@@ -1476,7 +1492,11 @@ async function loadEvents(){
         ALL=data.map(e=>({id:e.id,n:e.name,k:e.kategorie,st:e.status,urg:e.dringend,dv:e.datum_von,db:e.datum_bis,loc:e.location,ta:e.taetigkeit,pax:e.pax_gesamt,pb:e.pax_besetzt||0,sh:e.schichtzeiten||[],img:e.bild_url||'',viz:e.sichtbar!==false,voll:e.voll_besetzt||false}));
         // dringend kommt nur aus DB (Admin steuert es)
         console.log('Loaded',ALL.length,'events');
-        renderJobs();renderMyApps().catch(e=>console.warn(e));return;
+        const prevScroll=window.scrollY;
+        renderJobs();renderMyApps().catch(e=>console.warn(e));
+        if(prevScroll>0)requestAnimationFrame(()=>window.scrollTo(0,prevScroll));
+        checkTutorialReturn();
+        return;
       }
     }
   }catch(err){console.warn('Supabase error:',err.message);}
@@ -1513,7 +1533,31 @@ function openUserMenu(){
       <button onclick="sb.auth.signOut().then(()=>{window.FESS_USER=null;window.FESS_PROFILE=null;document.getElementById('userBadge').style.display='none';closeM();})" style="background:#fef2f2;color:#dc2626;border:1px solid #fecaca;border-radius:8px;padding:10px;font-size:12px;cursor:pointer;font-family:var(--font)">Abmelden</button>
       <button onclick="closeM()" style="background:#f3f4f6;color:#6b7280;border:none;border-radius:8px;padding:9px;font-size:12px;cursor:pointer;font-family:var(--font)">Schließen</button>
     </div>`;
+  _lockScroll();
   document.getElementById('MB').classList.add('open');
+}
+
+// ── TUTORIAL RETURN HANDLER ──
+function checkTutorialReturn(){
+  try{
+    const params=new URLSearchParams(window.location.search);
+    if(params.get('tutorialdone')==='1'){
+      const pendingId=localStorage.getItem('fess_pending_job');
+      // Clean URL without reload
+      history.replaceState(null,'',window.location.pathname);
+      if(pendingId){
+        localStorage.removeItem('fess_pending_job');
+        const e=ALL.find(x=>String(x.id)===String(pendingId));
+        if(e){
+          // Show welcome banner before opening form
+          setTimeout(()=>{
+            _openModalDirect(e);
+            toast('✅ Sicherheitsunterweisung abgeschlossen!','ok');
+          },300);
+        }
+      }
+    }
+  }catch(e){}
 }
 
 // ── INIT ──

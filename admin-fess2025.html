@@ -203,7 +203,7 @@ body{background:var(--bg);font-family:var(--font);color:var(--text);display:flex
   <a class="ni" onclick="P('newsletter',this)"><i class="ti ti-send"></i><span>Newsletter</span></a>
   <a class="ni" onclick="P('chats',this)"><i class="ti ti-messages"></i><span>Chats</span></a>
   <div class="sb-section">Auswertung</div>
-  <a class="ni" onclick="P('analyse',this)"><i class="ti ti-chart-bar"></i><span>Analyse</span></a>
+  <a class="ni" onclick="promptAnalyse(this)"><i class="ti ti-chart-bar"></i><span>Analyse</span></a>
   <div class="sb-bottom">
     <div style="display:flex;align-items:center;gap:7px">
       <div class="db-dot" id="dbDot"></div>
@@ -255,11 +255,24 @@ body{background:var(--bg);font-family:var(--font);color:var(--text);display:flex
 
     <!-- AUFTRAEGE -->
     <div class="page" id="pg-auftraege">
-      <div style="margin-bottom:14px;display:flex;gap:8px;flex-wrap:wrap">
-        <input class="fi" style="max-width:240px" placeholder="🔍 Suchen…" oninput="filterAuf(this.value)">
-        <select class="fsel" style="max-width:160px" onchange="filterAufKat(this.value)">
+      <div style="margin-bottom:14px;display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+        <input class="fi" style="max-width:220px" placeholder="🔍 Suchen…" oninput="filterAuf(this.value)">
+        <select class="fsel" style="max-width:150px" onchange="filterAufKat(this.value)">
           <option value="">Alle Kategorien</option>
           <option>Konzert</option><option>Festival</option><option>Promotion</option><option>ESL</option><option>Sport</option><option>Kino</option>
+        </select>
+        <select class="fsel" style="max-width:150px" onchange="filterAufStatus(this.value)">
+          <option value="">Alle Status</option>
+          <option value="bestaetigt">✓ Bestätigt</option>
+          <option value="ausstehend">Angefragt</option>
+          <option value="abgesagt">Abgesagt</option>
+        </select>
+        <select class="fsel" style="max-width:160px" onchange="sortAuf(this.value)">
+          <option value="datum">Sortierung: Datum ↑</option>
+          <option value="datum_desc">Sortierung: Datum ↓</option>
+          <option value="name">Sortierung: Name A–Z</option>
+          <option value="pax">Sortierung: PAX ↓</option>
+          <option value="occ">Sortierung: Besetzt % ↓</option>
         </select>
       </div>
       <div class="panel">
@@ -558,7 +571,8 @@ try { sb = supabase.createClient(SB_URL, SB_KEY); console.log('✅ Supabase OK')
 // ══ STATE ══
 let AUFTRAEGE = [], BEWERBUNGEN = [], MITARBEITER = [];
 let BEW_FILTER = 'alle';
-let AUF_SEARCH = '', AUF_KAT = '';
+let AUF_SEARCH = '', AUF_KAT = '', AUF_STATUS = '', AUF_SORT = 'datum';
+let ANALYSE_UNLOCKED = false;
 
 // ══ TOAST ══
 function toast(msg, type='info') {
@@ -577,6 +591,37 @@ function openM(html) {
 }
 function closeM() { document.getElementById('modalBG').classList.remove('open'); }
 
+// ══ ANALYSE PASSWORD GATE ══
+function promptAnalyse(el) {
+  if (ANALYSE_UNLOCKED) { P('analyse', el); return; }
+  const html = `<div style="text-align:center;padding:10px 0">
+    <div style="font-size:32px;margin-bottom:12px">🔒</div>
+    <h2 style="font-family:'Bitter',serif;font-size:18px;margin-bottom:6px">Analyse & Auswertung</h2>
+    <p style="font-size:13px;color:var(--muted);margin-bottom:18px">Bitte Passwort eingeben um fortzufahren.</p>
+    <input type="password" id="analyse-pw-input" placeholder="Passwort" autofocus
+      style="width:100%;border:1.5px solid var(--border);border-radius:8px;padding:10px 14px;font-size:15px;outline:none;text-align:center;letter-spacing:4px"
+      onkeydown="if(event.key==='Enter')checkAnalysePW(${el?`document.querySelector('.ni.on')||null`:null})">
+    <div id="analyse-pw-err" style="color:#dc2626;font-size:12px;margin-top:8px;min-height:18px"></div>
+    <button class="tbtn primary" style="margin-top:10px;width:100%;justify-content:center" onclick="checkAnalysePW()">Entsperren</button>
+  </div>`;
+  openM(html);
+  setTimeout(() => { const inp = document.getElementById('analyse-pw-input'); if(inp) inp.focus(); }, 100);
+  window._analyseEl = el;
+}
+function checkAnalysePW() {
+  const inp = document.getElementById('analyse-pw-input');
+  if (!inp) return;
+  if (inp.value === '1999') {
+    ANALYSE_UNLOCKED = true;
+    closeM();
+    P('analyse', window._analyseEl);
+  } else {
+    document.getElementById('analyse-pw-err').textContent = 'Falsches Passwort';
+    inp.value = '';
+    inp.focus();
+  }
+}
+
 // ══ NAV ══
 function P(id, el) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
@@ -590,7 +635,7 @@ function P(id, el) {
   };
   document.getElementById('pageTitle').textContent = titles[id] || id;
   const acts = {
-    auftraege: `<button class="tbtn primary" onclick="openNewAuf()"><i class="ti ti-plus"></i> Neuer Auftrag</button><button class="tbtn" onclick="loadAuftraege()"><i class="ti ti-refresh"></i></button>`,
+    auftraege: `<button class="tbtn primary" onclick="openNewAuf()"><i class="ti ti-plus"></i> Neuer Auftrag</button><button class="tbtn" onclick="loadAuftraege()"><i class="ti ti-refresh"></i></button><button class="tbtn" onclick="openBulkImport()" style="margin-left:4px" title="Aufträge aus PDF importieren"><i class="ti ti-file-import"></i> PDF-Import</button>`,
     kalender: `<button class="tbtn" onclick="renderKalender()"><i class="ti ti-refresh"></i> Refresh</button><button class="tbtn" onclick="openKalVerwalten()" style="margin-left:4px"><i class="ti ti-eye-off"></i> Aufträge verwalten</button>`,  
     bewerbungen: `<button class="tbtn" onclick="loadBewerbungen()"><i class="ti ti-refresh"></i> Refresh</button>`,
     dashboard: `<button class="tbtn" onclick="loadAll()"><i class="ti ti-refresh"></i> Aktualisieren</button>`,
@@ -643,6 +688,12 @@ function renderAuftraege() {
   let data = AUFTRAEGE;
   if (AUF_SEARCH) data = data.filter(a => (a.name||'').toLowerCase().includes(AUF_SEARCH) || (a.location||'').toLowerCase().includes(AUF_SEARCH));
   if (AUF_KAT) data = data.filter(a => a.kategorie === AUF_KAT);
+  if (AUF_STATUS) data = data.filter(a => (a.status||'ausstehend') === AUF_STATUS);
+  if (AUF_SORT === 'datum_desc') data = [...data].sort((a,b) => (b.datum_von||'').localeCompare(a.datum_von||''));
+  else if (AUF_SORT === 'name') data = [...data].sort((a,b) => (a.name||'').localeCompare(b.name||''));
+  else if (AUF_SORT === 'pax') data = [...data].sort((a,b) => (b.pax_gesamt||0) - (a.pax_gesamt||0));
+  else if (AUF_SORT === 'occ') data = [...data].sort((a,b) => { const oa = a.pax_gesamt>0?(a.pax_besetzt||0)/a.pax_gesamt:0; const ob = b.pax_gesamt>0?(b.pax_besetzt||0)/b.pax_gesamt:0; return ob-oa; });
+  else data = [...data].sort((a,b) => (a.datum_von||'').localeCompare(b.datum_von||''));
   const tbody = document.getElementById('auf-body');
   if (!data.length) { tbody.innerHTML = '<tr><td colspan="8" class="empty">Keine Aufträge gefunden</td></tr>'; return; }
   tbody.innerHTML = data.map(a => {
@@ -686,6 +737,142 @@ function renderAuftraege() {
 
 function filterAuf(v) { AUF_SEARCH = v.toLowerCase(); renderAuftraege(); }
 function filterAufKat(v) { AUF_KAT = v; renderAuftraege(); }
+function filterAufStatus(v) { AUF_STATUS = v; renderAuftraege(); }
+function sortAuf(v) { AUF_SORT = v; renderAuftraege(); }
+
+// ══ BULK PDF IMPORT ══
+const PDF_JOBS = [
+  {name:'Promotion Volvo Frankfurt',kategorie:'Promotion',status:'bestaetigt',datum_von:'2026-06-05',location:'Frankfurt',taetigkeit:'Promotion Volvo – Tagschicht',pax_gesamt:1,schichtzeiten:[]},
+  {name:'Jazztage Idar-Oberstein',kategorie:'Konzert',status:'bestaetigt',datum_von:'2026-06-05',location:'Idar Marktplatz',taetigkeit:'Stagehands',pax_gesamt:2,schichtzeiten:['10-18Uhr']},
+  {name:'Rock im Park – Promotion',kategorie:'Promotion',status:'bestaetigt',datum_von:'2026-06-06',location:'Nürnberg',taetigkeit:'Promotion LID – Tagschicht',pax_gesamt:16,schichtzeiten:[]},
+  {name:'Promotion Volvo Frankfurt',kategorie:'Promotion',status:'bestaetigt',datum_von:'2026-06-06',location:'Frankfurt',taetigkeit:'Promotion Volvo – Tagschicht',pax_gesamt:1,schichtzeiten:[]},
+  {name:'Rock im Park – Promotion',kategorie:'Promotion',status:'bestaetigt',datum_von:'2026-06-07',location:'Nürnberg',taetigkeit:'Promotion LID – Tagschicht',pax_gesamt:16,schichtzeiten:[]},
+  {name:'Rock am Ring – Stagehand (uneed)',kategorie:'Festival',status:'bestaetigt',datum_von:'2026-06-07',location:'Nürburgring',taetigkeit:'Stagehand',pax_gesamt:4,schichtzeiten:['23-7Uhr']},
+  {name:'Rock am Ring – Stagehand Nacht (uneed)',kategorie:'Festival',status:'bestaetigt',datum_von:'2026-06-07',location:'Nürburgring',taetigkeit:'Stagehand',pax_gesamt:12,schichtzeiten:['23-7Uhr']},
+  {name:'Promotion Volvo Frankfurt',kategorie:'Promotion',status:'bestaetigt',datum_von:'2026-06-07',location:'Frankfurt',taetigkeit:'Promotion Volvo – Tagschicht',pax_gesamt:1,schichtzeiten:[]},
+  {name:'Rock am Ring – Stagehand Abbau (uneed)',kategorie:'Festival',status:'bestaetigt',datum_von:'2026-06-07',location:'Nürburgring',taetigkeit:'Stagehand',pax_gesamt:7,schichtzeiten:['23-8Uhr']},
+  {name:'Rock am Ring – Crewchief (uneed)',kategorie:'Festival',status:'bestaetigt',datum_von:'2026-06-07',location:'Nürburgring',taetigkeit:'Crewchief',pax_gesamt:1,schichtzeiten:['23-8Uhr']},
+  {name:'Jazztage Idar-Oberstein Abend',kategorie:'Konzert',status:'bestaetigt',datum_von:'2026-06-07',location:'Idar Marktplatz',taetigkeit:'Stagehands',pax_gesamt:3,schichtzeiten:['18:30-24Uhr']},
+  {name:'Promotion Volvo Frankfurt',kategorie:'Promotion',status:'bestaetigt',datum_von:'2026-06-08',location:'Frankfurt',taetigkeit:'Promotion Volvo – Tagschicht',pax_gesamt:1,schichtzeiten:[]},
+  {name:'Jazztage Idar-Oberstein',kategorie:'Konzert',status:'bestaetigt',datum_von:'2026-06-08',location:'Idar Marktplatz',taetigkeit:'Stagehands',pax_gesamt:3,schichtzeiten:['09-17Uhr']},
+  {name:'COX – Preisschilder (Appenweier)',kategorie:'ESL',status:'bestaetigt',datum_von:'2026-06-09',datum_bis:'2026-06-11',location:'77767 Appenweier',taetigkeit:'Helfer',pax_gesamt:10,schichtzeiten:['8-16Uhr']},
+  {name:'Rock am Ring – Stagehand Tag (uneed)',kategorie:'Festival',status:'bestaetigt',datum_von:'2026-06-09',location:'Nürburgring',taetigkeit:'Stagehand',pax_gesamt:1,schichtzeiten:['7:15-18:15']},
+  {name:'Rock am Ring – Staplerfahrer (uneed)',kategorie:'Festival',status:'bestaetigt',datum_von:'2026-06-09',location:'Nürburgring',taetigkeit:'Staplerfahrer',pax_gesamt:3,schichtzeiten:['8-19Uhr']},
+  {name:'Promotion Volvo Frankfurt',kategorie:'Promotion',status:'bestaetigt',datum_von:'2026-06-09',location:'Frankfurt',taetigkeit:'Promotion Volvo – Tagschicht',pax_gesamt:1,schichtzeiten:[]},
+  {name:'Trucks beladen Emsdetten',kategorie:'ESL',status:'ausstehend',datum_von:'2026-06-09',location:'Emsdetten',taetigkeit:'Stagehand',pax_gesamt:5,schichtzeiten:['9-18Uhr']},
+  {name:'COX – Preisschilder (Karlsruhe)',kategorie:'ESL',status:'bestaetigt',datum_von:'2026-06-10',location:'76185 Karlsruhe',taetigkeit:'Helfer',pax_gesamt:10,schichtzeiten:['8-16Uhr']},
+  {name:'Rock am Ring – Staplerfahrer 2 (uneed)',kategorie:'Festival',status:'bestaetigt',datum_von:'2026-06-10',location:'Nürburgring',taetigkeit:'Staplerfahrer',pax_gesamt:2,schichtzeiten:['8-19Uhr']},
+  {name:'Promotion Volvo Frankfurt',kategorie:'Promotion',status:'bestaetigt',datum_von:'2026-06-10',location:'Frankfurt',taetigkeit:'Promotion Volvo – Tagschicht',pax_gesamt:1,schichtzeiten:[]},
+  {name:'Trucks beladen Emsdetten',kategorie:'ESL',status:'ausstehend',datum_von:'2026-06-10',location:'Emsdetten',taetigkeit:'Stagehand',pax_gesamt:10,schichtzeiten:['9-18Uhr']},
+  {name:'COX – Preisschilder (St. Ingbert)',kategorie:'ESL',status:'bestaetigt',datum_von:'2026-06-11',location:'66386 St. Ingbert',taetigkeit:'Helfer',pax_gesamt:10,schichtzeiten:['8-16Uhr']},
+  {name:'Promotion Volvo Frankfurt',kategorie:'Promotion',status:'bestaetigt',datum_von:'2026-06-11',location:'Frankfurt',taetigkeit:'Promotion Volvo – Tagschicht',pax_gesamt:1,schichtzeiten:[]},
+  {name:'Messe N&M – Rigging Stuttgart',kategorie:'Konzert',status:'bestaetigt',datum_von:'2026-06-11',location:'Stuttgart Messe',taetigkeit:'Rigger',pax_gesamt:1,schichtzeiten:[]},
+  {name:'SSIO – Technikeinbau Westfalenhalle Dortmund',kategorie:'Konzert',status:'bestaetigt',datum_von:'2026-06-11',location:'Dortmund Westfalenhalle',taetigkeit:'Stagehands – Technikeinbau',pax_gesamt:5,schichtzeiten:['12-18Uhr']},
+  {name:'Promotion Volvo Frankfurt',kategorie:'Promotion',status:'bestaetigt',datum_von:'2026-06-12',location:'Frankfurt',taetigkeit:'Promotion Volvo – Tagschicht',pax_gesamt:1,schichtzeiten:[]},
+  {name:'Promotion Volvo Frankfurt',kategorie:'Promotion',status:'bestaetigt',datum_von:'2026-06-13',location:'Frankfurt',taetigkeit:'Promotion Volvo – Tagschicht',pax_gesamt:1,schichtzeiten:[]},
+  {name:'Promotion Volvo Frankfurt',kategorie:'Promotion',status:'bestaetigt',datum_von:'2026-06-14',location:'Frankfurt',taetigkeit:'Promotion Volvo – Tagschicht',pax_gesamt:1,schichtzeiten:[]},
+  {name:'Cypress Hill – Technikausbau Westfalenhalle',kategorie:'Konzert',status:'bestaetigt',datum_von:'2026-06-14',location:'Dortmund Westfalenhalle',taetigkeit:'Stagehand – Technikausbau',pax_gesamt:3,schichtzeiten:['ab 22:30Uhr']},
+  {name:'Helena Fischer – Stadion Stuttgart (Stagehands)',kategorie:'Konzert',status:'bestaetigt',datum_von:'2026-06-15',location:'Stadion Stuttgart',taetigkeit:'Stagehands',pax_gesamt:20,schichtzeiten:[]},
+  {name:'Helena Fischer – Stadion Stuttgart (Crewchief)',kategorie:'Konzert',status:'bestaetigt',datum_von:'2026-06-15',location:'Stadion Stuttgart',taetigkeit:'Crewchief',pax_gesamt:1,schichtzeiten:[]},
+  {name:'Lager Trucks entladen Emsdetten',kategorie:'ESL',status:'bestaetigt',datum_von:'2026-06-15',location:'Emsdetten',taetigkeit:'Stagehand',pax_gesamt:4,schichtzeiten:['9-18Uhr']},
+  {name:'Helena Fischer – Stadion Stuttgart (Crewchief)',kategorie:'Konzert',status:'bestaetigt',datum_von:'2026-06-16',location:'Stadion Stuttgart',taetigkeit:'Crewchief',pax_gesamt:1,schichtzeiten:[]},
+  {name:'Helena Fischer – Stadion Stuttgart (Staplerfahrer)',kategorie:'Konzert',status:'bestaetigt',datum_von:'2026-06-16',location:'Stadion Stuttgart',taetigkeit:'Staplerfahrer',pax_gesamt:2,schichtzeiten:[]},
+  {name:'Helena Fischer – Stadion Stuttgart (Stagehands)',kategorie:'Konzert',status:'bestaetigt',datum_von:'2026-06-16',location:'Stadion Stuttgart',taetigkeit:'Stagehands',pax_gesamt:20,schichtzeiten:[]},
+  {name:'COX – Preisschilder (Bad Neustadt)',kategorie:'ESL',status:'bestaetigt',datum_von:'2026-06-16',datum_bis:'2026-06-18',location:'97616 Bad Neustadt a.d. Saale',taetigkeit:'Helfer',pax_gesamt:8,schichtzeiten:['8-16Uhr']},
+  {name:'Lager Trucks entladen Emsdetten',kategorie:'ESL',status:'bestaetigt',datum_von:'2026-06-16',location:'Emsdetten',taetigkeit:'Stagehand',pax_gesamt:4,schichtzeiten:['9-18Uhr']},
+  {name:'Messe N&M – Rigging Stuttgart',kategorie:'Konzert',status:'bestaetigt',datum_von:'2026-06-16',location:'Stuttgart Messe',taetigkeit:'Rigger',pax_gesamt:1,schichtzeiten:[]},
+  {name:'COX – Preisschilder (Bayreuth)',kategorie:'ESL',status:'bestaetigt',datum_von:'2026-06-17',location:'95447 Bayreuth',taetigkeit:'Helfer',pax_gesamt:8,schichtzeiten:['8-16Uhr']},
+  {name:'Messe N&M – Rigging Stuttgart',kategorie:'Konzert',status:'bestaetigt',datum_von:'2026-06-17',location:'Stuttgart Messe',taetigkeit:'Rigger',pax_gesamt:1,schichtzeiten:[]},
+  {name:'Roland Kaiser – Pre Prod. Day Loreley',kategorie:'Konzert',status:'bestaetigt',datum_von:'2026-06-18',location:'Loreley Freilichtbühne',taetigkeit:'Stagehand',pax_gesamt:5,schichtzeiten:['8-19Uhr']},
+  {name:'COX – Preisschilder (Michelfeld)',kategorie:'ESL',status:'bestaetigt',datum_von:'2026-06-18',location:'74545 Michelfeld',taetigkeit:'Helfer',pax_gesamt:8,schichtzeiten:['8-16Uhr']},
+  {name:'Roland Kaiser – Loreley',kategorie:'Konzert',status:'bestaetigt',datum_von:'2026-06-19',location:'Loreley Freilichtbühne',taetigkeit:'Stagehand',pax_gesamt:5,schichtzeiten:['21-05Uhr']},
+  {name:'Sarah Connor – Loreley',kategorie:'Konzert',status:'bestaetigt',datum_von:'2026-06-20',location:'Loreley Freilichtbühne',taetigkeit:'Stagehand',pax_gesamt:5,schichtzeiten:['21-05Uhr']},
+  {name:'Southside Festival – Stagehands Tag (uneed)',kategorie:'Festival',status:'bestaetigt',datum_von:'2026-06-20',location:'Neuhausen ob Eck',taetigkeit:'Stagehands',pax_gesamt:6,schichtzeiten:['9-18Uhr']},
+  {name:'Southside Festival – Staplerfahrer Tag (uneed)',kategorie:'Festival',status:'bestaetigt',datum_von:'2026-06-20',location:'Neuhausen ob Eck',taetigkeit:'Staplerfahrer',pax_gesamt:2,schichtzeiten:['9-18Uhr']},
+  {name:'Southside Festival – Stagehands Nacht (uneed)',kategorie:'Festival',status:'bestaetigt',datum_von:'2026-06-20',location:'Neuhausen ob Eck',taetigkeit:'Stagehands',pax_gesamt:6,schichtzeiten:['24-10:30Uhr']},
+  {name:'Southside Festival – Staplerfahrer Nacht (uneed)',kategorie:'Festival',status:'bestaetigt',datum_von:'2026-06-20',location:'Neuhausen ob Eck',taetigkeit:'Staplerfahrer',pax_gesamt:2,schichtzeiten:['24-10:30Uhr']},
+  {name:'Zucchero – Festhalle Frankfurt (Tag)',kategorie:'Konzert',status:'bestaetigt',datum_von:'2026-06-20',location:'Festhalle Frankfurt',taetigkeit:'Stagehands',pax_gesamt:10,schichtzeiten:['6:45-14:45']},
+  {name:'Zucchero – Festhalle Frankfurt (Nacht)',kategorie:'Konzert',status:'bestaetigt',datum_von:'2026-06-20',location:'Festhalle Frankfurt',taetigkeit:'Stagehands',pax_gesamt:10,schichtzeiten:['21:00-03:00']},
+  {name:'Helene Fischer – Veltins-Arena Gelsenkirchen',kategorie:'Konzert',status:'bestaetigt',datum_von:'2026-06-22',location:'Veltins-Arena, Gelsenkirchen',taetigkeit:'Stagehands',pax_gesamt:9,schichtzeiten:['Tagschicht']},
+  {name:'COX – Preisschilder (Weilheim)',kategorie:'ESL',status:'bestaetigt',datum_von:'2026-06-23',datum_bis:'2026-06-24',location:'82362 Weilheim in Oberbayern',taetigkeit:'Helfer',pax_gesamt:8,schichtzeiten:['8-16Uhr']},
+  {name:'Helene Fischer – Veltins-Arena Gelsenkirchen',kategorie:'Konzert',status:'bestaetigt',datum_von:'2026-06-23',location:'Veltins-Arena, Gelsenkirchen',taetigkeit:'Stagehands',pax_gesamt:9,schichtzeiten:['21-03Uhr']},
+  {name:'COX – Preisschilder (Renningen)',kategorie:'ESL',status:'bestaetigt',datum_von:'2026-06-24',location:'71272 Renningen',taetigkeit:'Helfer',pax_gesamt:8,schichtzeiten:['8-16Uhr']},
+  {name:'Helene Fischer – Rheinenergie-Stadion Köln',kategorie:'Konzert',status:'ausstehend',datum_von:'2026-06-25',location:'Rheinenergie-Stadion, Köln',taetigkeit:'Stagehands',pax_gesamt:9,schichtzeiten:['Tagschicht']},
+  {name:'Max Korzh – Merkur-Spiel-Arena Düsseldorf',kategorie:'Konzert',status:'ausstehend',datum_von:'2026-06-25',location:'Merkur-Spiel-Arena, Düsseldorf',taetigkeit:'Stagehands',pax_gesamt:5,schichtzeiten:['Tagschicht']},
+  {name:'Clueso – Dortmund',kategorie:'Konzert',status:'bestaetigt',datum_von:'2026-06-27',location:'Dortmund',taetigkeit:'Stagehands – langer Abbau',pax_gesamt:5,schichtzeiten:[]},
+  {name:'Mark Forster – Dortmund',kategorie:'Konzert',status:'bestaetigt',datum_von:'2026-06-28',location:'Dortmund',taetigkeit:'Stagehands – Aufbau+Abbau',pax_gesamt:5,schichtzeiten:[]},
+  {name:'Böhse Onkelz – Deutsche Bank Park FFM (Kabelbrücken Aufbau)',kategorie:'Konzert',status:'ausstehend',datum_von:'2026-06-30',location:'Deutsche Bank Park FFM',taetigkeit:'Stagehands – Kabelbrücken',pax_gesamt:5,schichtzeiten:['8-19Uhr']},
+  {name:'Böhse Onkelz – Deutsche Bank Park FFM (Barrikaden Show)',kategorie:'Konzert',status:'bestaetigt',datum_von:'2026-06-30',location:'Deutsche Bank Park FFM',taetigkeit:'Stagehands – Barrikaden',pax_gesamt:5,schichtzeiten:['19-03Uhr']},
+  {name:'Böhse Onkelz – Deutsche Bank Park FFM (Staplerfahrer)',kategorie:'Konzert',status:'bestaetigt',datum_von:'2026-06-30',location:'Deutsche Bank Park FFM',taetigkeit:'Staplerfahrer',pax_gesamt:2,schichtzeiten:['20-04Uhr']},
+  {name:'Böhse Onkelz – Deutsche Bank Park FFM (Logistik)',kategorie:'Konzert',status:'bestaetigt',datum_von:'2026-07-01',location:'Deutsche Bank Park FFM',taetigkeit:'Stagehands Logistik',pax_gesamt:5,schichtzeiten:['8-19Uhr']},
+  {name:'Böhse Onkelz – Deutsche Bank Park FFM (Kabelbrücken)',kategorie:'Konzert',status:'bestaetigt',datum_von:'2026-07-01',location:'Deutsche Bank Park FFM',taetigkeit:'Stagehands – Kabelbrücken',pax_gesamt:2,schichtzeiten:['10:30-21:30']},
+  {name:'Böhse Onkelz – Deutsche Bank Park FFM (Strom)',kategorie:'Konzert',status:'bestaetigt',datum_von:'2026-07-01',location:'Deutsche Bank Park FFM',taetigkeit:'Stagehands – Strom',pax_gesamt:3,schichtzeiten:['10:30-21:30']},
+  {name:'Böhse Onkelz – Deutsche Bank Park FFM (Barrikaden Nacht)',kategorie:'Konzert',status:'bestaetigt',datum_von:'2026-07-01',location:'Deutsche Bank Park FFM',taetigkeit:'Stagehands – Barrikaden',pax_gesamt:10,schichtzeiten:['19:30-3:30']},
+  {name:'Böhse Onkelz – Deutsche Bank Park FFM (Barrikaden)',kategorie:'Konzert',status:'bestaetigt',datum_von:'2026-07-02',location:'Deutsche Bank Park FFM',taetigkeit:'Stagehands – Barrikaden',pax_gesamt:10,schichtzeiten:['20:00-04:00']},
+  {name:'Böhse Onkelz – Deutsche Bank Park FFM (Logistik)',kategorie:'Konzert',status:'bestaetigt',datum_von:'2026-07-02',location:'Deutsche Bank Park FFM',taetigkeit:'Stagehands Logistik',pax_gesamt:5,schichtzeiten:['8-19Uhr']},
+  {name:'David Garrett – Loreley',kategorie:'Konzert',status:'bestaetigt',datum_von:'2026-07-03',location:'Loreley',taetigkeit:'Stagehands',pax_gesamt:12,schichtzeiten:['9-18Uhr']},
+  {name:'David Garrett – Loreley (Tag)',kategorie:'Konzert',status:'bestaetigt',datum_von:'2026-07-04',location:'Loreley',taetigkeit:'Stagehands',pax_gesamt:10,schichtzeiten:['8-15Uhr']},
+  {name:'David Garrett – Loreley (Showcrew+Abbau)',kategorie:'Konzert',status:'bestaetigt',datum_von:'2026-07-04',location:'Loreley',taetigkeit:'Showcrew+Abbau',pax_gesamt:4,schichtzeiten:['19-03Uhr']},
+  {name:'David Garrett – Loreley (Nacht A)',kategorie:'Konzert',status:'bestaetigt',datum_von:'2026-07-04',location:'Loreley',taetigkeit:'Stagehands',pax_gesamt:6,schichtzeiten:['21:30-03Uhr']},
+  {name:'David Garrett – Loreley (Nacht B)',kategorie:'Konzert',status:'bestaetigt',datum_von:'2026-07-04',location:'Loreley',taetigkeit:'Stagehands',pax_gesamt:6,schichtzeiten:['21:30-03Uhr']},
+  {name:'Böhse Onkelz – Deutsche Bank Park FFM (Strom Nacht)',kategorie:'Konzert',status:'bestaetigt',datum_von:'2026-07-04',location:'Deutsche Bank Park FFM',taetigkeit:'Stagehands – Strom',pax_gesamt:5,schichtzeiten:['22-6Uhr']},
+  {name:'Böhse Onkelz – Deutsche Bank Park FFM (Kabelbrücken Abbau)',kategorie:'Konzert',status:'bestaetigt',datum_von:'2026-07-05',location:'Deutsche Bank Park FFM',taetigkeit:'Stagehands – Kabelbrücken',pax_gesamt:3,schichtzeiten:['8-19Uhr']},
+  {name:'Böhse Onkelz – Deutsche Bank Park FFM (Barrikaden Abbau)',kategorie:'Konzert',status:'bestaetigt',datum_von:'2026-07-05',location:'Deutsche Bank Park FFM',taetigkeit:'Stagehands – Barrikaden',pax_gesamt:3,schichtzeiten:['14-01:00Uhr']},
+  {name:'Böhse Onkelz – Gelsenkirchen (Stagehands)',kategorie:'Konzert',status:'ausstehend',datum_von:'2026-07-08',location:'Gelsenkirchen',taetigkeit:'Stagehands',pax_gesamt:8,schichtzeiten:['15-01Uhr']},
+  {name:'Böhse Onkelz – Gelsenkirchen (Staplerfahrer A)',kategorie:'Konzert',status:'bestaetigt',datum_von:'2026-07-08',location:'Gelsenkirchen',taetigkeit:'Staplerfahrer',pax_gesamt:1,schichtzeiten:['15-01Uhr']},
+  {name:'Böhse Onkelz – Gelsenkirchen (Staplerfahrer B)',kategorie:'Konzert',status:'ausstehend',datum_von:'2026-07-08',location:'Gelsenkirchen',taetigkeit:'Staplerfahrer',pax_gesamt:10,schichtzeiten:['14-01Uhr']},
+  {name:'Böhse Onkelz – Gelsenkirchen (Nachtabbau)',kategorie:'Konzert',status:'bestaetigt',datum_von:'2026-07-09',location:'Gelsenkirchen',taetigkeit:'Stagehands',pax_gesamt:20,schichtzeiten:['19:30-6:30']},
+  {name:'Deutschstadtfest Neuwied – Loreley',kategorie:'Festival',status:'bestaetigt',datum_von:'2026-07-09',location:'Loreley',taetigkeit:'Stagehands',pax_gesamt:6,schichtzeiten:['Tagschicht']},
+  {name:'AnneMayKantereit – Dortmund',kategorie:'Konzert',status:'bestaetigt',datum_von:'2026-07-10',location:'Dortmund',taetigkeit:'Stagehands – Aufbau+Abbau',pax_gesamt:5,schichtzeiten:[]},
+  {name:'Deutschstadtfest Neuwied',kategorie:'Festival',status:'bestaetigt',datum_von:'2026-07-10',location:'Neuwied',taetigkeit:'Stagehands',pax_gesamt:5,schichtzeiten:['Tagschicht']},
+  {name:'Böhse Onkelz – Gelsenkirchen (langer Abbau)',kategorie:'Konzert',status:'ausstehend',datum_von:'2026-07-11',location:'Gelsenkirchen',taetigkeit:'Stagehands – langer Abbau',pax_gesamt:20,schichtzeiten:[]},
+  {name:'Deutschstadtfest Neuwied',kategorie:'Festival',status:'bestaetigt',datum_von:'2026-07-11',location:'Neuwied',taetigkeit:'Stagehands',pax_gesamt:5,schichtzeiten:['Tagschicht']},
+  {name:'Deutschstadtfest Neuwied',kategorie:'Festival',status:'bestaetigt',datum_von:'2026-07-12',location:'Neuwied',taetigkeit:'Stagehands',pax_gesamt:5,schichtzeiten:['Tagschicht']},
+  {name:'VPT – Einbau Dolby Atmos Reutlingen',kategorie:'Kino',status:'bestaetigt',datum_von:'2026-07-13',location:'Reutlingen',taetigkeit:'Helfer',pax_gesamt:2,schichtzeiten:['8-18Uhr']},
+  {name:'VPT – Einbau Dolby Atmos Reutlingen',kategorie:'Kino',status:'bestaetigt',datum_von:'2026-07-14',location:'Reutlingen',taetigkeit:'Helfer',pax_gesamt:2,schichtzeiten:['8-18Uhr']},
+  {name:'VPT – Einbau Dolby Atmos Reutlingen',kategorie:'Kino',status:'bestaetigt',datum_von:'2026-07-15',location:'Reutlingen',taetigkeit:'Helfer',pax_gesamt:2,schichtzeiten:['8-18Uhr']},
+  {name:'VPT – Einbau Dolby Atmos Reutlingen',kategorie:'Kino',status:'bestaetigt',datum_von:'2026-07-16',location:'Reutlingen',taetigkeit:'Helfer',pax_gesamt:2,schichtzeiten:['8-18Uhr']},
+  {name:'Toten Hosen – Köln',kategorie:'Konzert',status:'ausstehend',datum_von:'2026-07-16',location:'Köln',taetigkeit:'Stagehands',pax_gesamt:15,schichtzeiten:['10-18Uhr']},
+  {name:'Romeo Santos – Lanxess Arena Köln',kategorie:'Konzert',status:'bestaetigt',datum_von:'2026-07-18',location:'Lanxess Arena Köln',taetigkeit:'Stagehands – Aufbau+Abbau',pax_gesamt:20,schichtzeiten:[]}
+];
+
+function openBulkImport() {
+  openM(`<div class="mt">📋 PDF-Import: Juni/Juli 2026</div>
+  <p style="font-size:13px;color:var(--muted);margin-bottom:14px">${PDF_JOBS.length} Aufträge aus der Auftragsplanung (05.06.–18.07.2026) werden in Supabase importiert. Bereits vorhandene Aufträge werden NICHT überschrieben.</p>
+  <div id="import-log" style="background:#f9fafb;border:1px solid var(--border);border-radius:8px;padding:10px;font-size:11px;font-family:monospace;max-height:200px;overflow-y:auto;margin-bottom:14px;color:var(--muted)">Bereit zum Import…</div>
+  <div style="display:flex;gap:8px">
+    <button class="btn b-or" id="import-btn" onclick="runBulkImport()">✅ Import starten</button>
+    <button class="btn" onclick="closeM()">Abbrechen</button>
+  </div>`);
+}
+
+async function runBulkImport() {
+  const log = document.getElementById('import-log');
+  const btn = document.getElementById('import-btn');
+  btn.disabled = true;
+  btn.textContent = '⏳ Importiere…';
+  let ok = 0, fail = 0;
+  log.innerHTML = '';
+  for (const job of PDF_JOBS) {
+    try {
+      const { error } = await sb.from('auftraege').insert([{ ...job, pax_besetzt: 0, sichtbar: true }]);
+      if (error) {
+        log.innerHTML += `<div style="color:#dc2626">✗ ${job.datum_von} ${job.name}: ${error.message}</div>`;
+        fail++;
+      } else {
+        log.innerHTML += `<div style="color:#059669">✓ ${job.datum_von} ${job.name}</div>`;
+        ok++;
+      }
+      log.scrollTop = log.scrollHeight;
+    } catch(e) {
+      log.innerHTML += `<div style="color:#dc2626">✗ ${job.name}: Fehler</div>`;
+      fail++;
+    }
+  }
+  btn.textContent = `Import abgeschlossen (${ok} OK, ${fail} Fehler)`;
+  btn.onclick = null;
+  if (ok > 0) { loadAuftraege(); toast(`✅ ${ok} Aufträge importiert`, 'ok'); }
+}
 
 async function toggleAufStatus(id, currentStatus) {
   const newStatus = currentStatus === 'bestaetigt' ? 'ausstehend' : 'bestaetigt';
@@ -1053,12 +1240,19 @@ function renderDispoSummary(auf, crew) {
   const occ = auf.pax_gesamt > 0 ? Math.round(best/auf.pax_gesamt*100) : 0;
   const occColor = occ>=80?'#22c55e':occ>=50?'#f59e0b':'#dc2626';
 
+  const isFullyBooked = offen === 0 && best >= (auf.pax_gesamt||1);
   sumDiv.style.display = 'block';
   sumDiv.innerHTML = `<div class="dispo-summary-grid">
     <div class="dispo-sum-card"><div class="dispo-sum-n" style="color:${occColor}">${best}/${auf.pax_gesamt||0}</div><div class="dispo-sum-l">Besetzt (${occ}%)</div></div>
     <div class="dispo-sum-card"><div class="dispo-sum-n" style="color:#dc2626">${offen}</div><div class="dispo-sum-l">Noch offen</div></div>
     <div class="dispo-sum-card"><div class="dispo-sum-n" style="color:#d97706">${neu}</div><div class="dispo-sum-l">Neue Bewerbungen</div></div>
     <div class="dispo-sum-card"><div class="dispo-sum-n" style="color:#7c3aed">${res}</div><div class="dispo-sum-l">Reserviert</div></div>
+  </div>
+  <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">
+    <button class="tbtn${isFullyBooked?' primary':''}" onclick="generateKonkretisierung()" ${!isFullyBooked?'title="Alle Plätze müssen besetzt sein"':''}>
+      📋 ANÜ Konkretisierung erstellen${isFullyBooked?' ✓':''}
+    </button>
+    <a href="anu-stundenzettel.html?job=${auf.id}" target="_blank" class="tbtn" style="text-decoration:none">🕐 Stundenzettel öffnen</a>
   </div>`;
 }
 
@@ -1069,7 +1263,7 @@ function renderDispoBody(auf, crew) {
   body.innerHTML = `<div class="dispo-auf-section">
     <div class="dispo-auf-title">
       <span>📋 ${auf.name} <span style="font-size:12px;font-weight:400;color:var(--muted)">· ${auf.location||''} · ${fmtD(auf)}</span></span>
-      <span class="badge badge-bl">${auf.kategorie||''}</span>
+      <div style="display:flex;align-items:center;gap:6px"><span class="badge badge-bl">${auf.kategorie||''}</span><a href="anu-stundenzettel.html?job=${auf.id}" target="_blank" class="tbtn" style="font-size:10px;padding:4px 10px;text-decoration:none">🕐 ANÜ Stundenzettel</a></div>
     </div>
     ${shifts.map((sh, si) => renderShiftBlock(auf, crew, sh, si)).join('')}
   </div>`;
@@ -1933,6 +2127,91 @@ function toggleChecklist(aufId,field,value){
   saveChecklist(cl);
   const rate=parseFloat(document.getElementById('an-rate')?.value)||18;
   renderChecklist(getFilteredAuftraege(),rate,cl);
+}
+
+// ══ ANÜ KONKRETISIERUNG ══
+async function generateKonkretisierung(){
+  if(typeof window.jspdf==='undefined'){toast('jsPDF lädt noch…','info');return;}
+  const auf=DISPO_CURRENT_AUF;
+  if(!auf){toast('Kein Auftrag ausgewählt','err');return;}
+  const crew=DISPO_CREW.filter(b=>b.status==='bestaetigt');
+  const {jsPDF}=window.jspdf;
+  const doc=new jsPDF({orientation:'portrait',unit:'mm',format:'a4'});
+  const W=210,M=14;let y=14;
+  // Header
+  doc.setFillColor(232,101,26);doc.rect(0,0,W,20,'F');
+  doc.setFont('helvetica','bold');doc.setFontSize(14);doc.setTextColor(255,255,255);
+  doc.text('ANÜ Konkretisierung',M,13);
+  doc.setFontSize(8);doc.text('fess.jobs | Arbeitnehmerüberlassung',W-M,13,{align:'right'});
+  doc.setTextColor(17,24,39);y=28;
+  // Sub-header
+  doc.setFont('helvetica','bold');doc.setFontSize(10);
+  doc.text('FESS Personaldienstleistungen – Überlassungsvertrag',M,y);y+=5;
+  doc.setFont('helvetica','normal');doc.setFontSize(8.5);
+  doc.setTextColor(107,114,128);
+  doc.text(`Erstellt am ${new Date().toLocaleDateString('de-DE')}  ·  Dieses Dokument konkretisiert den Arbeitnehmerüberlassungsvertrag`,M,y);
+  doc.setTextColor(17,24,39);y+=8;
+  // Job info box
+  doc.setFillColor(249,250,251);doc.setDrawColor(229,231,235);doc.roundedRect(M,y,W-2*M,42,2,2,'FD');
+  const labelW=30;
+  const rows2=[
+    ['Veranstaltung / Einsatz:',auf.name||'–'],['Einsatzort / Örtlichkeit:',auf.location||'–'],
+    ['Einsatzdatum:',fmtD(auf)],['Kategorie / Bereich:',auf.kategorie||'–'],
+    ['Tätigkeit der AN:',auf.taetigkeit||'–'],['Schichtzeiten:',(auf.schichtzeiten||[]).join(', ')||'–']
+  ];
+  rows2.forEach((r,ri)=>{
+    const cx=ri%2===0?M+3:M+100;const cy=y+6+Math.floor(ri/2)*10;
+    doc.setFont('helvetica','bold');doc.setFontSize(8);doc.text(r[0],cx,cy);
+    doc.setFont('helvetica','normal');doc.text(r[1],cx+labelW,cy,{maxWidth:60});
+  });
+  y+=48;
+  // Vertragspartner
+  doc.setFont('helvetica','bold');doc.setFontSize(9);doc.text('VERTRAGSPARTNER',M,y);y+=4;
+  doc.setFillColor(249,250,251);doc.roundedRect(M,y,W-2*M,28,2,2,'FD');
+  doc.setFont('helvetica','bold');doc.setFontSize(8);
+  doc.text('Verleiher (AN-Überlassung):',M+3,y+6);
+  doc.setFont('helvetica','normal');
+  doc.text('FESS Personaldienstleistungen · fess.jobs · info@fess-recruitment.de',M+3,y+12);
+  doc.setFont('helvetica','bold');doc.text('Entleiher (Auftraggeber):',M+3,y+20);
+  doc.setFont('helvetica','normal');doc.text('_______________________________________________________________',M+3,y+20);
+  y+=34;
+  // Crew table
+  doc.setFont('helvetica','bold');doc.setFontSize(9);doc.text(`EINGESETZTE ARBEITNEHMER (${crew.length} Personen)`,M,y);y+=4;
+  const colW=[6,48,50,38,40];
+  const hdrs=['#','Name','Tätigkeit','Schicht','Status'];
+  doc.setFillColor(232,101,26);doc.rect(M,y,W-2*M,7,'F');
+  doc.setTextColor(255,255,255);doc.setFont('helvetica','bold');doc.setFontSize(8);
+  let cx2=M+2;hdrs.forEach((h,hi)=>{doc.text(h,cx2,y+5);cx2+=colW[hi];});
+  doc.setTextColor(17,24,39);y+=7;
+  crew.forEach((b,bi)=>{
+    const bg=bi%2===0?[255,255,255]:[249,250,251];
+    doc.setFillColor(...bg);doc.rect(M,y,W-2*M,7,'F');
+    doc.setFont('helvetica','normal');doc.setFontSize(8);
+    cx2=M+2;
+    [`${bi+1}`,`${b.vorname||''} ${b.nachname||''}`.trim(),b.schicht||auf.taetigkeit||'Stagehand',b.schicht||'–','Bestätigt'].forEach((v,vi)=>{
+      doc.text(v.substring(0,vi===1?22:vi===2?22:15),cx2,y+5);cx2+=colW[vi];
+    });
+    doc.setDrawColor(229,231,235);doc.line(M,y+7,W-M,y+7);
+    y+=7;
+  });
+  y+=10;
+  // Signatures
+  if(y>240){doc.addPage();y=20;}
+  doc.setFont('helvetica','bold');doc.setFontSize(9);doc.text('UNTERSCHRIFTEN',M,y);y+=4;
+  doc.setFillColor(249,250,251);doc.roundedRect(M,y,W-2*M,38,2,2,'FD');
+  doc.setFont('helvetica','normal');doc.setFontSize(8);
+  const half=(W-2*M)/2-4;
+  doc.text('Verleiher / FESS.jobs:',M+3,y+6);doc.line(M+3,y+22,M+3+half,y+22);
+  doc.text('Entleiher / Auftraggeber:',M+half+10,y+6);doc.line(M+half+10,y+22,W-M-3,y+22);
+  doc.text('Ort, Datum:',M+3,y+30);doc.line(M+22,y+30,M+3+half,y+30);
+  doc.text('Stempel:',M+half+10,y+30);doc.line(M+half+18,y+30,W-M-3,y+30);
+  y+=44;
+  // Footer
+  doc.setFont('helvetica','normal');doc.setFontSize(7);doc.setTextColor(107,114,128);
+  doc.text('Dieses Dokument wurde automatisch über fess.jobs erstellt und dient als Anlage zum ANÜ-Rahmenvertrag.',M,287,{baseline:'bottom'});
+
+  doc.save(`FESS_Konkretisierung_${(auf.name||'').replace(/[^a-z0-9]/gi,'_')}_${auf.datum_von||''}.pdf`);
+  toast('📋 Konkretisierung erstellt','ok');
 }
 
 function exportPDF(){

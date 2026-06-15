@@ -987,7 +987,6 @@ html,body{
   <h1 class="cert-h" id="cert-h">Gut gemacht!</h1>
   <p class="cert-sub" id="cert-sub">Du hast die Stagehand-Schulung abgeschlossen. Denke immer an deine PSA, höre auf den Crew Chief und melde Gefährdungen sofort.</p>
   <a class="cert-cta" href="index.html" id="cert-cta">Zu meinen Aufträgen →</a><br>
-  <a class="cert-cta" href="stundennachweis.html" id="cert-stunden" style="background:var(--surface);color:var(--text);box-shadow:none;border:1.5px solid var(--border);margin-top:10px">🕐 Stunden erfassen</a><br>
   <button class="cert-replay" id="cert-replay" onclick="replay()">Nochmal durchgehen</button>
 </div>
 
@@ -1300,7 +1299,7 @@ function setLang(l) {
   document.getElementById('cert-h').textContent = t.cert.h;
   document.getElementById('cert-sub').textContent = t.cert.sub;
   document.getElementById('cert-cta').textContent = t.cert.cta;
-  document.getElementById('cert-stunden').textContent = t.cert.stunden;
+
   document.getElementById('cert-replay').textContent = t.cert.replay;
 
   // Step info for current step
@@ -1513,6 +1512,22 @@ function replay() {
   goTo(0);
   setTimeout(play, 600);
 }
+
+// ── TUTORIAL RETURN LOGIC ─────────────────────
+(function(){
+  const params=new URLSearchParams(window.location.search);
+  if(params.get('return')==='1'){
+    const cta=document.getElementById('cert-cta');
+    if(cta){
+      cta.removeAttribute('href');
+      cta.style.cursor='pointer';
+      cta.addEventListener('click',()=>{
+        try{localStorage.setItem('fess_schulung_done','true');}catch(e){}
+        window.location.href='index.html?tutorialdone=1';
+      });
+    }
+  }
+})();
 
 // ── INIT ──────────────────────────────────────
 goTo(0);

@@ -1,4 +1,4 @@
-const CACHE = 'fess-v5';
+const CACHE = 'fess-v6';
 self.addEventListener('install', e => {
   self.skipWaiting();
 });

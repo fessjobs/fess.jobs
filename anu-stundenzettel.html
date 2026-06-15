@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
+<title>ANÜ Stundenzettel – fess.jobs</title>
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="theme-color" content="#E8651A">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<link href="https://fonts.googleapis.com/css2?family=Bitter:wght@700;800;900&family=Barlow:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --or:#E8651A;--or-dark:#d4580f;--or-light:#fff4ee;
+  --bg:#f4f5f7;--surface:#ffffff;--border:#e5e7eb;
+  --text:#111827;--muted:#6b7280;--green:#059669;--green-bg:#ecfdf5;
+  --danger:#dc2626;--danger-bg:#fef2f2;
+  --font:'Barlow',sans-serif;
+}
+body{background:var(--bg);color:var(--text);font-family:var(--font);min-height:100vh;padding-bottom:80px}
+body::before{content:'';position:fixed;top:0;left:0;right:0;height:3px;background:var(--or);z-index:100}
+#topbar{position:fixed;top:3px;left:0;right:0;z-index:90;background:#fff;border-bottom:1px solid var(--border);padding:11px 16px;display:flex;align-items:center;justify-content:space-between;gap:10px}
+.tb-left{display:flex;align-items:center;gap:10px}
+.tb-back{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:6px 12px;font-size:12px;font-weight:600;color:var(--text);cursor:pointer;font-family:var(--font)}
+.tb-title{font-family:'Bitter',serif;font-weight:800;font-size:15px;color:var(--text)}
+.tb-sub{font-size:10px;color:var(--muted);margin-top:1px}
+.main{padding:70px 16px 16px}
+.panel{background:#fff;border:1px solid var(--border);border-radius:12px;margin-bottom:14px;overflow:hidden}
+.panel-header{padding:14px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:10px}
+.panel-title{font-family:'Bitter',serif;font-weight:800;font-size:14px}
+.panel-badge{background:var(--or);color:#fff;border-radius:20px;padding:2px 8px;font-size:10px;font-weight:700}
+.panel-body{padding:14px 16px}
+.job-info-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px}
+.ji-item{background:var(--bg);border-radius:8px;padding:10px 12px}
+.ji-label{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:3px}
+.ji-value{font-size:13px;font-weight:700;color:var(--text)}
+/* CREW CARDS */
+.crew-card{background:#fff;border:1.5px solid var(--border);border-radius:10px;margin-bottom:10px;overflow:hidden;transition:border-color .15s}
+.crew-card.done{border-color:var(--green)}
+.crew-header{padding:12px 14px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;gap:10px}
+.crew-name{font-size:13px;font-weight:700;color:var(--text)}
+.crew-status{font-size:10px;padding:2px 8px;border-radius:8px;font-weight:700;background:var(--bg);color:var(--muted);white-space:nowrap;flex-shrink:0}
+.crew-status.ok{background:var(--green-bg);color:var(--green)}
+.crew-body{display:none;padding:12px 14px;border-top:1px solid var(--border);flex-direction:column;gap:10px}
+.crew-body.open{display:flex}
+.fg{display:flex;flex-direction:column;gap:4px}
+.fl{font-size:11px;font-weight:700;color:var(--muted)}
+.fi{background:var(--bg);border:1.5px solid var(--border);border-radius:8px;padding:9px 12px;font-size:13px;font-family:var(--font);color:var(--text);outline:none;width:100%}
+.fi:focus{border-color:var(--or)}
+.fr2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.fr3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+.cb-row{display:flex;align-items:center;gap:8px;padding:8px 10px;background:var(--bg);border-radius:8px;cursor:pointer}
+.cb-row input[type=checkbox]{accent-color:var(--or);width:16px;height:16px;flex-shrink:0}
+.cb-label{font-size:12px;font-weight:600;color:var(--text)}
+/* SIGNATURE */
+.sig-wrap{border:1.5px dashed var(--border);border-radius:10px;background:var(--bg);overflow:hidden}
+.sig-title{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);padding:6px 10px 0;display:flex;align-items:center;justify-content:space-between}
+.sig-canvas{width:100%;height:90px;display:block;touch-action:none;cursor:crosshair}
+.sig-clear{background:none;border:none;font-size:11px;color:var(--muted);cursor:pointer;padding:4px 10px;font-family:var(--font)}
+.sig-done{border-color:var(--green);background:var(--green-bg)}
+/* NET HOURS */
+.net-hours{background:var(--or-light);border:1px solid rgba(232,101,26,.3);border-radius:8px;padding:10px 14px;text-align:center}
+.net-h-num{font-family:'Bitter',serif;font-weight:900;font-size:24px;color:var(--or)}
+.net-h-lbl{font-size:10px;color:var(--muted);font-weight:600;margin-top:2px}
+/* ADD PERSON */
+.add-row{display:flex;gap:8px;margin-top:10px}
+.add-input{flex:1;background:#fff;border:1.5px solid var(--border);border-radius:8px;padding:9px 12px;font-size:13px;font-family:var(--font);color:var(--text);outline:none}
+.add-input:focus{border-color:var(--or)}
+/* BUTTONS */
+.btn{display:flex;align-items:center;justify-content:center;gap:6px;border:none;border-radius:10px;padding:12px 18px;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font);transition:opacity .15s}
+.btn:active{opacity:.8}
+.btn-or{background:var(--or);color:#fff}
+.btn-gr{background:var(--green);color:#fff}
+.btn-ghost{background:var(--bg);color:var(--text);border:1.5px solid var(--border)}
+/* BOTTOM BAR */
+#bottombar{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--border);padding:10px 16px;display:flex;gap:8px;z-index:90}
+#bottombar .btn{flex:1}
+/* CLIENT SIG */
+.client-sig-wrap{background:#fff;border:1.5px solid var(--border);border-radius:12px;padding:14px;margin-bottom:14px}
+.client-sig-title{font-family:'Bitter',serif;font-weight:800;font-size:13px;margin-bottom:10px;color:var(--text)}
+.client-sig-sub{font-size:11px;color:var(--muted);margin-bottom:10px}
+/* TOAST */
+.toast-wrap{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);z-index:9999;pointer-events:none}
+.toast{background:#1f2937;color:#fff;padding:8px 16px;border-radius:20px;font-size:12px;font-weight:600;animation:fadeup .3s ease;white-space:nowrap}
+.toast.ok{background:#059669}.toast.err{background:#dc2626}
+@keyframes fadeup{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+/* LOADING */
+.loading{text-align:center;padding:40px 20px;color:var(--muted);font-size:13px}
+.spin{display:inline-block;width:20px;height:20px;border:2px solid var(--border);border-top-color:var(--or);border-radius:50%;animation:spin .7s linear infinite;margin-right:8px;vertical-align:middle}
+@keyframes spin{to{transform:rotate(360deg)}}
+</style>
+</head>
+<body>
+<div style="height:3px"></div>
+<div id="topbar">
+  <div class="tb-left">
+    <button class="tb-back" onclick="history.back()">← Zurück</button>
+    <div>
+      <div class="tb-title">ANÜ Stundenzettel</div>
+      <div class="tb-sub" id="tb-job-name">Lade…</div>
+    </div>
+  </div>
+  <div style="font-size:11px;font-weight:700;color:var(--or)">fess.jobs</div>
+</div>
+
+<div class="main" id="main">
+  <div class="loading"><span class="spin"></span> Lade Auftragsdaten…</div>
+</div>
+
+<div id="toast-wrap" class="toast-wrap"></div>
+
+<div id="bottombar">
+  <button class="btn btn-ghost" onclick="exportExcel()">📊 Excel</button>
+  <button class="btn btn-or" onclick="generatePDF()">📄 PDF generieren</button>
+  <button class="btn btn-gr" onclick="saveHours()">💾 Speichern</button>
+</div>
+
+<script>
+// ── SUPABASE ───────────────────────────────────
+const SB_URL='https://nojmxfelunqaotqslabk.supabase.co';
+const SB_ANON='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5vam14ZmVsdW5xYW90cXNsYWJrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkyNjg4NzcsImV4cCI6MjA5NDg0NDg3N30.14x_oz0vxPXqbwBCcBeUZmE-s6Eg4QNbBWCorMsvfFo';
+let sb=null;
+try{sb=supabase.createClient(SB_URL,SB_ANON);}catch(e){}
+
+// ── STATE ──────────────────────────────────────
+const params=new URLSearchParams(window.location.search);
+const JOB_ID=params.get('job')||'';
+let JOB=null;
+let CREW=[];  // array of {name, idx, formData}
+let CLIENT_SIG=null;
+
+// ── TOAST ──────────────────────────────────────
+function toast(msg,type=''){
+  const w=document.getElementById('toast-wrap');
+  const d=document.createElement('div');
+  d.className='toast'+(type?' '+type:'');
+  d.textContent=msg;
+  w.appendChild(d);
+  setTimeout(()=>d.remove(),3000);
+}
+
+// ── FORMAT ────────────────────────────────────
+function fmtDate(d){
+  if(!d)return'–';
+  const [y,m,dd]=d.split('-');
+  return `${dd}.${m}.${y}`;
+}
+function calcNet(beginn,ende,pause){
+  if(!beginn||!ende)return null;
+  let [bh,bm]=(beginn||'00:00').split(':').map(Number);
+  let [eh,em]=(ende||'00:00').split(':').map(Number);
+  let total=eh*60+em-(bh*60+bm);
+  if(total<0)total+=24*60;
+  total-=parseInt(pause||30)||0;
+  if(total<0)total=0;
+  return total/60;
+}
+function fmtHours(h){
+  if(h===null||h===undefined)return'–';
+  const hh=Math.floor(h);
+  const mm=Math.round((h-hh)*60);
+  return `${hh}h ${mm.toString().padStart(2,'0')}min`;
+}
+
+// ── INIT CANVAS ────────────────────────────────
+function initCanvas(canvas,onDrawn){
+  const ctx=canvas.getContext('2d');
+  canvas.width=canvas.offsetWidth*window.devicePixelRatio||300;
+  canvas.height=90*window.devicePixelRatio||180;
+  ctx.scale(window.devicePixelRatio||1,window.devicePixelRatio||1);
+  ctx.lineWidth=2;ctx.lineCap='round';ctx.strokeStyle='#111827';
+  let drawing=false,drawn=false;
+  function pt(e){
+    const r=canvas.getBoundingClientRect();
+    const src=e.touches?e.touches[0]:e;
+    return{x:src.clientX-r.left,y:src.clientY-r.top};
+  }
+  function start(e){e.preventDefault();drawing=true;const p=pt(e);ctx.beginPath();ctx.moveTo(p.x,p.y);}
+  function move(e){e.preventDefault();if(!drawing)return;const p=pt(e);ctx.lineTo(p.x,p.y);ctx.stroke();if(!drawn){drawn=true;onDrawn&&onDrawn();}}
+  function end(){drawing=false;}
+  canvas.addEventListener('mousedown',start);canvas.addEventListener('mousemove',move);canvas.addEventListener('mouseup',end);
+  canvas.addEventListener('touchstart',start,{passive:false});canvas.addEventListener('touchmove',move,{passive:false});canvas.addEventListener('touchend',end);
+  return {clear:()=>{ctx.clearRect(0,0,canvas.width,canvas.height);drawn=false;},getDataURL:()=>drawn?canvas.toDataURL('image/png'):null,hasDrawing:()=>drawn};
+}
+
+// ── RENDER CREW CARD ───────────────────────────
+let canvasInstances={};
+function renderCrewCard(person,idx){
+  const defaultBeginn=JOB?.schichtzeiten?.[0]?.split('-')[0]||'';
+  const defaultEnde=JOB?.schichtzeiten?.[0]?.split('-')[1]||'';
+  const defaultRole=JOB?.taetigkeit||'Stagehand';
+  return `<div class="crew-card" id="cc${idx}">
+  <div class="crew-header" onclick="toggleCard(${idx})">
+    <div>
+      <div class="crew-name">${person}</div>
+    </div>
+    <div class="crew-status" id="cst${idx}">Ausstehend</div>
+  </div>
+  <div class="crew-body" id="cb${idx}">
+    <div class="fr2">
+      <div class="fg"><label class="fl">Beginn</label><input class="fi" type="time" id="beginn${idx}" value="${defaultBeginn}" oninput="updateNet(${idx})"></div>
+      <div class="fg"><label class="fl">Ende</label><input class="fi" type="time" id="ende${idx}" value="${defaultEnde}" oninput="updateNet(${idx})"></div>
+    </div>
+    <div class="fr2">
+      <div class="fg"><label class="fl">Pause (Minuten)</label><input class="fi" type="number" id="pause${idx}" value="30" min="0" oninput="updateNet(${idx})"></div>
+      <div class="net-hours" style="display:flex;flex-direction:column;align-items:center;justify-content:center">
+        <div class="net-h-num" id="nethours${idx}">–</div>
+        <div class="net-h-lbl">Netto-Stunden</div>
+      </div>
+    </div>
+    <div class="fg"><label class="fl">Tätigkeit / Rolle</label><input class="fi" type="text" id="role${idx}" value="${defaultRole}"></div>
+    <label class="cb-row"><input type="checkbox" id="psa${idx}"><span class="cb-label">✅ PSA vollständig vorhanden</span></label>
+    <label class="cb-row"><input type="checkbox" id="safety${idx}"><span class="cb-label">🦺 Sicherheitsunterweisung erhalten</span></label>
+    <div class="sig-wrap" id="sigwrap${idx}">
+      <div class="sig-title">Unterschrift <span id="stn${idx}">${person.split(' ')[0]}</span><button type="button" class="sig-clear" onclick="clearSig(${idx})">✕ Löschen</button></div>
+      <canvas class="sig-canvas" id="sigc${idx}"></canvas>
+    </div>
+    <button class="btn btn-or" style="margin-top:4px" onclick="confirmEntry(${idx})">✓ Eintrag bestätigen</button>
+  </div>
+</div>`;
+}
+
+function toggleCard(idx){
+  const b=document.getElementById('cb'+idx);
+  b.classList.toggle('open');
+  if(b.classList.contains('open') && !canvasInstances[idx]){
+    const canvas=document.getElementById('sigc'+idx);
+    canvasInstances[idx]=initCanvas(canvas,()=>{});
+  }
+}
+
+function updateNet(idx){
+  const b=document.getElementById('beginn'+idx)?.value;
+  const e=document.getElementById('ende'+idx)?.value;
+  const p=document.getElementById('pause'+idx)?.value;
+  const net=calcNet(b,e,p);
+  const el=document.getElementById('nethours'+idx);
+  if(el) el.textContent=net!==null?fmtHours(net):'–';
+}
+
+function clearSig(idx){
+  if(canvasInstances[idx]) canvasInstances[idx].clear();
+  const w=document.getElementById('sigwrap'+idx);
+  if(w) w.classList.remove('sig-done');
+}
+
+function confirmEntry(idx){
+  const b=document.getElementById('beginn'+idx)?.value;
+  const e=document.getElementById('ende'+idx)?.value;
+  if(!b||!e){toast('Bitte Beginn und Ende angeben','err');return;}
+  const sig=canvasInstances[idx];
+  if(!sig||!sig.hasDrawing()){toast('Bitte unterschreiben','err');return;}
+  const w=document.getElementById('sigwrap'+idx);
+  if(w) w.classList.add('sig-done');
+  const st=document.getElementById('cst'+idx);
+  if(st){st.textContent='✓ Bestätigt';st.className='crew-status ok';}
+  const card=document.getElementById('cc'+idx);
+  if(card) card.classList.add('done');
+  const body=document.getElementById('cb'+idx);
+  if(body) body.classList.remove('open');
+  toast(`✓ ${CREW[idx]} bestätigt`,'ok');
+}
+
+// ── ADD PERSON ─────────────────────────────────
+function addPerson(){
+  const inp=document.getElementById('add-name');
+  const name=(inp?.value||'').trim();
+  if(!name){toast('Name eingeben','err');return;}
+  CREW.push(name);
+  inp.value='';
+  renderCrewList();
+}
+
+function removePerson(idx){
+  CREW.splice(idx,1);
+  canvasInstances={};
+  renderCrewList();
+}
+
+function renderCrewList(){
+  const container=document.getElementById('crew-list');
+  if(!container)return;
+  if(!CREW.length){container.innerHTML='<div style="text-align:center;color:var(--muted);font-size:13px;padding:16px">Noch keine Personen eingetragen</div>';return;}
+  container.innerHTML=CREW.map((p,i)=>renderCrewCard(p,i)).join('');
+}
+
+// ── CLIENT SIGNATURE ───────────────────────────
+let clientSigInstance=null;
+function initClientSig(){
+  const canvas=document.getElementById('client-sig-canvas');
+  if(!canvas)return;
+  clientSigInstance=initCanvas(canvas,()=>{});
+}
+
+// ── SAVE HOURS ─────────────────────────────────
+async function saveHours(){
+  if(!JOB_ID){toast('Kein Auftrag ausgewählt','err');return;}
+  let saved=0;
+  const datum=JOB?.datum_von||new Date().toISOString().split('T')[0];
+  for(let i=0;i<CREW.length;i++){
+    const b=document.getElementById('beginn'+i)?.value;
+    const e=document.getElementById('ende'+i)?.value;
+    const p=document.getElementById('pause'+i)?.value;
+    const role=document.getElementById('role'+i)?.value||JOB?.taetigkeit||'';
+    const psa=document.getElementById('psa'+i)?.checked||false;
+    const safety=document.getElementById('safety'+i)?.checked||false;
+    const net=calcNet(b,e,p);
+    if(!b||!e)continue;
+    const rec={
+      mitarbeiter_name:CREW[i],
+      auftrag_id:JOB_ID,
+      datum,
+      beginn:b,
+      ende:e,
+      stunden:net||0,
+      bestaetigt:document.getElementById('cst'+i)?.classList.contains('ok')||false,
+      taetigkeit:role,
+      psa_check:psa,
+      sicherheit_check:safety
+    };
+    if(sb){
+      try{
+        await sb.from('stundennachweise').upsert([rec],{onConflict:'mitarbeiter_name,auftrag_id,datum'});
+        saved++;
+      }catch(err){console.warn('Save err',err);}
+    }
+  }
+  toast(saved>0?`✅ ${saved} Einträge gespeichert`:'Keine Einträge zum Speichern','ok');
+}
+
+// ── EXCEL EXPORT ───────────────────────────────
+function exportExcel(){
+  if(!CREW.length){toast('Keine Einträge','err');return;}
+  const rows=[['Name','Tätigkeit','Datum','Beginn','Ende','Pause (min)','Netto Std','PSA','Sicherheitsunterweisung']];
+  const datum=JOB?.datum_von?fmtDate(JOB.datum_von):'';
+  for(let i=0;i<CREW.length;i++){
+    const b=document.getElementById('beginn'+i)?.value||'';
+    const e=document.getElementById('ende'+i)?.value||'';
+    const p=document.getElementById('pause'+i)?.value||'30';
+    const role=document.getElementById('role'+i)?.value||'';
+    const psa=document.getElementById('psa'+i)?.checked?'Ja':'Nein';
+    const safety=document.getElementById('safety'+i)?.checked?'Ja':'Nein';
+    const net=calcNet(b,e,p);
+    rows.push([CREW[i],role,datum,b,e,p,net!==null?net.toFixed(2):'',psa,safety]);
+  }
+  const csv=rows.map(r=>r.map(c=>`"${String(c).replace(/"/g,'""')}"`).join(',')).join('\r\n');
+  const blob=new Blob(['﻿'+csv],{type:'text/csv;charset=utf-8'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url;
+  a.download=`FESS_Stunden_${(JOB?.name||'Auftrag').replace(/[^a-z0-9]/gi,'_')}_${JOB?.datum_von||''}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+// ── PDF GENERATION ─────────────────────────────
+function generatePDF(){
+  if(typeof window.jspdf==='undefined'){toast('PDF-Bibliothek lädt…','');return;}
+  const {jsPDF}=window.jspdf;
+  const doc=new jsPDF({orientation:'portrait',unit:'mm',format:'a4'});
+  const W=210,margin=14;
+  let y=14;
+
+  // Header bar
+  doc.setFillColor(232,101,26);
+  doc.rect(0,0,W,18,'F');
+  doc.setTextColor(255,255,255);
+  doc.setFont('helvetica','bold');
+  doc.setFontSize(13);
+  doc.text('ANÜ Stundenzettel / Konkretisierung',margin,12);
+  doc.setFontSize(8);
+  doc.text('fess.jobs – Arbeitnehmerüberlassung',W-margin,12,{align:'right'});
+  doc.setTextColor(17,24,39);
+  y=26;
+
+  // Job info box
+  doc.setFont('helvetica','bold');
+  doc.setFontSize(9);
+  doc.text('AUFTRAGSDETAILS',margin,y);
+  y+=4;
+  doc.setDrawColor(229,231,235);
+  doc.setFillColor(249,250,251);
+  doc.roundedRect(margin,y,W-2*margin,28,2,2,'FD');
+  doc.setFont('helvetica','normal');
+  doc.setFontSize(8.5);
+  const job=JOB||{};
+  const col1=margin+3,col2=margin+100;
+  doc.setFont('helvetica','bold');
+  doc.text('Veranstaltung:',col1,y+6);
+  doc.setFont('helvetica','normal');
+  doc.text(job.name||'–',col1+28,y+6);
+  doc.setFont('helvetica','bold');
+  doc.text('Datum:',col1,y+12);
+  doc.setFont('helvetica','normal');
+  doc.text(fmtDate(job.datum_von),col1+28,y+12);
+  doc.setFont('helvetica','bold');
+  doc.text('Tätigkeit:',col1,y+18);
+  doc.setFont('helvetica','normal');
+  doc.text(job.taetigkeit||'–',col1+28,y+18);
+  doc.setFont('helvetica','bold');
+  doc.text('Ort:',col2,y+6);
+  doc.setFont('helvetica','normal');
+  doc.text(job.location||'–',col2+12,y+6);
+  doc.setFont('helvetica','bold');
+  doc.text('Kategorie:',col2,y+12);
+  doc.setFont('helvetica','normal');
+  doc.text(job.kategorie||'–',col2+20,y+12);
+  doc.setFont('helvetica','bold');
+  doc.text('Schichtzeiten:',col2,y+18);
+  doc.setFont('helvetica','normal');
+  doc.text((job.schichtzeiten||[]).join(', ')||'–',col2+28,y+18);
+  y+=35;
+
+  // Table header
+  const cols=[55,22,16,16,16,14,12,12];
+  const headers=['Name','Tätigkeit','Beginn','Ende','Pause','Netto Std','PSA','Sicherheit'];
+  doc.setFont('helvetica','bold');
+  doc.setFontSize(8);
+  doc.setFillColor(249,250,251);
+  doc.rect(margin,y,W-2*margin,7,'F');
+  let x=margin;
+  headers.forEach((h,i)=>{
+    doc.text(h,x+1,y+5);
+    x+=cols[i];
+  });
+  doc.setDrawColor(229,231,235);
+  doc.line(margin,y,W-margin,y);
+  doc.line(margin,y+7,W-margin,y+7);
+  y+=7;
+
+  // Table rows
+  doc.setFont('helvetica','normal');
+  doc.setFontSize(8);
+  let sigImages=[];
+  for(let i=0;i<CREW.length;i++){
+    const b=document.getElementById('beginn'+i)?.value||'';
+    const e=document.getElementById('ende'+i)?.value||'';
+    const p=document.getElementById('pause'+i)?.value||'30';
+    const role=document.getElementById('role'+i)?.value||JOB?.taetigkeit||'';
+    const psa=document.getElementById('psa'+i)?.checked?'✓':'';
+    const safety=document.getElementById('safety'+i)?.checked?'✓':'';
+    const net=calcNet(b,e,p);
+    const netStr=net!==null?net.toFixed(1)+'h':'–';
+    const sigUrl=canvasInstances[i]?.getDataURL();
+
+    const rowH=sigUrl?22:8;
+    if(y+rowH>270){
+      doc.addPage();y=20;
+      // re-draw header on new page
+      doc.setFillColor(249,250,251);
+      doc.rect(margin,y,W-2*margin,7,'F');
+      doc.setFont('helvetica','bold');
+      let xx=margin;
+      headers.forEach((h,hi)=>{doc.text(h,xx+1,y+5);xx+=cols[hi];});
+      doc.line(margin,y,W-margin,y);doc.line(margin,y+7,W-margin,y+7);
+      y+=7;doc.setFont('helvetica','normal');
+    }
+
+    const bg=i%2===0?[255,255,255]:[249,250,251];
+    doc.setFillColor(...bg);
+    doc.rect(margin,y,W-2*margin,rowH,'F');
+
+    const vals=[CREW[i],role,b,e,p+'min',netStr,psa,safety];
+    x=margin;
+    vals.forEach((v,vi)=>{
+      doc.text(String(v).substring(0,vi===0?18:vi===1?10:8),x+1,y+5);
+      x+=cols[vi];
+    });
+
+    if(sigUrl){
+      try{doc.addImage(sigUrl,'PNG',margin+1,y+7,70,12);}catch(er){}
+    }
+
+    doc.setDrawColor(229,231,235);
+    doc.line(margin,y+rowH,W-margin,y+rowH);
+    y+=rowH;
+  }
+  y+=8;
+
+  // Client signature block
+  if(y>240){doc.addPage();y=20;}
+  doc.setFont('helvetica','bold');
+  doc.setFontSize(9);
+  doc.text('AUFTRAGGEBER-BESTÄTIGUNG',margin,y);y+=5;
+  doc.setDrawColor(229,231,235);
+  doc.roundedRect(margin,y,W-2*margin,35,2,2,'D');
+  doc.setFont('helvetica','normal');
+  doc.setFontSize(8);
+  doc.text('Ich bestätige, dass die oben aufgeführten Mitarbeiter am genannten Einsatztag tätig waren.',margin+3,y+6);
+  doc.text('Name / Firma (Auftraggeber):',margin+3,y+14);
+  doc.line(margin+50,y+14,W-margin-3,y+14);
+  doc.text('Unterschrift + Stempel:',margin+3,y+24);
+  if(clientSigInstance){
+    const csUrl=clientSigInstance.getDataURL();
+    if(csUrl){try{doc.addImage(csUrl,'PNG',margin+45,y+16,70,14);}catch(er){}}
+  }
+  y+=40;
+
+  // Footer
+  doc.setFont('helvetica','normal');
+  doc.setFontSize(7.5);
+  doc.setTextColor(107,114,128);
+  doc.text(`FESS.jobs · ANÜ Stundenzettel · Erstellt am ${new Date().toLocaleDateString('de-DE')} · Seite`,margin,290,{baseline:'bottom'});
+
+  const fileName=`FESS_ANÜ_Stundenzettel_${(JOB?.name||'').replace(/[^a-z0-9]/gi,'_')}_${JOB?.datum_von||''}.pdf`;
+  doc.save(fileName);
+  toast('📄 PDF gespeichert','ok');
+}
+
+// ── LOAD JOB ───────────────────────────────────
+async function loadJob(){
+  if(!JOB_ID){
+    document.getElementById('main').innerHTML='<div class="loading">⚠️ Kein Auftrag angegeben. Bitte über den Auftrag öffnen.</div>';
+    return;
+  }
+  if(sb){
+    try{
+      const{data,error}=await sb.from('auftraege').select('*').eq('id',JOB_ID).single();
+      if(!error&&data) JOB=data;
+    }catch(e){}
+    // Load confirmed crew from bewerbungen
+    try{
+      const{data:bews}=await sb.from('bewerbungen').select('vorname,nachname').eq('auftrag_id',JOB_ID).eq('status','bestaetigt');
+      if(bews?.length){
+        CREW=[...new Set(bews.map(b=>`${b.vorname||''} ${b.nachname||''}`.trim()).filter(Boolean))];
+      }
+    }catch(e){}
+  }
+
+  const jobName=JOB?.name||'Unbekannter Auftrag';
+  document.getElementById('tb-job-name').textContent=jobName;
+
+  document.getElementById('main').innerHTML=`
+  <!-- Job Info -->
+  <div class="panel">
+    <div class="panel-header">
+      <div class="panel-title">📋 Auftragsdaten</div>
+      <span class="panel-badge">${JOB?.kategorie||'–'}</span>
+    </div>
+    <div class="panel-body">
+      <div class="job-info-grid">
+        <div class="ji-item"><div class="ji-label">Veranstaltung</div><div class="ji-value">${JOB?.name||'–'}</div></div>
+        <div class="ji-item"><div class="ji-label">Datum</div><div class="ji-value">${fmtDate(JOB?.datum_von)}</div></div>
+        <div class="ji-item"><div class="ji-label">Ort</div><div class="ji-value">${JOB?.location||'–'}</div></div>
+        <div class="ji-item"><div class="ji-label">Tätigkeit</div><div class="ji-value">${JOB?.taetigkeit||'–'}</div></div>
+        <div class="ji-item"><div class="ji-label">Schichtzeiten</div><div class="ji-value">${(JOB?.schichtzeiten||[]).join(', ')||'–'}</div></div>
+        <div class="ji-item"><div class="ji-label">PAX geplant</div><div class="ji-value">${JOB?.pax_gesamt||'–'}</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Crew List -->
+  <div class="panel">
+    <div class="panel-header">
+      <div class="panel-title">👷 Crew – Stundeneintrag</div>
+      <span class="panel-badge" id="crew-count">${CREW.length} Personen</span>
+    </div>
+    <div class="panel-body">
+      <div id="crew-list"></div>
+      <div class="add-row">
+        <input class="add-input" id="add-name" placeholder="Name hinzufügen…" onkeydown="if(event.key==='Enter')addPerson()">
+        <button class="btn btn-or" style="flex-shrink:0;padding:9px 14px" onclick="addPerson()">+ Person</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Client Signature -->
+  <div class="client-sig-wrap">
+    <div class="client-sig-title">✍️ Auftraggeber-Unterschrift</div>
+    <div class="client-sig-sub">Bitte vom Auftraggeber/Kunden vor Ort unterschreiben lassen.</div>
+    <div class="sig-wrap">
+      <div class="sig-title">Auftraggeber / Kunde<button type="button" class="sig-clear" onclick="clientSigInstance&&clientSigInstance.clear()">✕ Löschen</button></div>
+      <canvas class="sig-canvas" id="client-sig-canvas" style="height:100px"></canvas>
+    </div>
+  </div>
+  `;
+
+  renderCrewList();
+  setTimeout(initClientSig, 100);
+}
+
+loadJob();
+</script>
+</body>
+</html>
