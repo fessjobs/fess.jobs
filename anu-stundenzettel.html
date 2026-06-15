@@ -624,7 +624,12 @@ async function confirmAndSave(){
       datum,
       beginn:b,
       ende:e,
-      stunden:netHours
+      stunden:netHours,
+      bestaetigt:false,
+      taetigkeit:role,
+      psa_check:psa,
+      sicherheit_check:safety,
+      pdf_url:pdfUrl
     };
     if(sb){
       try{

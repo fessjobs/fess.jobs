@@ -1781,6 +1781,7 @@ async function loadStunden() {
   const { data } = await sb.from('stundennachweise').select('*').order('datum', { ascending: false });
   STUNDEN = data || [];
   renderStunden();
+  renderAuftraege();
   // Update auftrag select
   const sel = document.getElementById('st-auf-sel');
   if (sel) {
