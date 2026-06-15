@@ -297,7 +297,7 @@ body{background:var(--bg);font-family:var(--font);color:var(--text);display:flex
           <div class="panel">
             <div class="panel-body">
               <table class="tbl" id="past-auf-table">
-                <thead><tr><th>Event</th><th>Datum</th><th>Location</th><th>Stunden ✓</th><th>Rechnung ✓</th><th>Bemerkung</th><th>Aktionen</th></tr></thead>
+                <thead><tr><th>Event</th><th>Datum</th><th>Location</th><th>Stunden ✓</th><th>Rechnung ✓</th><th>PDFs</th><th>Bemerkung</th><th>Aktionen</th></tr></thead>
                 <tbody id="past-auf-body"></tbody>
               </table>
             </div>
@@ -761,6 +761,10 @@ function renderAuftraege() {
       const stunden = ab.stunden || false;
       const rechnung = ab.rechnung || false;
       const bem = (ab.bemerkung||'').replace(/"/g,'&quot;');
+      const pdfs = STUNDEN.filter(s => s.auftrag_id === a.id && s.pdf_url);
+      const pdfBtn = pdfs.length
+        ? `<button class="ia or" onclick="openPDFListe('${a.id}')" title="${pdfs.length} PDF(s) öffnen">📄 ${pdfs.length}</button>`
+        : '<span style="color:var(--muted);font-size:11px">–</span>';
       return `<tr style="${stunden&&rechnung?'opacity:.6':''}">
         <td><strong>${a.name||''}</strong></td>
         <td style="white-space:nowrap;color:var(--muted)">${fmtD(a)}</td>
@@ -777,6 +781,7 @@ function renderAuftraege() {
             <span>${rechnung?'✅':'⬜'}</span>
           </label>
         </td>
+        <td style="text-align:center">${pdfBtn}</td>
         <td>
           <input class="fi" style="font-size:11px;padding:4px 8px;min-width:120px" value="${bem}" placeholder="Bemerkung…"
             onchange="setAbrech('${a.id}','bemerkung',this.value)" onblur="setAbrech('${a.id}','bemerkung',this.value)">
@@ -789,7 +794,7 @@ function renderAuftraege() {
           </div>
         </td>
       </tr>`;
-    }).join('') : '<tr><td colspan="7" class="empty">Keine vergangenen Aufträge</td></tr>';
+    }).join('') : '<tr><td colspan="8" class="empty">Keine vergangenen Aufträge</td></tr>';
   }
 
   const tbody = document.getElementById('auf-body');
@@ -1820,7 +1825,7 @@ function renderStunden() {
       <td>${bonus}</td>
       <td>${pdfLink}</td>
       <td><span class="badge ${stCls}">${stLbl}</span></td>
-      <td>${!s.bestaetigt ? `<button class="ia ok" onclick="approveStunden('${s.id}')" title="Freigeben">✓</button>` : ''}<button class="ia no" onclick="deleteStunden('${s.id}')" title="Löschen">✕</button></td>
+      <td><div style="display:flex;gap:3px">${!s.bestaetigt ? `<button class="ia ok" onclick="approveStunden('${s.id}')" title="Freigeben">✓</button>` : ''}<button class="ia" onclick="openEditStunden('${s.id}')" title="Bearbeiten">✏️</button><button class="ia no" onclick="deleteStunden('${s.id}')" title="Löschen">✕</button></div></td>
     </tr>`;
   }).join('');
 
@@ -1874,6 +1879,85 @@ async function deleteStunden(id) {
   STUNDEN = STUNDEN.filter(s => s.id !== id);
   renderStunden();
   toast('Gelöscht', 'info');
+}
+
+function openEditStunden(id) {
+  const s = STUNDEN.find(x => x.id === id);
+  if (!s) return;
+  const auf = AUFTRAEGE.find(a => a.id === s.auftrag_id);
+  openM(`<div class="mt">✏️ Stundennachweis bearbeiten</div>
+    <div class="ms"><strong>${s.mitarbeiter_name||'–'}</strong> · ${auf?auf.name:'–'}</div>
+    <div class="fr2">
+      <div class="fg"><label class="fl">Datum</label><input class="fi" type="date" id="es-datum" value="${s.datum||''}"></div>
+      <div class="fg"><label class="fl">Tätigkeit</label><input class="fi" id="es-ta" value="${s.taetigkeit||''}"></div>
+    </div>
+    <div class="fr2">
+      <div class="fg"><label class="fl">Beginn</label><input class="fi" type="time" id="es-beg" value="${s.beginn||''}"></div>
+      <div class="fg"><label class="fl">Ende</label><input class="fi" type="time" id="es-end" value="${s.ende||''}"></div>
+    </div>
+    <div class="fr2">
+      <div class="fg"><label class="fl">Netto Stunden</label><input class="fi" type="number" step="0.25" id="es-std" value="${s.stunden||0}"></div>
+      <div class="fg"><label class="fl">Status</label>
+        <select class="fsel" id="es-be">
+          <option value="false" ${!s.bestaetigt?'selected':''}>⏳ Offen</option>
+          <option value="true" ${s.bestaetigt?'selected':''}>✅ Freigegeben</option>
+        </select>
+      </div>
+    </div>
+    <div class="fr2">
+      <div class="fg"><label class="fl">Reisekosten (€)</label><input class="fi" type="number" step="0.5" id="es-reise" value="${s.reisekosten||0}"></div>
+      <div class="fg"><label class="fl">Bonus (€)</label><input class="fi" type="number" step="0.5" id="es-bonus" value="${s.bonus||0}"></div>
+    </div>
+    <div style="display:flex;gap:8px;margin-top:14px;justify-content:flex-end">
+      <button class="tbtn" onclick="closeM()">Abbrechen</button>
+      <button class="tbtn primary" onclick="saveEditStunden('${id}')">💾 Speichern</button>
+    </div>`);
+}
+
+async function saveEditStunden(id) {
+  const beg = document.getElementById('es-beg').value;
+  const end = document.getElementById('es-end').value;
+  const std = parseFloat(document.getElementById('es-std').value) || 0;
+  const datum = document.getElementById('es-datum').value;
+  const ta = document.getElementById('es-ta').value.trim();
+  const be = document.getElementById('es-be').value === 'true';
+  const reise = parseFloat(document.getElementById('es-reise').value) || 0;
+  const bonus = parseFloat(document.getElementById('es-bonus').value) || 0;
+  const update = { beginn: beg, ende: end, stunden: std, datum, taetigkeit: ta, bestaetigt: be };
+  // Try with optional cols, fall back without if columns missing
+  try {
+    let { error } = await sb.from('stundennachweise').update({ ...update, reisekosten: reise, bonus: bonus }).eq('id', id);
+    if (error && /reisekosten|bonus/i.test(error.message||'')) {
+      ({ error } = await sb.from('stundennachweise').update(update).eq('id', id));
+    }
+    if (error) { toast('Fehler: ' + error.message, 'err'); return; }
+  } catch (e) { toast('Fehler: ' + e.message, 'err'); return; }
+  const s = STUNDEN.find(x => x.id === id);
+  if (s) Object.assign(s, update, { reisekosten: reise, bonus: bonus });
+  closeM();
+  renderStunden();
+  toast('✅ Aktualisiert', 'ok');
+}
+
+function openPDFListe(aufId) {
+  const auf = AUFTRAEGE.find(a => a.id === aufId);
+  const pdfs = STUNDEN.filter(s => s.auftrag_id === aufId && s.pdf_url);
+  if (!pdfs.length) { toast('Keine PDFs vorhanden', 'info'); return; }
+  openM(`<div class="mt">📄 PDFs · ${auf?auf.name:'Auftrag'}</div>
+    <div class="ms">${pdfs.length} Stundennachweis(e) mit PDF</div>
+    <div style="display:flex;flex-direction:column;gap:8px;margin-top:14px">
+      ${pdfs.map(s => `
+        <a href="${s.pdf_url}" target="_blank" style="display:flex;align-items:center;justify-content:space-between;padding:12px 14px;background:#fff;border:1px solid var(--border);border-radius:10px;text-decoration:none;color:inherit">
+          <div>
+            <div style="font-weight:700;font-size:14px">${s.mitarbeiter_name||'–'}</div>
+            <div style="font-size:11px;color:var(--muted)">${s.datum||'–'} · ${s.beginn||'–'}–${s.ende||'–'} · ${parseFloat(s.stunden||0).toFixed(1)}h</div>
+          </div>
+          <span style="font-size:22px">📄</span>
+        </a>`).join('')}
+    </div>
+    <div style="display:flex;justify-content:flex-end;margin-top:14px">
+      <button class="tbtn" onclick="closeM()">Schließen</button>
+    </div>`);
 }
 
 function exportStundenExcel(mode) {
@@ -2443,8 +2527,26 @@ async function generateKonkretisierung(){
 
   const L1=M+4, V1=M+46, L2=M+95, V2=M+137;
   const lineH=9;
-  const szRaw=auf.schichtzeiten;
-  const schichtStr=Array.isArray(szRaw)?(szRaw.join(' | ')||'–'):((szRaw&&String(szRaw).replace(/^\{|\}$/g,'').trim())||'–');
+  // Build "von X bis Y Uhr" string from schichtzeiten
+  function fmtSchicht(raw){
+    if(!raw)return '';
+    const arr=Array.isArray(raw)?raw:String(raw).replace(/^\{|\}$/g,'').split(',').map(s=>s.trim()).filter(Boolean);
+    if(!arr.length)return '';
+    return arr.map(s=>{
+      const m=s.match(/^(\d{1,2}(?::\d{2})?)\s*[-–]\s*(\d{1,2}(?::\d{2})?)/);
+      if(m)return `von ${m[1]} bis ${m[2]} Uhr`;
+      const m2=s.match(/^ab\s+(\d{1,2}(?::\d{2})?)/i);
+      if(m2)return `ab ${m2[1]} Uhr`;
+      return s;
+    }).join(' | ');
+  }
+  let schichtStr=fmtSchicht(auf.schichtzeiten);
+  if(!schichtStr){
+    // Fallback: use datum_von / datum_bis
+    if(auf.datum_von&&auf.datum_bis&&auf.datum_von!==auf.datum_bis){
+      schichtStr=`von ${auf.datum_von.split('-').reverse().join('.')} bis ${auf.datum_bis.split('-').reverse().join('.')}`;
+    }else schichtStr='Nach Absprache';
+  }
   const infoRows=[
     ['Veranstaltung:',auf.name||'–','Kategorie:',auf.kategorie||'–'],
     ['Einsatzort:',auf.location||'–','Einsatzdatum:',fmtD(auf)],
