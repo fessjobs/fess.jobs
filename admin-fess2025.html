@@ -782,7 +782,8 @@ function renderAuftraege() {
             onchange="setAbrech('${a.id}','bemerkung',this.value)" onblur="setAbrech('${a.id}','bemerkung',this.value)">
         </td>
         <td>
-          <div style="display:flex;gap:4px">
+          <div style="display:flex;gap:4px;flex-wrap:wrap">
+            <a class="ia" href="anu-stundenzettel.html?job=${a.id}" target="_blank" title="Stundenzettel erfassen" style="text-decoration:none">🕐</a>
             <button class="ia" onclick="openEditAuf('${a.id}')">✏️</button>
             <button class="ia no" onclick="deleteAuf('${a.id}','${(a.name||'').replace(/'/g,"\\'")}')">🗑</button>
           </div>
