@@ -51,7 +51,6 @@ body::before{content:'';position:fixed;top:0;left:0;right:0;height:3px;backgroun
 .fi{background:var(--bg);border:1.5px solid var(--border);border-radius:8px;padding:9px 12px;font-size:13px;font-family:var(--font);color:var(--text);outline:none;width:100%}
 .fi:focus{border-color:var(--or)}
 .fr2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.fr3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
 .cb-row{display:flex;align-items:center;gap:8px;padding:8px 10px;background:var(--bg);border-radius:8px;cursor:pointer}
 .cb-row input[type=checkbox]{accent-color:var(--or);width:16px;height:16px;flex-shrink:0}
 .cb-label{font-size:12px;font-weight:600;color:var(--text)}
@@ -65,6 +64,10 @@ body::before{content:'';position:fixed;top:0;left:0;right:0;height:3px;backgroun
 .net-hours{background:var(--or-light);border:1px solid rgba(232,101,26,.3);border-radius:8px;padding:10px 14px;text-align:center}
 .net-h-num{font-family:'Bitter',serif;font-weight:900;font-size:24px;color:var(--or)}
 .net-h-lbl{font-size:10px;color:var(--muted);font-weight:600;margin-top:2px}
+/* APPLY ALL */
+#apply-all-wrap{display:none;margin-top:4px;margin-bottom:4px}
+.btn-apply-all{width:100%;background:var(--or-light);border:1.5px solid var(--or);border-radius:10px;padding:11px 16px;font-size:13px;font-weight:700;color:var(--or);cursor:pointer;font-family:var(--font);text-align:center}
+.btn-apply-all:active{opacity:.8}
 /* ADD PERSON */
 .add-row{display:flex;gap:8px;margin-top:10px}
 .add-input{flex:1;background:#fff;border:1.5px solid var(--border);border-radius:8px;padding:9px 12px;font-size:13px;font-family:var(--font);color:var(--text);outline:none}
@@ -91,6 +94,32 @@ body::before{content:'';position:fixed;top:0;left:0;right:0;height:3px;backgroun
 .loading{text-align:center;padding:40px 20px;color:var(--muted);font-size:13px}
 .spin{display:inline-block;width:20px;height:20px;border:2px solid var(--border);border-top-color:var(--or);border-radius:50%;animation:spin .7s linear infinite;margin-right:8px;vertical-align:middle}
 @keyframes spin{to{transform:rotate(360deg)}}
+/* PDF PREVIEW MODAL */
+#pdf-modal{display:none;position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.6);align-items:center;justify-content:center}
+#pdf-modal.visible{display:flex}
+.pdf-modal-inner{background:#fff;border-radius:14px;width:min(96vw,540px);max-height:90vh;display:flex;flex-direction:column;overflow:hidden}
+.pdf-modal-header{padding:14px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.pdf-modal-title{font-family:'Bitter',serif;font-weight:800;font-size:14px}
+.pdf-modal-close{background:none;border:none;font-size:13px;font-weight:600;color:var(--muted);cursor:pointer;font-family:var(--font)}
+#pdf-iframe{flex:1;border:none;min-height:400px}
+.pdf-modal-footer{padding:10px 16px;border-top:1px solid var(--border);display:flex;gap:8px;flex-shrink:0}
+.pdf-modal-footer .btn{flex:1}
+/* SUCCESS SCREEN */
+#success-screen{display:none}
+.success-hero{text-align:center;padding:32px 20px 20px}
+.success-icon{font-size:56px;margin-bottom:12px}
+.success-title{font-family:'Bitter',serif;font-weight:900;font-size:24px;color:var(--green);margin-bottom:6px}
+.success-sub{font-size:13px;color:var(--muted)}
+.hours-summary{background:#fff;border:1.5px solid var(--border);border-radius:12px;margin:0 16px 14px;overflow:hidden}
+.hours-summary-title{padding:12px 16px;border-bottom:1px solid var(--border);font-family:'Bitter',serif;font-weight:800;font-size:13px}
+.hours-row{display:flex;align-items:center;justify-content:space-between;padding:10px 16px;border-bottom:1px solid var(--border)}
+.hours-row:last-child{border-bottom:none}
+.hours-name{font-size:13px;font-weight:600}
+.hours-val{font-family:'Bitter',serif;font-weight:800;font-size:15px;color:var(--or)}
+.hours-total-row{background:var(--or-light);padding:12px 16px;display:flex;align-items:center;justify-content:space-between}
+.hours-total-label{font-size:12px;font-weight:700;color:var(--or)}
+.hours-total-val{font-family:'Bitter',serif;font-weight:900;font-size:18px;color:var(--or)}
+.success-actions{padding:0 16px;display:flex;flex-direction:column;gap:10px}
 </style>
 </head>
 <body>
@@ -110,12 +139,47 @@ body::before{content:'';position:fixed;top:0;left:0;right:0;height:3px;backgroun
   <div class="loading"><span class="spin"></span> Lade Auftragsdaten…</div>
 </div>
 
+<!-- Success Screen -->
+<div id="success-screen" class="main" style="display:none;padding-top:70px">
+  <div class="success-hero">
+    <div class="success-icon">✅</div>
+    <div class="success-title">Stundenzettel bestätigt!</div>
+    <div class="success-sub" id="success-sub">Die Stunden wurden erfolgreich gespeichert.</div>
+  </div>
+  <div class="hours-summary">
+    <div class="hours-summary-title">📊 Stunden-Übersicht</div>
+    <div id="hours-summary-rows"></div>
+    <div class="hours-total-row">
+      <span class="hours-total-label">GESAMT</span>
+      <span class="hours-total-val" id="hours-total-val">–</span>
+    </div>
+  </div>
+  <div class="success-actions">
+    <button class="btn btn-or" onclick="downloadSavedPDF()">📄 PDF herunterladen</button>
+    <button class="btn btn-ghost" onclick="location.href='index.html'">← Zurück zu Aufträgen</button>
+  </div>
+</div>
+
+<!-- PDF Preview Modal -->
+<div id="pdf-modal">
+  <div class="pdf-modal-inner">
+    <div class="pdf-modal-header">
+      <div class="pdf-modal-title">📄 PDF Vorschau</div>
+      <button class="pdf-modal-close" onclick="closePDFModal()">✕ Schließen</button>
+    </div>
+    <iframe id="pdf-iframe" src="about:blank"></iframe>
+    <div class="pdf-modal-footer">
+      <button class="btn btn-ghost" onclick="closePDFModal()">← Zurück</button>
+      <button class="btn btn-gr" id="confirm-save-btn" onclick="confirmAndSave()">✅ Bestätigen & Speichern</button>
+    </div>
+  </div>
+</div>
+
 <div id="toast-wrap" class="toast-wrap"></div>
 
 <div id="bottombar">
   <button class="btn btn-ghost" onclick="exportExcel()">📊 Excel</button>
-  <button class="btn btn-or" onclick="generatePDF()">📄 PDF generieren</button>
-  <button class="btn btn-gr" onclick="saveHours()">💾 Speichern</button>
+  <button class="btn btn-or" onclick="previewPDF()">📄 PDF generieren</button>
 </div>
 
 <script>
@@ -129,8 +193,8 @@ try{sb=supabase.createClient(SB_URL,SB_ANON);}catch(e){}
 const params=new URLSearchParams(window.location.search);
 const JOB_ID=params.get('job')||'';
 let JOB=null;
-let CREW=[];  // array of {name, idx, formData}
-let CLIENT_SIG=null;
+let CREW=[];
+let lastBuiltDoc=null;
 
 // ── TOAST ──────────────────────────────────────
 function toast(msg,type=''){
@@ -186,23 +250,53 @@ function initCanvas(canvas,onDrawn){
   return {clear:()=>{ctx.clearRect(0,0,canvas.width,canvas.height);drawn=false;},getDataURL:()=>drawn?canvas.toDataURL('image/png'):null,hasDrawing:()=>drawn};
 }
 
+// ── APPLY ALL TIMES ─────────────────────────────
+function checkApplyAll(){
+  if(CREW.length<2)return;
+  const b=document.getElementById('beginn0')?.value;
+  const e=document.getElementById('ende0')?.value;
+  const wrap=document.getElementById('apply-all-wrap');
+  if(wrap) wrap.style.display=(b&&e)?'block':'none';
+}
+
+function applyAllTimes(){
+  const b=document.getElementById('beginn0')?.value;
+  const e=document.getElementById('ende0')?.value;
+  const p=document.getElementById('pause0')?.value||'30';
+  const role=document.getElementById('role0')?.value||'';
+  if(!b||!e){toast('Bitte zuerst Beginn und Ende für die erste Person ausfüllen','err');return;}
+  let applied=0;
+  for(let i=1;i<CREW.length;i++){
+    const bi=document.getElementById('beginn'+i);
+    const ei=document.getElementById('ende'+i);
+    const pi=document.getElementById('pause'+i);
+    const ri=document.getElementById('role'+i);
+    if(bi) bi.value=b;
+    if(ei) ei.value=e;
+    if(pi) pi.value=p;
+    if(ri) ri.value=role;
+    updateNet(i);
+    applied++;
+  }
+  toast(`⏩ Zeiten auf ${applied} weitere Person(en) übernommen`,'ok');
+}
+
 // ── RENDER CREW CARD ───────────────────────────
 let canvasInstances={};
 function renderCrewCard(person,idx){
   const defaultBeginn=JOB?.schichtzeiten?.[0]?.split('-')[0]||'';
   const defaultEnde=JOB?.schichtzeiten?.[0]?.split('-')[1]||'';
   const defaultRole=JOB?.taetigkeit||'Stagehand';
+  const applyAllHook=idx===0?';checkApplyAll()':'';
   return `<div class="crew-card" id="cc${idx}">
   <div class="crew-header" onclick="toggleCard(${idx})">
-    <div>
-      <div class="crew-name">${person}</div>
-    </div>
+    <div><div class="crew-name">${person}</div></div>
     <div class="crew-status" id="cst${idx}">Ausstehend</div>
   </div>
   <div class="crew-body" id="cb${idx}">
     <div class="fr2">
-      <div class="fg"><label class="fl">Beginn</label><input class="fi" type="time" id="beginn${idx}" value="${defaultBeginn}" oninput="updateNet(${idx})"></div>
-      <div class="fg"><label class="fl">Ende</label><input class="fi" type="time" id="ende${idx}" value="${defaultEnde}" oninput="updateNet(${idx})"></div>
+      <div class="fg"><label class="fl">Beginn</label><input class="fi" type="time" id="beginn${idx}" value="${defaultBeginn}" oninput="updateNet(${idx})${applyAllHook}"></div>
+      <div class="fg"><label class="fl">Ende</label><input class="fi" type="time" id="ende${idx}" value="${defaultEnde}" oninput="updateNet(${idx})${applyAllHook}"></div>
     </div>
     <div class="fr2">
       <div class="fg"><label class="fl">Pause (Minuten)</label><input class="fi" type="number" id="pause${idx}" value="30" min="0" oninput="updateNet(${idx})"></div>
@@ -214,6 +308,10 @@ function renderCrewCard(person,idx){
     <div class="fg"><label class="fl">Tätigkeit / Rolle</label><input class="fi" type="text" id="role${idx}" value="${defaultRole}"></div>
     <label class="cb-row"><input type="checkbox" id="psa${idx}"><span class="cb-label">✅ PSA vollständig vorhanden</span></label>
     <label class="cb-row"><input type="checkbox" id="safety${idx}"><span class="cb-label">🦺 Sicherheitsunterweisung erhalten</span></label>
+    <div class="fr2">
+      <div class="fg"><label class="fl">Reisekosten (€)</label><input class="fi" type="number" id="reise${idx}" value="0" step="0.5" min="0"></div>
+      <div class="fg"><label class="fl">Sonstiger Bonus (€)</label><input class="fi" type="number" id="bonus${idx}" value="0" step="0.5" min="0"></div>
+    </div>
     <div class="sig-wrap" id="sigwrap${idx}">
       <div class="sig-title">Unterschrift <span id="stn${idx}">${person.split(' ')[0]}</span><button type="button" class="sig-clear" onclick="clearSig(${idx})">✕ Löschen</button></div>
       <canvas class="sig-canvas" id="sigc${idx}"></canvas>
@@ -283,8 +381,15 @@ function removePerson(idx){
 function renderCrewList(){
   const container=document.getElementById('crew-list');
   if(!container)return;
-  if(!CREW.length){container.innerHTML='<div style="text-align:center;color:var(--muted);font-size:13px;padding:16px">Noch keine Personen eingetragen</div>';return;}
+  if(!CREW.length){
+    container.innerHTML='<div style="text-align:center;color:var(--muted);font-size:13px;padding:16px">Noch keine Personen eingetragen</div>';
+    const wrap=document.getElementById('apply-all-wrap');
+    if(wrap) wrap.style.display='none';
+    return;
+  }
   container.innerHTML=CREW.map((p,i)=>renderCrewCard(p,i)).join('');
+  for(let i=0;i<CREW.length;i++) updateNet(i);
+  checkApplyAll();
 }
 
 // ── CLIENT SIGNATURE ───────────────────────────
@@ -295,70 +400,9 @@ function initClientSig(){
   clientSigInstance=initCanvas(canvas,()=>{});
 }
 
-// ── SAVE HOURS ─────────────────────────────────
-async function saveHours(){
-  if(!JOB_ID){toast('Kein Auftrag ausgewählt','err');return;}
-  let saved=0;
-  const datum=JOB?.datum_von||new Date().toISOString().split('T')[0];
-  for(let i=0;i<CREW.length;i++){
-    const b=document.getElementById('beginn'+i)?.value;
-    const e=document.getElementById('ende'+i)?.value;
-    const p=document.getElementById('pause'+i)?.value;
-    const role=document.getElementById('role'+i)?.value||JOB?.taetigkeit||'';
-    const psa=document.getElementById('psa'+i)?.checked||false;
-    const safety=document.getElementById('safety'+i)?.checked||false;
-    const net=calcNet(b,e,p);
-    if(!b||!e)continue;
-    const rec={
-      mitarbeiter_name:CREW[i],
-      auftrag_id:JOB_ID,
-      datum,
-      beginn:b,
-      ende:e,
-      stunden:net||0,
-      bestaetigt:document.getElementById('cst'+i)?.classList.contains('ok')||false,
-      taetigkeit:role,
-      psa_check:psa,
-      sicherheit_check:safety
-    };
-    if(sb){
-      try{
-        await sb.from('stundennachweise').upsert([rec],{onConflict:'mitarbeiter_name,auftrag_id,datum'});
-        saved++;
-      }catch(err){console.warn('Save err',err);}
-    }
-  }
-  toast(saved>0?`✅ ${saved} Einträge gespeichert`:'Keine Einträge zum Speichern','ok');
-}
-
-// ── EXCEL EXPORT ───────────────────────────────
-function exportExcel(){
-  if(!CREW.length){toast('Keine Einträge','err');return;}
-  const rows=[['Name','Tätigkeit','Datum','Beginn','Ende','Pause (min)','Netto Std','PSA','Sicherheitsunterweisung']];
-  const datum=JOB?.datum_von?fmtDate(JOB.datum_von):'';
-  for(let i=0;i<CREW.length;i++){
-    const b=document.getElementById('beginn'+i)?.value||'';
-    const e=document.getElementById('ende'+i)?.value||'';
-    const p=document.getElementById('pause'+i)?.value||'30';
-    const role=document.getElementById('role'+i)?.value||'';
-    const psa=document.getElementById('psa'+i)?.checked?'Ja':'Nein';
-    const safety=document.getElementById('safety'+i)?.checked?'Ja':'Nein';
-    const net=calcNet(b,e,p);
-    rows.push([CREW[i],role,datum,b,e,p,net!==null?net.toFixed(2):'',psa,safety]);
-  }
-  const csv=rows.map(r=>r.map(c=>`"${String(c).replace(/"/g,'""')}"`).join(',')).join('\r\n');
-  const blob=new Blob(['﻿'+csv],{type:'text/csv;charset=utf-8'});
-  const url=URL.createObjectURL(blob);
-  const a=document.createElement('a');
-  a.href=url;
-  a.download=`FESS_Stunden_${(JOB?.name||'Auftrag').replace(/[^a-z0-9]/gi,'_')}_${JOB?.datum_von||''}.csv`;
-  a.click();
-  URL.revokeObjectURL(url);
-}
-
-// ── PDF GENERATION ─────────────────────────────
-function generatePDF(){
-  if(typeof window.jspdf==='undefined'){toast('PDF-Bibliothek lädt…','');return;}
+// ── BUILD PDF (returns jsPDF doc) ──────────────
+function buildPDF(){
+  if(typeof window.jspdf==='undefined'){toast('PDF-Bibliothek lädt…','');return null;}
   const {jsPDF}=window.jspdf;
   const doc=new jsPDF({orientation:'portrait',unit:'mm',format:'a4'});
   const W=210,margin=14;
@@ -415,7 +459,7 @@ function generatePDF(){
   y+=35;
 
   // Table header
-  const cols=[55,22,16,16,16,14,12,12];
+  const cols=[50,22,16,16,16,14,14,14];
   const headers=['Name','Tätigkeit','Beginn','Ende','Pause','Netto Std','PSA','Sicherheit'];
   doc.setFont('helvetica','bold');
   doc.setFontSize(8);
@@ -434,7 +478,6 @@ function generatePDF(){
   // Table rows
   doc.setFont('helvetica','normal');
   doc.setFontSize(8);
-  let sigImages=[];
   for(let i=0;i<CREW.length;i++){
     const b=document.getElementById('beginn'+i)?.value||'';
     const e=document.getElementById('ende'+i)?.value||'';
@@ -449,7 +492,6 @@ function generatePDF(){
     const rowH=sigUrl?22:8;
     if(y+rowH>270){
       doc.addPage();y=20;
-      // re-draw header on new page
       doc.setFillColor(249,250,251);
       doc.rect(margin,y,W-2*margin,7,'F');
       doc.setFont('helvetica','bold');
@@ -503,11 +545,173 @@ function generatePDF(){
   doc.setFont('helvetica','normal');
   doc.setFontSize(7.5);
   doc.setTextColor(107,114,128);
-  doc.text(`FESS.jobs · ANÜ Stundenzettel · Erstellt am ${new Date().toLocaleDateString('de-DE')} · Seite`,margin,290,{baseline:'bottom'});
+  doc.text(`FESS.jobs · ANÜ Stundenzettel · Erstellt am ${new Date().toLocaleDateString('de-DE')}`,margin,290,{baseline:'bottom'});
 
+  return doc;
+}
+
+// ── PDF PREVIEW MODAL ──────────────────────────
+function previewPDF(){
+  if(!CREW.length){toast('Keine Crew-Einträge vorhanden','err');return;}
+  const doc=buildPDF();
+  if(!doc)return;
+  lastBuiltDoc=doc;
+
+  const dataUri=doc.output('datauristring');
+  const iframe=document.getElementById('pdf-iframe');
+  iframe.src=dataUri;
+
+  const modal=document.getElementById('pdf-modal');
+  modal.classList.add('visible');
+
+  const btn=document.getElementById('confirm-save-btn');
+  btn.textContent='✅ Bestätigen & Speichern';
+  btn.disabled=false;
+}
+
+function closePDFModal(){
+  const modal=document.getElementById('pdf-modal');
+  modal.classList.remove('visible');
+  const iframe=document.getElementById('pdf-iframe');
+  iframe.src='about:blank';
+}
+
+// ── CONFIRM & SAVE ─────────────────────────────
+async function confirmAndSave(){
+  const btn=document.getElementById('confirm-save-btn');
+  btn.textContent='⏳ Speichern…';
+  btn.disabled=true;
+
+  const doc=lastBuiltDoc||buildPDF();
+  if(!doc){btn.textContent='✅ Bestätigen & Speichern';btn.disabled=false;return;}
+
+  let pdfUrl=null;
+
+  // Upload to Supabase Storage
+  if(sb){
+    try{
+      const pdfBlob=doc.output('blob');
+      const fileName=`anu_${JOB_ID}_${Date.now()}.pdf`;
+      const {data:uploadData,error:uploadErr}=await sb.storage.from('anu-pdfs').upload(fileName,pdfBlob,{contentType:'application/pdf',upsert:true});
+      if(!uploadErr){
+        const {data:urlData}=sb.storage.from('anu-pdfs').getPublicUrl(fileName);
+        pdfUrl=urlData?.publicUrl||null;
+      }else{
+        console.warn('Storage upload err:',uploadErr);
+      }
+    }catch(storErr){console.warn('Storage err:',storErr);}
+  }
+
+  // Save rows to stundennachweise
+  const datum=JOB?.datum_von||new Date().toISOString().split('T')[0];
+  let saved=0;
+  for(let i=0;i<CREW.length;i++){
+    const b=document.getElementById('beginn'+i)?.value||'';
+    const e=document.getElementById('ende'+i)?.value||'';
+    const p=document.getElementById('pause'+i)?.value||'30';
+    const role=document.getElementById('role'+i)?.value||JOB?.taetigkeit||'';
+    const psa=document.getElementById('psa'+i)?.checked||false;
+    const safety=document.getElementById('safety'+i)?.checked||false;
+    const reisekosten=parseFloat(document.getElementById('reise'+i)?.value||'0')||0;
+    const bonus=parseFloat(document.getElementById('bonus'+i)?.value||'0')||0;
+    const netHours=calcNet(b,e,p)||0;
+    if(!b||!e)continue;
+    const rec={
+      mitarbeiter_name:CREW[i],
+      auftrag_id:JOB_ID,
+      datum,
+      beginn:b,
+      ende:e,
+      stunden:netHours,
+      bestaetigt:true,
+      taetigkeit:role,
+      psa_check:psa,
+      sicherheit_check:safety,
+      reisekosten,
+      bonus,
+      pdf_url:pdfUrl
+    };
+    if(sb){
+      try{
+        await sb.from('stundennachweise').upsert([rec],{onConflict:'mitarbeiter_name,auftrag_id,datum'});
+        saved++;
+      }catch(err){console.warn('Save row err:',err);}
+    }
+  }
+
+  // localStorage bookkeeping for admin auto-check
+  try{
+    const existing=JSON.parse(localStorage.getItem('fess_abrech_'+JOB_ID)||'{}');
+    localStorage.setItem('fess_abrech_'+JOB_ID,JSON.stringify({
+      ...existing,
+      stunden:true,
+      pdf_url:pdfUrl
+    }));
+    localStorage.setItem('fess_pdf_'+JOB_ID,pdfUrl||'generated');
+  }catch(lsErr){}
+
+  lastBuiltDoc=doc;
+  closePDFModal();
+  showSuccessScreen(pdfUrl,saved);
+}
+
+// ── SUCCESS SCREEN ─────────────────────────────
+function showSuccessScreen(pdfUrl,savedCount){
+  document.getElementById('main').style.display='none';
+  document.getElementById('bottombar').style.display='none';
+
+  let rowsHtml='';
+  let totalHours=0;
+  for(let i=0;i<CREW.length;i++){
+    const b=document.getElementById('beginn'+i)?.value||'';
+    const e=document.getElementById('ende'+i)?.value||'';
+    const p=document.getElementById('pause'+i)?.value||'30';
+    const net=calcNet(b,e,p)||0;
+    totalHours+=net;
+    if(b&&e){
+      rowsHtml+=`<div class="hours-row"><span class="hours-name">${CREW[i]}</span><span class="hours-val">${fmtHours(net)}</span></div>`;
+    }
+  }
+  document.getElementById('hours-summary-rows').innerHTML=rowsHtml||'<div class="hours-row" style="color:var(--muted);font-size:12px">Keine Einträge</div>';
+  document.getElementById('hours-total-val').textContent=fmtHours(totalHours);
+  document.getElementById('success-sub').textContent=`${savedCount} Einträge gespeichert${pdfUrl?' · PDF hochgeladen':''}`;
+
+  document.getElementById('success-screen').style.display='block';
+}
+
+function downloadSavedPDF(){
+  const doc=lastBuiltDoc||buildPDF();
+  if(!doc){toast('PDF nicht verfügbar','err');return;}
   const fileName=`FESS_ANÜ_Stundenzettel_${(JOB?.name||'').replace(/[^a-z0-9]/gi,'_')}_${JOB?.datum_von||''}.pdf`;
   doc.save(fileName);
-  toast('📄 PDF gespeichert','ok');
+  toast('📄 PDF heruntergeladen','ok');
+}
+
+// ── EXCEL EXPORT ───────────────────────────────
+function exportExcel(){
+  if(!CREW.length){toast('Keine Einträge','err');return;}
+  const rows=[['Name','Tätigkeit','Datum','Beginn','Ende','Pause (min)','Netto Std','PSA','Sicherheitsunterweisung','Reisekosten (€)','Bonus (€)']];
+  const datum=JOB?.datum_von?fmtDate(JOB.datum_von):'';
+  for(let i=0;i<CREW.length;i++){
+    const b=document.getElementById('beginn'+i)?.value||'';
+    const e=document.getElementById('ende'+i)?.value||'';
+    const p=document.getElementById('pause'+i)?.value||'30';
+    const role=document.getElementById('role'+i)?.value||'';
+    const psa=document.getElementById('psa'+i)?.checked?'Ja':'Nein';
+    const safety=document.getElementById('safety'+i)?.checked?'Ja':'Nein';
+    const reisekosten=document.getElementById('reise'+i)?.value||'0';
+    const bonus=document.getElementById('bonus'+i)?.value||'0';
+    const net=calcNet(b,e,p);
+    rows.push([CREW[i],role,datum,b,e,p,net!==null?net.toFixed(2):'',psa,safety,reisekosten,bonus]);
+  }
+  const csv=rows.map(r=>r.map(c=>`"${String(c).replace(/"/g,'""')}"`).join(',')).join('\r\n');
+  const blob=new Blob(['﻿'+csv],{type:'text/csv;charset=utf-8'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url;
+  a.download=`FESS_Stunden_${(JOB?.name||'Auftrag').replace(/[^a-z0-9]/gi,'_')}_${JOB?.datum_von||''}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
 }
 
 // ── LOAD JOB ───────────────────────────────────
@@ -521,7 +725,6 @@ async function loadJob(){
       const{data,error}=await sb.from('auftraege').select('*').eq('id',JOB_ID).single();
       if(!error&&data) JOB=data;
     }catch(e){}
-    // Load confirmed crew from bewerbungen
     try{
       const{data:bews}=await sb.from('bewerbungen').select('vorname,nachname').eq('auftrag_id',JOB_ID).eq('status','bestaetigt');
       if(bews?.length){
@@ -534,7 +737,6 @@ async function loadJob(){
   document.getElementById('tb-job-name').textContent=jobName;
 
   document.getElementById('main').innerHTML=`
-  <!-- Job Info -->
   <div class="panel">
     <div class="panel-header">
       <div class="panel-title">📋 Auftragsdaten</div>
@@ -552,7 +754,6 @@ async function loadJob(){
     </div>
   </div>
 
-  <!-- Crew List -->
   <div class="panel">
     <div class="panel-header">
       <div class="panel-title">👷 Crew – Stundeneintrag</div>
@@ -560,6 +761,9 @@ async function loadJob(){
     </div>
     <div class="panel-body">
       <div id="crew-list"></div>
+      <div id="apply-all-wrap" style="display:none">
+        <button class="btn-apply-all" onclick="applyAllTimes()">⏩ Zeiten für alle übernehmen</button>
+      </div>
       <div class="add-row">
         <input class="add-input" id="add-name" placeholder="Name hinzufügen…" onkeydown="if(event.key==='Enter')addPerson()">
         <button class="btn btn-or" style="flex-shrink:0;padding:9px 14px" onclick="addPerson()">+ Person</button>
@@ -567,7 +771,6 @@ async function loadJob(){
     </div>
   </div>
 
-  <!-- Client Signature -->
   <div class="client-sig-wrap">
     <div class="client-sig-title">✍️ Auftraggeber-Unterschrift</div>
     <div class="client-sig-sub">Bitte vom Auftraggeber/Kunden vor Ort unterschreiben lassen.</div>
@@ -579,7 +782,7 @@ async function loadJob(){
   `;
 
   renderCrewList();
-  setTimeout(initClientSig, 100);
+  setTimeout(initClientSig,100);
 }
 
 loadJob();
