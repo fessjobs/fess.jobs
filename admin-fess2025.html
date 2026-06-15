@@ -2443,11 +2443,13 @@ async function generateKonkretisierung(){
 
   const L1=M+4, V1=M+46, L2=M+95, V2=M+137;
   const lineH=9;
+  const szRaw=auf.schichtzeiten;
+  const schichtStr=Array.isArray(szRaw)?(szRaw.join(' | ')||'–'):((szRaw&&String(szRaw).replace(/^\{|\}$/g,'').trim())||'–');
   const infoRows=[
     ['Veranstaltung:',auf.name||'–','Kategorie:',auf.kategorie||'–'],
     ['Einsatzort:',auf.location||'–','Einsatzdatum:',fmtD(auf)],
     ['Tätigkeit der AN:',auf.taetigkeit||'–','Anzahl AN:',String(auf.pax_gesamt||'–')],
-    ['Soll-Arbeitszeiten:',(auf.schichtzeiten||[]).join(' | ')||'–','',''],
+    ['Soll-Arbeitszeiten:',schichtStr,'',''],
   ];
   infoRows.forEach((r,ri)=>{
     const cy=y+7+ri*lineH;
@@ -2495,7 +2497,6 @@ async function generateKonkretisierung(){
   cHdrs.forEach((h,hi)=>{doc.text(h,cx,y+5.5);cx+=cW[hi];});
   doc.setTextColor(17,24,39);y+=8;
 
-  const schichtStr=(auf.schichtzeiten||[]).join(' | ')||'–';
   crew.forEach((b,bi)=>{
     if(y>272){
       doc.addPage();y=20;
@@ -2506,14 +2507,19 @@ async function generateKonkretisierung(){
     }
     doc.setFillColor(bi%2===0?255:248,bi%2===0?255:248,bi%2===0?255:248);
     doc.rect(M,y,W-2*M,8,'F');
-    doc.setFont('helvetica',bi===0?'bold':'normal');doc.setFontSize(8);doc.setTextColor(17,24,39);
     cx=M+2;
     const name=`${b.vorname||''} ${b.nachname||''}`.trim();
-    [`${bi+1}`,name,auf.taetigkeit||'Stagehand',schichtStr,'✓ Bestätigt'].forEach((v,vi)=>{
-      const maxC=vi===1?26:vi===2?25:vi===3?20:12;
+    [`${bi+1}`,name,auf.taetigkeit||'–',schichtStr].forEach((v,vi)=>{
+      doc.setFont('helvetica',vi===1?'bold':'normal');doc.setFontSize(8);doc.setTextColor(17,24,39);
+      const maxC=vi===1?26:vi===2?25:30;
       doc.text(v.substring(0,maxC),cx,y+5.5);
       cx+=cW[vi];
     });
+    // Status column: green checkmark badge
+    doc.setFillColor(220,252,231);
+    doc.roundedRect(cx-1,y+1,18,6,1,1,'F');
+    doc.setFont('helvetica','bold');doc.setFontSize(7);doc.setTextColor(22,101,52);
+    doc.text('✓ Best.',cx+0.5,y+5.5);
     doc.setDrawColor(229,231,235);doc.line(M,y+8,W-M,y+8);
     y+=8;
   });
