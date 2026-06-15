@@ -1509,7 +1509,7 @@ async function loadEvents(){
 async function initUserBadge(){
   const { data: { session } } = await sb.auth.getSession();
   if(!session) return;
-  const { data: profile } = await sb.from('profiles').select('vorname,role').eq('id', session.user.id).single();
+  const { data: profile } = await sb.from('profiles').select('vorname,nachname,role').eq('id', session.user.id).single();
   if(!profile) return;
   const badge = document.getElementById('userBadge');
   const nameEl = document.getElementById('userName');
@@ -1520,9 +1520,10 @@ async function initUserBadge(){
   window.FESS_PROFILE = profile;
 }
 
-function openUserMenu(){
+async function openUserMenu(){
   const p = window.FESS_PROFILE;
   if(!p) return;
+  // Show loading state immediately
   document.getElementById('MBody').innerHTML = `
     <div style="text-align:center;padding:8px 0 16px">
       <div style="width:60px;height:60px;border-radius:50%;background:var(--or);display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:700;color:#fff;margin:0 auto 10px">${(p.vorname||'?')[0]}</div>
@@ -1532,11 +1533,52 @@ function openUserMenu(){
     <div style="display:flex;flex-direction:column;gap:8px">
       <a href="chat.html" style="display:flex;align-items:center;justify-content:center;gap:8px;background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;padding:11px;font-size:13px;font-weight:600;color:#111827;text-decoration:none">💬 Meine Chats</a>
       ${p.role==='admin'?`<a href="admin-fess2025.html" style="display:flex;align-items:center;justify-content:center;gap:8px;background:var(--or);border:none;border-radius:8px;padding:11px;font-size:13px;font-weight:700;color:#fff;text-decoration:none">⚙️ Admin Dashboard</a>`:''}
+      <div id="my-hours-wrap" style="background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;padding:10px 12px;font-size:12px;color:#6b7280">⏳ Stunden werden geladen…</div>
       <button onclick="sb.auth.signOut().then(()=>{window.FESS_USER=null;window.FESS_PROFILE=null;document.getElementById('userBadge').style.display='none';closeM();})" style="background:#fef2f2;color:#dc2626;border:1px solid #fecaca;border-radius:8px;padding:10px;font-size:12px;cursor:pointer;font-family:var(--font)">Abmelden</button>
       <button onclick="closeM()" style="background:#f3f4f6;color:#6b7280;border:none;border-radius:8px;padding:9px;font-size:12px;cursor:pointer;font-family:var(--font)">Schließen</button>
     </div>`;
   _lockScroll();
   document.getElementById('MB').classList.add('open');
+
+  // Load confirmed stunden async
+  try {
+    const name = `${p.vorname||''} ${p.nachname||''}`.trim();
+    const { data: stunden } = await sb.from('stundennachweise').select('*').eq('mitarbeiter_name', name).eq('bestaetigt', true).order('datum', { ascending: false });
+    const wrap = document.getElementById('my-hours-wrap');
+    if (!wrap) return;
+    if (!stunden || !stunden.length) {
+      wrap.innerHTML = '<div style="font-weight:600;color:#111827;margin-bottom:4px">🕐 Meine Stunden</div><div style="color:#9ca3af">Noch keine bestätigten Stunden</div>';
+      return;
+    }
+    // Group by YYYY-MM
+    const byMonth = {};
+    stunden.forEach(s => {
+      const m = (s.datum||'').slice(0,7);
+      if(!byMonth[m]) byMonth[m] = {hours:0,reise:0,bonus:0,count:0};
+      byMonth[m].hours += parseFloat(s.stunden)||0;
+      byMonth[m].reise += parseFloat(s.reisekosten)||0;
+      byMonth[m].bonus += parseFloat(s.bonus)||0;
+      byMonth[m].count++;
+    });
+    const months = Object.keys(byMonth).sort().reverse();
+    const mNames = {1:'Jan',2:'Feb',3:'Mär',4:'Apr',5:'Mai',6:'Jun',7:'Jul',8:'Aug',9:'Sep',10:'Okt',11:'Nov',12:'Dez'};
+    wrap.innerHTML = `
+      <div style="font-family:'Bitter',serif;font-weight:800;font-size:13px;color:#111827;margin-bottom:10px">🕐 Meine bestätigten Stunden</div>
+      ${months.slice(0,6).map(m => {
+        const [y,mo] = m.split('-');
+        const d = byMonth[m];
+        const h = Math.floor(d.hours), min = Math.round((d.hours-h)*60);
+        return `<div style="display:flex;align-items:center;justify-content:space-between;padding:6px 0;border-bottom:1px solid #e5e7eb">
+          <span style="font-weight:700;color:#374151">${mNames[parseInt(mo)]} ${y}</span>
+          <span style="font-family:'Bitter',serif;font-weight:800;color:#E8651A">${h}h ${String(min).padStart(2,'0')}min</span>
+        </div>
+        ${d.reise>0||d.bonus>0?`<div style="display:flex;gap:10px;padding:3px 0 5px;font-size:11px;color:#6b7280">${d.reise>0?`<span>🚗 ${d.reise.toFixed(2)} €</span>`:''}${d.bonus>0?`<span>🎁 ${d.bonus.toFixed(2)} €</span>`:''}</div>`:''}`;
+      }).join('')}
+      <div style="padding-top:8px;font-size:11px;color:#9ca3af">${stunden.length} Einsätze gesamt</div>`;
+  } catch(e) {
+    const wrap = document.getElementById('my-hours-wrap');
+    if(wrap) wrap.innerHTML = '<div style="color:#9ca3af;font-size:11px">Stunden konnten nicht geladen werden</div>';
+  }
 }
 
 // ── TUTORIAL RETURN HANDLER ──

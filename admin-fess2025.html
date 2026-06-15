@@ -249,6 +249,10 @@ body{background:var(--bg);font-family:var(--font);color:var(--text);display:flex
             <div class="panel-header"><div class="panel-title">💬 Nachrichten</div><span class="panel-badge" id="dash-msg-badge">0</span></div>
             <div class="panel-body" id="dash-msgs" style="padding:12px;font-size:12px;color:var(--muted)">Keine neuen Nachrichten</div>
           </div>
+          <div class="panel" id="dash-stunden-panel" style="display:none">
+            <div class="panel-header"><div class="panel-title">🕐 Stundennachweise prüfen</div><span class="panel-badge badge-or" id="dash-stunden-badge">0</span></div>
+            <div class="panel-body"><table class="tbl"><thead><tr><th>Mitarbeiter</th><th>Auftrag</th><th>Datum</th><th>Std</th><th></th></tr></thead><tbody id="dash-stunden"></tbody></table></div>
+          </div>
         </div>
       </div>
     </div>
@@ -368,14 +372,27 @@ body{background:var(--bg);font-family:var(--font);color:var(--text);display:flex
 
     <!-- STUNDEN -->
     <div class="page" id="pg-stunden">
+      <div style="margin-bottom:14px;display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+        <input class="fi" style="max-width:200px" placeholder="👤 Mitarbeiter suchen…" oninput="ST_FILTER.name=this.value;renderStunden()">
+        <select class="fsel" style="max-width:220px" id="st-auf-sel" onchange="ST_FILTER.auftrag=this.value;renderStunden()">
+          <option value="">Alle Aufträge</option>
+        </select>
+        <input type="month" class="fsel" style="max-width:160px" onchange="ST_FILTER.monat=this.value;renderStunden()">
+        <select class="fsel" style="max-width:140px" onchange="ST_FILTER.status=this.value;renderStunden()">
+          <option value="">Alle Status</option>
+          <option value="offen">Offen / nicht freigegeben</option>
+          <option value="bestaetigt">✅ Freigegeben</option>
+        </select>
+      </div>
       <div class="panel">
         <div class="panel-body">
           <table class="tbl">
-            <thead><tr><th>Mitarbeiter</th><th>Event</th><th>Datum</th><th>Start</th><th>Ende</th><th>Stunden</th><th>Status</th><th>Aktionen</th></tr></thead>
+            <thead><tr><th>Mitarbeiter</th><th>Auftrag</th><th>Datum</th><th>Beginn</th><th>Ende</th><th>Netto Std</th><th>Reisekosten</th><th>Bonus</th><th>PDF</th><th>Status</th><th>Aktion</th></tr></thead>
             <tbody id="stunden-body"></tbody>
           </table>
         </div>
       </div>
+      <div id="stunden-summary" style="background:#fff;border:1px solid #e5e7eb;border-radius:10px;padding:14px 18px;margin-top:10px;font-size:13px;display:none"></div>
     </div>
 
     <!-- MITARBEITER -->
@@ -590,6 +607,8 @@ let AUFTRAEGE = [], BEWERBUNGEN = [], MITARBEITER = [];
 let BEW_FILTER = 'alle';
 let AUF_SEARCH = '', AUF_KAT = '', AUF_STATUS = '', AUF_SORT = 'datum';
 let ANALYSE_UNLOCKED = false;
+let STUNDEN = [];
+let ST_FILTER = { name: '', auftrag: '', monat: '', status: '' };
 
 // ══ TOAST ══
 function toast(msg, type='info') {
@@ -661,6 +680,7 @@ function P(id, el) {
     newsletter: `<button class="tbtn primary" onclick="sendBroadcast()"><i class="ti ti-send"></i> Senden</button>`,
     chats: `<button class="tbtn primary" onclick="openNewChat()"><i class="ti ti-plus"></i> Neuer Chat</button>`,
     analyse: `<button class="tbtn" onclick="renderAnalyse()"><i class="ti ti-refresh"></i> Refresh</button><button class="tbtn primary" onclick="exportPDF()" style="margin-left:6px"><i class="ti ti-file-type-pdf"></i> PDF Export</button>`,
+    stunden: `<button class="tbtn" onclick="loadStunden()"><i class="ti ti-refresh"></i> Refresh</button><button class="tbtn" onclick="approveAllStunden()" style="margin-left:4px">✅ Alle freigeben</button><button class="tbtn primary" onclick="exportStundenExcel('monat')" style="margin-left:4px">📊 Excel Monat</button><button class="tbtn" onclick="exportStundenExcel('mitarbeiter')">📊 Excel MA</button>`,
   };
   document.getElementById('pageActions').innerHTML = acts[id] || '';
   if (id === 'dispo') loadDispoSelect();
@@ -686,7 +706,7 @@ async function checkConnection() {
 
 // ══ LOAD ALL ══
 async function loadAll() {
-  await Promise.all([loadAuftraege(), loadBewerbungen()]);
+  await Promise.all([loadAuftraege(), loadBewerbungen(), loadStunden()]);
   renderDashboard();
 }
 
@@ -1287,6 +1307,26 @@ function renderDashboard() {
       </td>
     </tr>`;
   }).join('') || '<tr><td colspan="4" class="empty">Keine neuen Bewerbungen</td></tr>';
+
+  // Pending stundennachweise
+  const pendingStunden = STUNDEN.filter(s => !s.bestaetigt);
+  const stundenPanel = document.getElementById('dash-stunden-panel');
+  if (stundenPanel) stundenPanel.style.display = pendingStunden.length ? 'block' : 'none';
+  const stundenBadge = document.getElementById('dash-stunden-badge');
+  if (stundenBadge) stundenBadge.textContent = pendingStunden.length;
+  document.getElementById('dash-stunden').innerHTML = pendingStunden.slice(0, 8).map(s => {
+    const auf = AUFTRAEGE.find(a => a.id === s.auftrag_id);
+    return `<tr>
+      <td><strong>${s.mitarbeiter_name||'–'}</strong></td>
+      <td style="font-size:11px">${auf ? auf.name : '–'}</td>
+      <td style="font-size:11px">${s.datum||'–'}</td>
+      <td><strong style="color:var(--or)">${s.stunden ? parseFloat(s.stunden).toFixed(1)+'h' : '–'}</strong></td>
+      <td>
+        <button class="ia ok" onclick="approveStunden('${s.id}')">✓</button>
+        <button class="ia" onclick="P('stunden')">→</button>
+      </td>
+    </tr>`;
+  }).join('') || '<tr><td colspan="5" class="empty">Keine offenen Stundennachweise</td></tr>';
 }
 
 // ══ DISPO ══
@@ -1732,25 +1772,172 @@ async function saveManualPersonFromSel(aufId) {
 // ══ STUNDEN ══
 async function loadStunden() {
   if (!sb) return;
-  const { data } = await sb.from('stundennachweise').select('*').order('created_at', { ascending: false }).limit(50);
-  const tbody = document.getElementById('stunden-body');
-  if (!data || !data.length) { tbody.innerHTML = '<tr><td colspan="8" class="empty">Keine Stundennachweise</td></tr>'; return; }
-  tbody.innerHTML = data.map(s => {
-    const auf = AUFTRAEGE.find(a => a.id === s.auftrag_id);
-    return `<tr>
-      <td>${s.mitarbeiter_name||'–'}</td>
-      <td>${auf?auf.name:(s.auftrag_id||'–')}</td>
-      <td>${s.datum||'–'}</td>
-      <td>${s.beginn||'–'}</td>
-      <td>${s.ende||'–'}</td>
-      <td><strong>${s.stunden||'–'}</strong>h</td>
-      <td><span class="badge ${s.bestaetigt?'badge-gr':'badge-gy'}">${s.bestaetigt?'✓ Bestätigt':'Offen'}</span></td>
-      <td><button class="ia" onclick="openStundenDetail('${s.id}')">👁</button></td>
-    </tr>`;
-  }).join('');
+  const { data } = await sb.from('stundennachweise').select('*').order('datum', { ascending: false });
+  STUNDEN = data || [];
+  renderStunden();
+  // Update auftrag select
+  const sel = document.getElementById('st-auf-sel');
+  if (sel) {
+    const aufIds = [...new Set(STUNDEN.map(s => s.auftrag_id).filter(Boolean))];
+    sel.innerHTML = '<option value="">Alle Aufträge</option>' +
+      aufIds.map(id => {
+        const auf = AUFTRAEGE.find(a => a.id === id);
+        return `<option value="${id}">${auf ? auf.name : id.slice(0,8)}</option>`;
+      }).join('');
+  }
 }
 
-function openStundenDetail(id) { toast('Detail-Ansicht kommt bald', 'info'); }
+function renderStunden() {
+  let data = STUNDEN;
+  if (ST_FILTER.name) data = data.filter(s => (s.mitarbeiter_name||'').toLowerCase().includes(ST_FILTER.name.toLowerCase()));
+  if (ST_FILTER.auftrag) data = data.filter(s => s.auftrag_id === ST_FILTER.auftrag);
+  if (ST_FILTER.monat) data = data.filter(s => (s.datum||'').startsWith(ST_FILTER.monat));
+  if (ST_FILTER.status === 'offen') data = data.filter(s => !s.bestaetigt);
+  if (ST_FILTER.status === 'bestaetigt') data = data.filter(s => s.bestaetigt);
+
+  const tbody = document.getElementById('stunden-body');
+  if (!tbody) return;
+  if (!data.length) { tbody.innerHTML = '<tr><td colspan="11" class="empty">Keine Stundennachweise</td></tr>'; return; }
+
+  tbody.innerHTML = data.map(s => {
+    const auf = AUFTRAEGE.find(a => a.id === s.auftrag_id);
+    const aufName = auf ? auf.name : (s.auftrag_id ? s.auftrag_id.slice(0,8) : '–');
+    const stCls = s.bestaetigt ? 'badge-gr' : 'badge-or';
+    const stLbl = s.bestaetigt ? '✅ Freigegeben' : '⏳ Offen';
+    const pdfLink = s.pdf_url ? `<a href="${s.pdf_url}" target="_blank" class="ia" title="PDF öffnen">📄</a>` : '–';
+    const std = s.stunden ? parseFloat(s.stunden).toFixed(1) + 'h' : '–';
+    const reise = s.reisekosten ? parseFloat(s.reisekosten).toFixed(2) + ' €' : '–';
+    const bonus = s.bonus ? parseFloat(s.bonus).toFixed(2) + ' €' : '–';
+    return `<tr>
+      <td><strong>${s.mitarbeiter_name||'–'}</strong></td>
+      <td style="max-width:130px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${aufName}</td>
+      <td style="white-space:nowrap">${s.datum||'–'}</td>
+      <td>${s.beginn||'–'}</td>
+      <td>${s.ende||'–'}</td>
+      <td><strong style="color:var(--or)">${std}</strong></td>
+      <td>${reise}</td>
+      <td>${bonus}</td>
+      <td>${pdfLink}</td>
+      <td><span class="badge ${stCls}">${stLbl}</span></td>
+      <td>${!s.bestaetigt ? `<button class="ia ok" onclick="approveStunden('${s.id}')" title="Freigeben">✓</button>` : ''}<button class="ia no" onclick="deleteStunden('${s.id}')" title="Löschen">✕</button></td>
+    </tr>`;
+  }).join('');
+
+  // Summary bar
+  const totalH = data.reduce((s, r) => s + (parseFloat(r.stunden) || 0), 0);
+  const totalR = data.reduce((s, r) => s + (parseFloat(r.reisekosten) || 0), 0);
+  const totalB = data.reduce((s, r) => s + (parseFloat(r.bonus) || 0), 0);
+  const sumEl = document.getElementById('stunden-summary');
+  if (sumEl) {
+    sumEl.style.display = 'flex';
+    sumEl.style.gap = '24px';
+    sumEl.style.flexWrap = 'wrap';
+    sumEl.innerHTML = `<span><strong>${data.length}</strong> Einträge</span><span>Gesamt: <strong style="color:var(--or)">${totalH.toFixed(1)} Std</strong></span><span>Reisekosten: <strong>${totalR.toFixed(2)} €</strong></span><span>Bonus: <strong>${totalB.toFixed(2)} €</strong></span>`;
+  }
+}
+
+async function approveStunden(id) {
+  if (!sb) return;
+  const { error } = await sb.from('stundennachweise').update({ bestaetigt: true }).eq('id', id);
+  if (error) { toast('Fehler: ' + error.message, 'err'); return; }
+  const s = STUNDEN.find(s => s.id === id);
+  if (s) s.bestaetigt = true;
+  renderStunden();
+  // Also mark admin abrech
+  if (s?.auftrag_id) {
+    try {
+      const ex = JSON.parse(localStorage.getItem('fess_abrech_' + s.auftrag_id) || '{}');
+      localStorage.setItem('fess_abrech_' + s.auftrag_id, JSON.stringify({ ...ex, stunden: true }));
+    } catch(e) {}
+  }
+  toast('✅ Stunden freigegeben', 'ok');
+}
+
+async function approveAllStunden() {
+  const pending = STUNDEN.filter(s => !s.bestaetigt);
+  if (!pending.length) { toast('Keine offenen Stundennachweise', 'info'); return; }
+  if (!sb) return;
+  const ids = pending.map(s => s.id);
+  for (const id of ids) {
+    await sb.from('stundennachweise').update({ bestaetigt: true }).eq('id', id);
+  }
+  STUNDEN.forEach(s => { if (ids.includes(s.id)) s.bestaetigt = true; });
+  renderStunden();
+  toast(`✅ ${ids.length} Einträge freigegeben`, 'ok');
+}
+
+async function deleteStunden(id) {
+  if (!confirm('Stundennachweis löschen?')) return;
+  if (!sb) return;
+  await sb.from('stundennachweise').delete().eq('id', id);
+  STUNDEN = STUNDEN.filter(s => s.id !== id);
+  renderStunden();
+  toast('Gelöscht', 'info');
+}
+
+function exportStundenExcel(mode) {
+  let data = STUNDEN;
+  if (ST_FILTER.name) data = data.filter(s => (s.mitarbeiter_name||'').toLowerCase().includes(ST_FILTER.name.toLowerCase()));
+  if (ST_FILTER.auftrag) data = data.filter(s => s.auftrag_id === ST_FILTER.auftrag);
+  if (ST_FILTER.monat) data = data.filter(s => (s.datum||'').startsWith(ST_FILTER.monat));
+  if (ST_FILTER.status === 'offen') data = data.filter(s => !s.bestaetigt);
+  if (ST_FILTER.status === 'bestaetigt') data = data.filter(s => s.bestaetigt);
+
+  if (!data.length) { toast('Keine Daten zum Exportieren', 'err'); return; }
+
+  if (mode === 'monat') {
+    // Group by YYYY-MM
+    const groups = {};
+    data.forEach(s => {
+      const m = (s.datum || '').slice(0, 7) || 'Unbekannt';
+      if (!groups[m]) groups[m] = [];
+      groups[m].push(s);
+    });
+    const rows = [['Monat', 'Mitarbeiter', 'Auftrag', 'Datum', 'Beginn', 'Ende', 'Netto Std', 'Reisekosten (€)', 'Bonus (€)', 'Status']];
+    Object.keys(groups).sort().forEach(m => {
+      groups[m].forEach(s => {
+        const auf = AUFTRAEGE.find(a => a.id === s.auftrag_id);
+        rows.push([m, s.mitarbeiter_name||'', auf ? auf.name : '', s.datum||'', s.beginn||'', s.ende||'', s.stunden||0, s.reisekosten||0, s.bonus||0, s.bestaetigt ? 'Freigegeben' : 'Offen']);
+      });
+      const totH = groups[m].reduce((acc, r) => acc + (parseFloat(r.stunden)||0), 0);
+      const totR = groups[m].reduce((acc, r) => acc + (parseFloat(r.reisekosten)||0), 0);
+      const totB = groups[m].reduce((acc, r) => acc + (parseFloat(r.bonus)||0), 0);
+      rows.push([`SUMME ${m}`, '', '', '', '', '', totH.toFixed(1), totR.toFixed(2), totB.toFixed(2), '']);
+      rows.push([]);
+    });
+    downloadCSV(rows, `FESS_Stunden_Monat_${ST_FILTER.monat || 'gesamt'}.csv`);
+  } else {
+    // Group by mitarbeiter_name
+    const groups = {};
+    data.forEach(s => {
+      const n = s.mitarbeiter_name || 'Unbekannt';
+      if (!groups[n]) groups[n] = [];
+      groups[n].push(s);
+    });
+    const rows = [['Mitarbeiter', 'Monat', 'Auftrag', 'Datum', 'Beginn', 'Ende', 'Netto Std', 'Reisekosten (€)', 'Bonus (€)', 'Status']];
+    Object.keys(groups).sort().forEach(n => {
+      groups[n].forEach(s => {
+        const auf = AUFTRAEGE.find(a => a.id === s.auftrag_id);
+        rows.push([n, (s.datum||'').slice(0,7), auf ? auf.name : '', s.datum||'', s.beginn||'', s.ende||'', s.stunden||0, s.reisekosten||0, s.bonus||0, s.bestaetigt ? 'Freigegeben' : 'Offen']);
+      });
+      const totH = groups[n].reduce((acc, r) => acc + (parseFloat(r.stunden)||0), 0);
+      const totR = groups[n].reduce((acc, r) => acc + (parseFloat(r.reisekosten)||0), 0);
+      const totB = groups[n].reduce((acc, r) => acc + (parseFloat(r.bonus)||0), 0);
+      rows.push([`SUMME ${n}`, '', '', '', '', '', totH.toFixed(1), totR.toFixed(2), totB.toFixed(2), '']);
+      rows.push([]);
+    });
+    downloadCSV(rows, `FESS_Stunden_Mitarbeiter_${ST_FILTER.name || 'alle'}.csv`);
+  }
+}
+
+function downloadCSV(rows, filename) {
+  const csv = rows.map(r => r.map(c => `"${String(c||'').replace(/"/g, '""')}"`).join(',')).join('\r\n');
+  const blob = new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = filename; a.click();
+  URL.revokeObjectURL(url);
+}
 
 // ══ MITARBEITER ══
 async function loadMitarbeiter() {
