@@ -283,6 +283,23 @@ body{background:var(--bg);font-family:var(--font);color:var(--text);display:flex
           </table>
         </div>
       </div>
+      <!-- Vergangene Aufträge -->
+      <div style="margin-top:6px">
+        <div id="past-toggle" onclick="togglePastAuf()" style="display:flex;align-items:center;justify-content:space-between;cursor:pointer;padding:10px 16px;background:#fff;border:1px solid var(--border);border-radius:10px;font-size:13px;font-weight:700;color:var(--muted)">
+          <span>📁 Vergangene Aufträge</span>
+          <span id="past-toggle-icon">▼ <span id="past-count" style="font-size:11px;background:#f3f4f6;border-radius:8px;padding:2px 8px">0</span></span>
+        </div>
+        <div id="past-panel" style="display:none;margin-top:6px">
+          <div class="panel">
+            <div class="panel-body">
+              <table class="tbl" id="past-auf-table">
+                <thead><tr><th>Event</th><th>Datum</th><th>Location</th><th>Stunden ✓</th><th>Rechnung ✓</th><th>Bemerkung</th><th>Aktionen</th></tr></thead>
+                <tbody id="past-auf-body"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
 
     <!-- KALENDER -->
@@ -684,7 +701,20 @@ async function loadAuftraege() {
   } catch(e) { toast('Verbindungsfehler', 'err'); }
 }
 
+// ══ ABRECHNUNG STATE (localStorage) ══
+function getAbrech(id) { try { return JSON.parse(localStorage.getItem('fess_abrech_'+id)||'{}'); } catch(e) { return {}; } }
+function setAbrech(id, key, val) { const d=getAbrech(id); d[key]=val; localStorage.setItem('fess_abrech_'+id, JSON.stringify(d)); }
+
+function togglePastAuf() {
+  const panel = document.getElementById('past-panel');
+  const icon = document.getElementById('past-toggle-icon');
+  const isOpen = panel.style.display !== 'none';
+  panel.style.display = isOpen ? 'none' : 'block';
+  icon.innerHTML = (isOpen ? '▼' : '▲') + ` <span id="past-count" style="font-size:11px;background:#f3f4f6;border-radius:8px;padding:2px 8px">${document.getElementById('past-count')?.textContent||'0'}</span>`;
+}
+
 function renderAuftraege() {
+  const today = new Date().toISOString().split('T')[0];
   let data = AUFTRAEGE;
   if (AUF_SEARCH) data = data.filter(a => (a.name||'').toLowerCase().includes(AUF_SEARCH) || (a.location||'').toLowerCase().includes(AUF_SEARCH));
   if (AUF_KAT) data = data.filter(a => a.kategorie === AUF_KAT);
@@ -694,9 +724,56 @@ function renderAuftraege() {
   else if (AUF_SORT === 'pax') data = [...data].sort((a,b) => (b.pax_gesamt||0) - (a.pax_gesamt||0));
   else if (AUF_SORT === 'occ') data = [...data].sort((a,b) => { const oa = a.pax_gesamt>0?(a.pax_besetzt||0)/a.pax_gesamt:0; const ob = b.pax_gesamt>0?(b.pax_besetzt||0)/b.pax_gesamt:0; return ob-oa; });
   else data = [...data].sort((a,b) => (a.datum_von||'').localeCompare(b.datum_von||''));
+
+  // Split: future (today+) vs past
+  const future = data.filter(a => (a.datum_von||'') >= today);
+  const past = data.filter(a => (a.datum_von||'') < today).sort((a,b) => (b.datum_von||'').localeCompare(a.datum_von||''));
+
+  // Past jobs count badge
+  const countEl = document.getElementById('past-count');
+  if (countEl) countEl.textContent = past.length;
+
+  // Render past jobs table
+  const pastBody = document.getElementById('past-auf-body');
+  if (pastBody) {
+    pastBody.innerHTML = past.length ? past.map(a => {
+      const ab = getAbrech(a.id);
+      const stunden = ab.stunden || false;
+      const rechnung = ab.rechnung || false;
+      const bem = (ab.bemerkung||'').replace(/"/g,'&quot;');
+      return `<tr style="${stunden&&rechnung?'opacity:.6':''}">
+        <td><strong>${a.name||''}</strong></td>
+        <td style="white-space:nowrap;color:var(--muted)">${fmtD(a)}</td>
+        <td style="max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${a.location||''}</td>
+        <td style="text-align:center">
+          <label style="cursor:pointer;font-size:18px" title="Stunden erfasst">
+            <input type="checkbox" style="display:none" ${stunden?'checked':''} onchange="setAbrech('${a.id}','stunden',this.checked);renderAuftraege()">
+            <span>${stunden?'✅':'⬜'}</span>
+          </label>
+        </td>
+        <td style="text-align:center">
+          <label style="cursor:pointer;font-size:18px" title="Rechnung geschrieben">
+            <input type="checkbox" style="display:none" ${rechnung?'checked':''} onchange="setAbrech('${a.id}','rechnung',this.checked);renderAuftraege()">
+            <span>${rechnung?'✅':'⬜'}</span>
+          </label>
+        </td>
+        <td>
+          <input class="fi" style="font-size:11px;padding:4px 8px;min-width:120px" value="${bem}" placeholder="Bemerkung…"
+            onchange="setAbrech('${a.id}','bemerkung',this.value)" onblur="setAbrech('${a.id}','bemerkung',this.value)">
+        </td>
+        <td>
+          <div style="display:flex;gap:4px">
+            <button class="ia" onclick="openEditAuf('${a.id}')">✏️</button>
+            <button class="ia no" onclick="deleteAuf('${a.id}','${(a.name||'').replace(/'/g,"\\'")}')">🗑</button>
+          </div>
+        </td>
+      </tr>`;
+    }).join('') : '<tr><td colspan="7" class="empty">Keine vergangenen Aufträge</td></tr>';
+  }
+
   const tbody = document.getElementById('auf-body');
-  if (!data.length) { tbody.innerHTML = '<tr><td colspan="8" class="empty">Keine Aufträge gefunden</td></tr>'; return; }
-  tbody.innerHTML = data.map(a => {
+  if (!future.length) { tbody.innerHTML = '<tr><td colspan="8" class="empty">Keine Aufträge ab heute</td></tr>'; return; }
+  tbody.innerHTML = future.map(a => {
     const occ = a.pax_gesamt > 0 ? Math.round((a.pax_besetzt||0)/a.pax_gesamt*100) : 0;
     const occColor = occ >= 80 ? '#22c55e' : occ >= 40 ? '#f59e0b' : '#dc2626';
     const stBadge = a.status === 'bestaetigt' ? 'badge-gr' : a.status === 'abgesagt' ? 'badge-re' : 'badge-gy';
