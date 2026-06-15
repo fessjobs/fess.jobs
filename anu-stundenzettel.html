@@ -617,24 +617,22 @@ async function confirmAndSave(){
     const bonus=parseFloat(document.getElementById('bonus'+i)?.value||'0')||0;
     const netHours=calcNet(b,e,p)||0;
     if(!b||!e)continue;
+    // Core record - only columns guaranteed to exist
     const rec={
       mitarbeiter_name:CREW[i],
       auftrag_id:JOB_ID,
       datum,
       beginn:b,
       ende:e,
-      stunden:netHours,
-      bestaetigt:false,
-      taetigkeit:role,
-      psa_check:psa,
-      sicherheit_check:safety,
-      pdf_url:pdfUrl
+      stunden:netHours
     };
     if(sb){
       try{
         const{error:rowErr}=await sb.from('stundennachweise').insert([rec]);
-        if(rowErr){console.error('Save row err:',rowErr);saveErrors.push(CREW[i]+': '+rowErr.message);}
-        else saved++;
+        if(rowErr){
+          console.error('Save row err:',rowErr);
+          saveErrors.push(CREW[i]+': '+rowErr.message);
+        } else saved++;
       }catch(err){console.warn('Save row err:',err);saveErrors.push(CREW[i]+': '+err.message);}
     }
   }
