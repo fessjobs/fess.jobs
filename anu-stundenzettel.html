@@ -605,6 +605,7 @@ async function confirmAndSave(){
   // Save rows to stundennachweise
   const datum=JOB?.datum_von||new Date().toISOString().split('T')[0];
   let saved=0;
+  let saveErrors=[];
   for(let i=0;i<CREW.length;i++){
     const b=document.getElementById('beginn'+i)?.value||'';
     const e=document.getElementById('ende'+i)?.value||'';
@@ -623,7 +624,7 @@ async function confirmAndSave(){
       beginn:b,
       ende:e,
       stunden:netHours,
-      bestaetigt:true,
+      bestaetigt:false,
       taetigkeit:role,
       psa_check:psa,
       sicherheit_check:safety,
@@ -633,10 +634,17 @@ async function confirmAndSave(){
     };
     if(sb){
       try{
-        await sb.from('stundennachweise').upsert([rec],{onConflict:'mitarbeiter_name,auftrag_id,datum'});
-        saved++;
-      }catch(err){console.warn('Save row err:',err);}
+        const{error:rowErr}=await sb.from('stundennachweise').upsert([rec],{onConflict:'mitarbeiter_name,auftrag_id,datum'});
+        if(rowErr){console.error('Save row err:',rowErr);saveErrors.push(CREW[i]+': '+rowErr.message);}
+        else saved++;
+      }catch(err){console.warn('Save row err:',err);saveErrors.push(CREW[i]+': '+err.message);}
     }
+  }
+  if(saveErrors.length){
+    btn.textContent='✅ Bestätigen & Speichern';btn.disabled=false;
+    closePDFModal();
+    document.getElementById('main').insertAdjacentHTML('afterbegin',`<div style="background:#fef2f2;border:1px solid #fca5a5;border-radius:10px;padding:14px;margin-bottom:14px;font-size:12px;color:#dc2626"><strong>⚠️ Fehler beim Speichern:</strong><br>${saveErrors.join('<br>')}<br><br>Bitte Admin kontaktieren oder manuell eintragen.</div>`);
+    return;
   }
 
   // localStorage bookkeeping for admin auto-check
