@@ -850,10 +850,23 @@ async function runBulkImport() {
   const log = document.getElementById('import-log');
   const btn = document.getElementById('import-btn');
   btn.disabled = true;
-  btn.textContent = '⏳ Importiere…';
-  let ok = 0, fail = 0;
+  btn.textContent = '⏳ Prüfe auf Duplikate…';
+  let ok = 0, skip = 0, fail = 0;
   log.innerHTML = '';
+
+  // Load existing jobs once for duplicate check
+  const { data: existing } = await sb.from('auftraege').select('name,datum_von');
+  const existingSet = new Set((existing||[]).map(e => `${e.name}__${e.datum_von}`));
+
+  btn.textContent = '⏳ Importiere…';
   for (const job of PDF_JOBS) {
+    const key = `${job.name}__${job.datum_von}`;
+    if (existingSet.has(key)) {
+      log.innerHTML += `<div style="color:#9ca3af">⏭ ${job.datum_von} ${job.name} (bereits vorhanden)</div>`;
+      skip++;
+      log.scrollTop = log.scrollHeight;
+      continue;
+    }
     try {
       const { error } = await sb.from('auftraege').insert([{ ...job, pax_besetzt: 0, sichtbar: true }]);
       if (error) {
@@ -862,6 +875,7 @@ async function runBulkImport() {
       } else {
         log.innerHTML += `<div style="color:#059669">✓ ${job.datum_von} ${job.name}</div>`;
         ok++;
+        existingSet.add(key);
       }
       log.scrollTop = log.scrollHeight;
     } catch(e) {
@@ -869,9 +883,10 @@ async function runBulkImport() {
       fail++;
     }
   }
-  btn.textContent = `Import abgeschlossen (${ok} OK, ${fail} Fehler)`;
+  btn.textContent = `✅ Fertig: ${ok} neu · ${skip} übersprungen · ${fail} Fehler`;
   btn.onclick = null;
   if (ok > 0) { loadAuftraege(); toast(`✅ ${ok} Aufträge importiert`, 'ok'); }
+  else if (skip === PDF_JOBS.length) { toast('Alle Aufträge bereits vorhanden', ''); }
 }
 
 async function toggleAufStatus(id, currentStatus) {
