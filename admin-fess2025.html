@@ -680,7 +680,7 @@ function P(id, el) {
     newsletter: `<button class="tbtn primary" onclick="sendBroadcast()"><i class="ti ti-send"></i> Senden</button>`,
     chats: `<button class="tbtn primary" onclick="openNewChat()"><i class="ti ti-plus"></i> Neuer Chat</button>`,
     analyse: `<button class="tbtn" onclick="renderAnalyse()"><i class="ti ti-refresh"></i> Refresh</button><button class="tbtn primary" onclick="exportPDF()" style="margin-left:6px"><i class="ti ti-file-type-pdf"></i> PDF Export</button>`,
-    stunden: `<button class="tbtn" onclick="loadStunden()"><i class="ti ti-refresh"></i> Refresh</button><button class="tbtn" onclick="approveAllStunden()" style="margin-left:4px">✅ Alle freigeben</button><button class="tbtn primary" onclick="exportStundenExcel('monat')" style="margin-left:4px">📊 Excel Monat</button><button class="tbtn" onclick="exportStundenExcel('mitarbeiter')">📊 Excel MA</button>`,
+    stunden: `<button class="tbtn" onclick="loadStunden()"><i class="ti ti-refresh"></i> Refresh</button><button class="tbtn" onclick="openPDFArchiv()" style="margin-left:4px">📁 PDF-Archiv</button><button class="tbtn" onclick="approveAllStunden()" style="margin-left:4px">✅ Alle freigeben</button><button class="tbtn primary" onclick="exportStundenExcel('monat')" style="margin-left:4px">📊 Excel Monat</button><button class="tbtn" onclick="exportStundenExcel('mitarbeiter')">📊 Excel MA</button>`,
   };
   document.getElementById('pageActions').innerHTML = acts[id] || '';
   if (id === 'dispo') loadDispoSelect();
@@ -1811,7 +1811,9 @@ function renderStunden() {
     const aufName = auf ? auf.name : (s.auftrag_id ? s.auftrag_id.slice(0,8) : '–');
     const stCls = s.bestaetigt ? 'badge-gr' : 'badge-or';
     const stLbl = s.bestaetigt ? '✅ Freigegeben' : '⏳ Offen';
-    const pdfLink = s.pdf_url ? `<a href="${s.pdf_url}" target="_blank" class="ia" title="PDF öffnen">📄</a>` : '–';
+    const pdfLink = s.pdf_url
+      ? `<a href="${s.pdf_url}" target="_blank" class="ia or" title="PDF öffnen" style="text-decoration:none;font-weight:700;font-size:11px;padding:4px 8px">📄 Öffnen</a>`
+      : '<span style="color:var(--muted);font-size:11px">kein PDF</span>';
     const std = s.stunden ? parseFloat(s.stunden).toFixed(1) + 'h' : '–';
     const reise = s.reisekosten ? parseFloat(s.reisekosten).toFixed(2) + ' €' : '–';
     const bonus = s.bonus ? parseFloat(s.bonus).toFixed(2) + ' €' : '–';
@@ -1839,7 +1841,8 @@ function renderStunden() {
     sumEl.style.display = 'flex';
     sumEl.style.gap = '24px';
     sumEl.style.flexWrap = 'wrap';
-    sumEl.innerHTML = `<span><strong>${data.length}</strong> Einträge</span><span>Gesamt: <strong style="color:var(--or)">${totalH.toFixed(1)} Std</strong></span><span>Reisekosten: <strong>${totalR.toFixed(2)} €</strong></span><span>Bonus: <strong>${totalB.toFixed(2)} €</strong></span>`;
+    const withPdf = data.filter(s => s.pdf_url).length;
+    sumEl.innerHTML = `<span><strong>${data.length}</strong> Einträge</span><span>Gesamt: <strong style="color:var(--or)">${totalH.toFixed(1)} Std</strong></span><span>📄 <strong>${withPdf}/${data.length}</strong> PDFs</span><span>Reisekosten: <strong>${totalR.toFixed(2)} €</strong></span><span>Bonus: <strong>${totalB.toFixed(2)} €</strong></span>`;
   }
 }
 
@@ -1938,6 +1941,40 @@ async function saveEditStunden(id) {
   closeM();
   renderStunden();
   toast('✅ Aktualisiert', 'ok');
+}
+
+function openPDFArchiv() {
+  const all = STUNDEN.filter(s => s.pdf_url);
+  if (!all.length) { toast('Noch keine PDFs gespeichert', 'info'); return; }
+  // Group by auftrag
+  const grp = {};
+  all.forEach(s => {
+    const key = s.auftrag_id || 'sonstige';
+    (grp[key] = grp[key] || []).push(s);
+  });
+  const sections = Object.entries(grp).map(([aufId, list]) => {
+    const auf = AUFTRAEGE.find(a => a.id === aufId);
+    const title = auf ? `${auf.name} · ${fmtD(auf)}` : 'Auftrag unbekannt';
+    return `<div style="margin-bottom:18px">
+      <div style="font-weight:700;font-size:13px;color:var(--or);margin-bottom:8px;padding-bottom:4px;border-bottom:1px solid #f3f4f6">${title} <span style="color:var(--muted);font-weight:400">· ${list.length} PDF(s)</span></div>
+      <div style="display:flex;flex-direction:column;gap:6px">
+        ${list.map(s => `
+          <a href="${s.pdf_url}" target="_blank" style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:#fff;border:1px solid var(--border);border-radius:8px;text-decoration:none;color:inherit">
+            <div>
+              <div style="font-weight:600;font-size:13px">${s.mitarbeiter_name||'–'}</div>
+              <div style="font-size:11px;color:var(--muted)">${s.datum||'–'} · ${s.beginn||'–'}–${s.ende||'–'} · ${parseFloat(s.stunden||0).toFixed(1)}h ${s.bestaetigt?'· ✅ Freigegeben':'· ⏳ Offen'}</div>
+            </div>
+            <span style="font-size:20px">📄</span>
+          </a>`).join('')}
+      </div>
+    </div>`;
+  }).join('');
+  openM(`<div class="mt">📁 PDF-Archiv</div>
+    <div class="ms">${all.length} Stundennachweis-PDF(s) gespeichert</div>
+    <div style="max-height:60vh;overflow-y:auto;margin-top:14px">${sections}</div>
+    <div style="display:flex;justify-content:flex-end;margin-top:14px">
+      <button class="tbtn" onclick="closeM()">Schließen</button>
+    </div>`);
 }
 
 function openPDFListe(aufId) {
