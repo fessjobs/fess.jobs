@@ -156,88 +156,97 @@ async function drawPost() {
   c.fillText('fess.jobs · Personaldienstleistungen', W/2, 1070);
 }
 
-// ── INSTAGRAM STORY 1080×1920 ─────────────────────────
+// ── INSTAGRAM STORY 1080×1920 — ORANGE ───────────────
 async function drawStory() {
   const W=1080,H=1920;
   const cv=document.getElementById('c-story');
   cv.width=W; cv.height=H;
   const c=cv.getContext('2d');
-  const qr=await loadQR(640,'ffffff','1a1a1a');
+  const qr=await loadQR(660,'e8651a','ffffff');
 
-  // Dark bg
+  // Full orange gradient background
   const g=c.createLinearGradient(0,0,0,H);
-  g.addColorStop(0,'#0d0d0d'); g.addColorStop(.6,'#1a1a1a'); g.addColorStop(1,'#111');
+  g.addColorStop(0,'#f97316'); g.addColorStop(.45,OR); g.addColorStop(1,'#b84510');
   c.fillStyle=g; c.fillRect(0,0,W,H);
 
-  // Grid dots
-  c.fillStyle='rgba(255,255,255,.025)';
-  for(let x=0;x<W;x+=56) for(let y=0;y<H;y+=56){ c.beginPath(); c.arc(x,y,1.2,0,Math.PI*2); c.fill(); }
+  // Subtle diagonal stripe texture
+  c.save(); c.globalAlpha=0.06;
+  for(let i=-H;i<W+H;i+=90){
+    c.strokeStyle='#fff'; c.lineWidth=40;
+    c.beginPath(); c.moveTo(i,0); c.lineTo(i+H,H); c.stroke();
+  }
+  c.restore();
 
-  // Top glow
-  const tg=c.createRadialGradient(W/2,-80,0,W/2,-80,540);
-  tg.addColorStop(0,'rgba(232,101,26,.38)'); tg.addColorStop(1,'rgba(0,0,0,0)');
-  c.fillStyle=tg; c.fillRect(0,0,W,540);
+  // Top white bar
+  c.fillStyle='rgba(255,255,255,.18)'; c.fillRect(0,0,W,10);
 
-  // Top bar
-  c.fillStyle=OR; c.fillRect(0,0,W,9);
-
-  // fess.jobs
-  c.fillStyle=OR;
-  c.font='bold 148px Bitter,serif';
+  // Large background "fess.jobs" watermark
+  c.save(); c.globalAlpha=0.07;
+  c.fillStyle='#fff';
+  c.font='bold 280px Bitter,serif';
   c.textAlign='center';
-  c.fillText('fess.jobs', W/2, 276);
+  c.fillText('fess', W/2, 460);
+  c.fillText('.jobs', W/2, 720);
+  c.restore();
 
-  // subtitle
-  c.fillStyle='rgba(255,255,255,.5)';
-  c.font='500 48px Inter,sans-serif';
-  c.fillText('Personaldienstleistungen', W/2, 364);
+  // fess.jobs main title
+  c.fillStyle='#fff';
+  c.font='bold 156px Bitter,serif';
+  c.textAlign='center';
+  c.fillText('fess.jobs', W/2, 290);
 
-  // Divider
-  const dg=c.createLinearGradient(W/2-260,0,W/2+260,0);
-  dg.addColorStop(0,'transparent'); dg.addColorStop(.5,OR); dg.addColorStop(1,'transparent');
-  c.strokeStyle=dg; c.lineWidth=2;
-  c.beginPath(); c.moveTo(W/2-260,424); c.lineTo(W/2+260,424); c.stroke();
+  // tagline
+  c.fillStyle='rgba(255,255,255,.85)';
+  c.font='500 50px Inter,sans-serif';
+  c.fillText('Dein Weg zu Top-Jobs', W/2, 378);
 
-  // Instruction
-  c.fillStyle='rgba(255,255,255,.92)';
-  c.font='600 54px Inter,sans-serif';
-  c.fillText('Scann den Code &', W/2, 552);
-  c.fillText('starte dein Tutorial', W/2, 620);
+  // White divider
+  c.strokeStyle='rgba(255,255,255,.35)'; c.lineWidth=2;
+  c.beginPath(); c.moveTo(W/2-220,430); c.lineTo(W/2+220,430); c.stroke();
 
-  // QR card
-  const qrS=640, qx=(W-qrS-100)/2, qy=718;
-  const qglow=c.createRadialGradient(W/2,qy+qrS/2,0,W/2,qy+qrS/2,520);
-  qglow.addColorStop(0,'rgba(232,101,26,.22)'); qglow.addColorStop(1,'rgba(0,0,0,0)');
-  c.fillStyle=qglow; c.fillRect(0,qy-80,W,qrS+240);
+  // Instruction text
+  c.fillStyle='#fff';
+  c.font='700 58px Inter,sans-serif';
+  c.fillText('Scann den Code &', W/2, 560);
+  c.fillText('starte dein Tutorial', W/2, 634);
 
-  c.fillStyle='#222';
-  rr(c,qx,qy,qrS+100,qrS+100,36); c.fill();
-  c.strokeStyle=OR; c.lineWidth=4;
-  rr(c,qx,qy,qrS+100,qrS+100,36); c.stroke();
+  // QR card — white card on orange
+  const qrS=660, qx=(W-qrS-100)/2, qy=730;
+  c.shadowColor='rgba(0,0,0,.25)'; c.shadowBlur=60; c.shadowOffsetY=16;
+  c.fillStyle='#fff'; rr(c,qx,qy,qrS+100,qrS+100,40); c.fill();
+  c.shadowBlur=0; c.shadowOffsetY=0;
+
+  // Subtle inner border on card
+  c.strokeStyle='rgba(232,101,26,.2)'; c.lineWidth=3;
+  rr(c,qx,qy,qrS+100,qrS+100,40); c.stroke();
+
   c.drawImage(qr, qx+50, qy+50, qrS, qrS);
 
-  // URL pill
-  c.fillStyle='rgba(232,101,26,.14)';
-  rr(c,W/2-310,1568,620,64,32); c.fill();
-  c.strokeStyle='rgba(232,101,26,.4)'; c.lineWidth=2;
-  rr(c,W/2-310,1568,620,64,32); c.stroke();
-  c.fillStyle=OR;
-  c.font='500 28px Inter,sans-serif';
-  c.fillText('fess.jobs/tutorial', W/2, 1608);
+  // "QR Code scannen" below card
+  c.fillStyle='rgba(255,255,255,.75)';
+  c.font='600 36px Inter,sans-serif';
+  c.fillText('QR Code scannen', W/2, qy+qrS+108);
 
-  // CTA
-  const bg=c.createLinearGradient(W/2-220,0,W/2+220,0);
-  bg.addColorStop(0,OR); bg.addColorStop(1,OR2);
-  c.fillStyle=bg; rr(c,W/2-220,1690,440,86,43); c.fill();
+  // URL pill — white on orange
+  c.fillStyle='rgba(255,255,255,.2)';
+  rr(c,W/2-310,1618,620,68,34); c.fill();
+  c.strokeStyle='rgba(255,255,255,.5)'; c.lineWidth=2;
+  rr(c,W/2-310,1618,620,68,34); c.stroke();
   c.fillStyle='#fff';
-  c.font='bold 36px Inter,sans-serif';
-  c.fillText('▶  Jetzt starten', W/2, 1741);
+  c.font='600 30px Inter,sans-serif';
+  c.fillText('fess.jobs/tutorial', W/2, 1661);
+
+  // CTA button — white with orange text
+  c.fillStyle='#fff'; rr(c,W/2-230,1720,460,90,45); c.fill();
+  c.fillStyle=OR;
+  c.font='bold 38px Inter,sans-serif';
+  c.fillText('▶  Jetzt starten', W/2, 1773);
 
   // Footer
-  c.fillStyle='rgba(255,255,255,.15)';
-  c.font='25px Inter,sans-serif';
-  c.fillText('fess.jobs · Dein Weg zu Top-Jobs', W/2, 1852);
-  c.fillStyle=OR; c.fillRect(0,H-9,W,9);
+  c.fillStyle='rgba(255,255,255,.5)';
+  c.font='26px Inter,sans-serif';
+  c.fillText('fess.jobs · Personaldienstleistungen', W/2, 1862);
+  c.fillStyle='rgba(255,255,255,.2)'; c.fillRect(0,H-10,W,10);
 }
 
 // ── APPLE WALLET 1024×648 ─────────────────────────────
