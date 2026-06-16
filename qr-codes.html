@@ -9,35 +9,34 @@
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:'Inter',sans-serif;background:#f3f4f6;min-height:100vh;padding:32px 20px}
-header{max-width:960px;margin:0 auto 32px;display:flex;align-items:center;gap:14px}
+header{max-width:980px;margin:0 auto 28px;display:flex;align-items:center;gap:14px}
 .logo{font-family:'Bitter',serif;font-size:28px;color:#e8651a;font-weight:900}
 .logo span{color:#1c1c1e}
-h1{font-size:18px;font-weight:600;color:#1c1c1e}
-.sub{font-size:12px;color:#9ca3af;margin-top:2px}
-.grid{max-width:960px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr 1fr;gap:20px}
-.card{background:#fff;border-radius:20px;padding:20px;box-shadow:0 1px 6px rgba(0,0,0,.06)}
+.hinfo h1{font-size:16px;font-weight:700;color:#1c1c1e}
+.hinfo p{font-size:11px;color:#9ca3af;margin-top:2px}
+.grid{max-width:980px;margin:0 auto;display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+.card{background:#fff;border-radius:20px;padding:20px;box-shadow:0 1px 6px rgba(0,0,0,.07)}
 .card-label{font-size:13px;font-weight:700;color:#374151;margin-bottom:2px}
 .card-desc{font-size:11px;color:#9ca3af;margin-bottom:14px}
-.preview-wrap{border-radius:12px;overflow:hidden;background:#e5e7eb;position:relative}
+.preview-wrap{border-radius:12px;overflow:hidden;background:#e5e7eb}
 canvas{display:block;width:100%;height:auto}
-.btn{display:block;width:100%;margin-top:12px;padding:11px;background:#e8651a;color:#fff;border:none;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;letter-spacing:.3px;transition:background .15s}
+.btn{display:block;width:100%;margin-top:12px;padding:11px;background:#e8651a;color:#fff;border:none;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;transition:background .15s}
 .btn:hover{background:#d4581a}
-.btn:active{background:#c04e15}
-.loading{text-align:center;padding:80px 20px;color:#9ca3af;font-size:13px;max-width:960px;margin:0 auto}
-@media(max-width:700px){.grid{grid-template-columns:1fr}}
+.loading{text-align:center;padding:80px 20px;color:#9ca3af;font-size:14px;max-width:980px;margin:0 auto}
+@media(max-width:680px){.grid{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
+
 <header>
   <div class="logo">fess<span>.jobs</span></div>
-  <div>
-    <div class="h1">QR Code Export</div>
-    <div class="sub">Tutorial · fessjobs.github.io/fess.jobs/tutorial.html</div>
+  <div class="hinfo">
+    <h1>QR Code Export</h1>
+    <p>Tutorial · fessjobs.github.io/fess.jobs/tutorial.html</p>
   </div>
 </header>
 
 <div class="loading" id="loading">⏳ QR Codes werden generiert…</div>
-
 <div class="grid" id="grid" style="display:none">
   <div class="card">
     <div class="card-label">📸 Instagram Post</div>
@@ -59,331 +58,282 @@ canvas{display:block;width:100%;height:auto}
   </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
 <script>
 const QR_URL = 'https://fessjobs.github.io/fess.jobs/tutorial.html';
-const OR = '#e8651a';
-const OR2 = '#c94e0a';
-const DARK = '#1c1c1e';
+const OR = '#e8651a', OR2 = '#c94e0a', DARK = '#1c1c1e';
 
-async function makeQR(size, dark, light) {
-  const c = document.createElement('canvas');
-  await QRCode.toCanvas(c, QR_URL, {
-    width: size, margin: 1,
-    color: { dark: dark||'#000000', light: light||'#ffffff' },
-    errorCorrectionLevel: 'H'
+// Load QR image from API — no JS library needed
+function loadQR(size, fg, bg) {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    const f = (fg||'#000000').replace('#','');
+    const b = (bg||'#ffffff').replace('#','');
+    const t = setTimeout(()=>reject(new Error('QR Timeout – Internetverbindung prüfen')), 15000);
+    img.onload = ()=>{ clearTimeout(t); resolve(img); };
+    img.onerror = ()=>{ clearTimeout(t); reject(new Error('QR konnte nicht geladen werden')); };
+    img.src = `https://api.qrserver.com/v1/create-qr-code/?size=${size}x${size}&data=${encodeURIComponent(QR_URL)}&color=${f}&bgcolor=${b}&ecc=H&margin=1`;
   });
-  return c;
 }
 
 function rr(ctx, x, y, w, h, r) {
   ctx.beginPath();
   ctx.moveTo(x+r,y); ctx.lineTo(x+w-r,y);
-  ctx.quadraticCurveTo(x+w,y,x+w,y+r);
-  ctx.lineTo(x+w,y+h-r);
-  ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);
-  ctx.lineTo(x+r,y+h);
-  ctx.quadraticCurveTo(x,y+h,x,y+h-r);
-  ctx.lineTo(x,y+r);
-  ctx.quadraticCurveTo(x,y,x+r,y);
-  ctx.closePath();
+  ctx.quadraticCurveTo(x+w,y,x+w,y+r); ctx.lineTo(x+w,y+h-r);
+  ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h); ctx.lineTo(x+r,y+h);
+  ctx.quadraticCurveTo(x,y+h,x,y+h-r); ctx.lineTo(x,y+r);
+  ctx.quadraticCurveTo(x,y,x+r,y); ctx.closePath();
 }
 
-// ── INSTAGRAM POST ──────────────────────────────────────
+// ── INSTAGRAM POST 1080×1080 ──────────────────────────
 async function drawPost() {
-  const W=1080, H=1080;
+  const W=1080,H=1080;
   const cv=document.getElementById('c-post');
   cv.width=W; cv.height=H;
   const c=cv.getContext('2d');
+  const qr=await loadQR(480,'1c1c1e','ffffff');
 
-  // Background
+  // White background
   c.fillStyle='#fff'; c.fillRect(0,0,W,H);
 
-  // Top orange wave
-  const g=c.createLinearGradient(0,0,W,440);
+  // Orange wave header
+  const g=c.createLinearGradient(0,0,W,420);
   g.addColorStop(0,OR); g.addColorStop(1,OR2);
   c.fillStyle=g;
   c.beginPath();
-  c.moveTo(0,0); c.lineTo(W,0); c.lineTo(W,360);
-  c.bezierCurveTo(W*0.75,460, W*0.25,380, 0,440);
+  c.moveTo(0,0); c.lineTo(W,0); c.lineTo(W,340);
+  c.bezierCurveTo(W*.75,450,W*.25,370,0,430);
   c.closePath(); c.fill();
 
-  // fess.jobs text
+  // fess.jobs
   c.fillStyle='#fff';
-  c.font='bold 110px Bitter,serif';
+  c.font='bold 108px Bitter,serif';
   c.textAlign='center';
-  c.fillText('fess.jobs', W/2, 180);
+  c.fillText('fess.jobs', W/2, 172);
 
   // tagline
-  c.font='500 40px Inter,sans-serif';
-  c.fillStyle='rgba(255,255,255,.85)';
-  c.fillText('Dein Weg zu Top-Jobs im Eventbereich', W/2, 248);
+  c.font='500 38px Inter,sans-serif';
+  c.fillStyle='rgba(255,255,255,.88)';
+  c.fillText('Dein Weg zu Top-Jobs im Eventbereich', W/2, 240);
 
-  // Tutorial badge pill
-  c.fillStyle='rgba(255,255,255,.2)';
-  rr(c, W/2-160, 290, 320, 58, 29); c.fill();
+  // Tutorial pill
+  c.fillStyle='rgba(255,255,255,.22)';
+  rr(c,W/2-155,278,310,56,28); c.fill();
   c.fillStyle='#fff';
-  c.font='600 28px Inter,sans-serif';
-  c.fillText('▶  Tutorial starten', W/2, 326);
+  c.font='600 26px Inter,sans-serif';
+  c.fillText('▶  Tutorial starten', W/2, 314);
 
   // QR card
-  const qrSize=460;
-  const qr=await makeQR(qrSize,'#1c1c1e','#ffffff');
-  const cx=(W-qrSize-80)/2, cy=470;
-
-  // Shadow
-  c.shadowColor='rgba(0,0,0,.14)'; c.shadowBlur=50; c.shadowOffsetY=10;
+  const qrS=480, cx=(W-qrS-80)/2, cy=460;
+  c.shadowColor='rgba(0,0,0,.13)'; c.shadowBlur=48; c.shadowOffsetY=10;
   c.fillStyle='#fff';
-  rr(c, cx, cy, qrSize+80, qrSize+80, 28); c.fill();
+  rr(c,cx,cy,qrS+80,qrS+80,28); c.fill();
   c.shadowBlur=0; c.shadowOffsetY=0;
 
-  // Orange border ring
   c.strokeStyle=OR; c.lineWidth=5;
-  rr(c, cx, cy, qrSize+80, qrSize+80, 28); c.stroke();
+  rr(c,cx,cy,qrS+80,qrS+80,28); c.stroke();
 
-  // Orange dot corners
-  const dots=[[cx,cy],[cx+qrSize+80,cy],[cx,cy+qrSize+80],[cx+qrSize+80,cy+qrSize+80]];
-  dots.forEach(([dx,dy])=>{
-    c.fillStyle=OR;
-    c.beginPath(); c.arc(dx,dy,8,0,Math.PI*2); c.fill();
+  // Corner dots
+  [[cx,cy],[cx+qrS+80,cy],[cx,cy+qrS+80],[cx+qrS+80,cy+qrS+80]].forEach(([dx,dy])=>{
+    c.fillStyle=OR; c.beginPath(); c.arc(dx,dy,7,0,Math.PI*2); c.fill();
   });
 
-  c.drawImage(qr, cx+40, cy+40, qrSize, qrSize);
+  c.drawImage(qr, cx+40, cy+40, qrS, qrS);
 
-  // Scan label inside card bottom
-  c.fillStyle='rgba(28,28,30,.4)';
-  c.font='600 22px Inter,sans-serif';
-  c.fillText('QR Code scannen', W/2, cy+qrSize+62);
+  c.fillStyle='rgba(28,28,30,.35)';
+  c.font='600 21px Inter,sans-serif';
+  c.fillText('QR Code scannen', W/2, cy+qrS+62);
 
-  // Bottom URL
+  // URL
   c.fillStyle='#9ca3af';
-  c.font='24px Inter,sans-serif';
-  c.fillText('fessjobs.github.io/fess.jobs/tutorial.html', W/2, 1028);
+  c.font='22px Inter,sans-serif';
+  c.fillText('fessjobs.github.io/fess.jobs/tutorial.html', W/2, 1024);
 
-  // Bottom orange bar
-  c.fillStyle=OR;
-  c.fillRect(0, 1050, W, 30);
+  // Bottom bar
+  c.fillStyle=OR; c.fillRect(0,1048,W,32);
   c.fillStyle='#fff';
-  c.font='600 17px Inter,sans-serif';
+  c.font='600 16px Inter,sans-serif';
   c.fillText('fess.jobs · Personaldienstleistungen', W/2, 1070);
 }
 
-// ── INSTAGRAM STORY ────────────────────────────────────
+// ── INSTAGRAM STORY 1080×1920 ─────────────────────────
 async function drawStory() {
-  const W=1080, H=1920;
+  const W=1080,H=1920;
   const cv=document.getElementById('c-story');
   cv.width=W; cv.height=H;
   const c=cv.getContext('2d');
+  const qr=await loadQR(640,'ffffff','1a1a1a');
 
-  // Dark gradient bg
+  // Dark bg
   const g=c.createLinearGradient(0,0,0,H);
-  g.addColorStop(0,'#0d0d0d'); g.addColorStop(0.6,'#1a1a1a'); g.addColorStop(1,'#111');
+  g.addColorStop(0,'#0d0d0d'); g.addColorStop(.6,'#1a1a1a'); g.addColorStop(1,'#111');
   c.fillStyle=g; c.fillRect(0,0,W,H);
 
-  // Subtle grid pattern
-  c.strokeStyle='rgba(255,255,255,.03)'; c.lineWidth=1;
-  for(let x=0;x<W;x+=60){ c.beginPath(); c.moveTo(x,0); c.lineTo(x,H); c.stroke(); }
-  for(let y=0;y<H;y+=60){ c.beginPath(); c.moveTo(0,y); c.lineTo(W,y); c.stroke(); }
+  // Grid dots
+  c.fillStyle='rgba(255,255,255,.025)';
+  for(let x=0;x<W;x+=56) for(let y=0;y<H;y+=56){ c.beginPath(); c.arc(x,y,1.2,0,Math.PI*2); c.fill(); }
 
-  // Orange glow top
-  const topGlow=c.createRadialGradient(W/2,0,0,W/2,0,500);
-  topGlow.addColorStop(0,'rgba(232,101,26,.35)');
-  topGlow.addColorStop(1,'rgba(232,101,26,0)');
-  c.fillStyle=topGlow; c.fillRect(0,0,W,500);
+  // Top glow
+  const tg=c.createRadialGradient(W/2,-80,0,W/2,-80,540);
+  tg.addColorStop(0,'rgba(232,101,26,.38)'); tg.addColorStop(1,'rgba(0,0,0,0)');
+  c.fillStyle=tg; c.fillRect(0,0,W,540);
 
   // Top bar
-  c.fillStyle=OR; c.fillRect(0,0,W,8);
+  c.fillStyle=OR; c.fillRect(0,0,W,9);
 
   // fess.jobs
   c.fillStyle=OR;
-  c.font='bold 150px Bitter,serif';
+  c.font='bold 148px Bitter,serif';
   c.textAlign='center';
-  c.fillText('fess.jobs', W/2, 280);
+  c.fillText('fess.jobs', W/2, 276);
 
-  // tagline
-  c.fillStyle='rgba(255,255,255,.55)';
-  c.font='500 50px Inter,sans-serif';
-  c.fillText('Personaldienstleistungen', W/2, 370);
+  // subtitle
+  c.fillStyle='rgba(255,255,255,.5)';
+  c.font='500 48px Inter,sans-serif';
+  c.fillText('Personaldienstleistungen', W/2, 364);
 
   // Divider
-  const dg=c.createLinearGradient(W/2-250,0,W/2+250,0);
+  const dg=c.createLinearGradient(W/2-260,0,W/2+260,0);
   dg.addColorStop(0,'transparent'); dg.addColorStop(.5,OR); dg.addColorStop(1,'transparent');
   c.strokeStyle=dg; c.lineWidth=2;
-  c.beginPath(); c.moveTo(W/2-250,430); c.lineTo(W/2+250,430); c.stroke();
+  c.beginPath(); c.moveTo(W/2-260,424); c.lineTo(W/2+260,424); c.stroke();
 
-  // Instruction text
-  c.fillStyle='rgba(255,255,255,.9)';
-  c.font='600 56px Inter,sans-serif';
-  c.fillText('Scann den Code &', W/2, 560);
-  c.fillText('starte dein Tutorial', W/2, 632);
-
-  // QR
-  const qrSize=640;
-  const qr=await makeQR(qrSize,'#ffffff','#1a1a1a');
-  const qx=(W-qrSize-100)/2, qy=720;
-
-  // Glow behind QR
-  const qglow=c.createRadialGradient(W/2,qy+qrSize/2+50,0,W/2,qy+qrSize/2+50,500);
-  qglow.addColorStop(0,'rgba(232,101,26,.2)');
-  qglow.addColorStop(1,'rgba(232,101,26,0)');
-  c.fillStyle=qglow; c.fillRect(0,qy-100,W,qrSize+300);
+  // Instruction
+  c.fillStyle='rgba(255,255,255,.92)';
+  c.font='600 54px Inter,sans-serif';
+  c.fillText('Scann den Code &', W/2, 552);
+  c.fillText('starte dein Tutorial', W/2, 620);
 
   // QR card
+  const qrS=640, qx=(W-qrS-100)/2, qy=718;
+  const qglow=c.createRadialGradient(W/2,qy+qrS/2,0,W/2,qy+qrS/2,520);
+  qglow.addColorStop(0,'rgba(232,101,26,.22)'); qglow.addColorStop(1,'rgba(0,0,0,0)');
+  c.fillStyle=qglow; c.fillRect(0,qy-80,W,qrS+240);
+
   c.fillStyle='#222';
-  rr(c, qx, qy, qrSize+100, qrSize+100, 36); c.fill();
+  rr(c,qx,qy,qrS+100,qrS+100,36); c.fill();
   c.strokeStyle=OR; c.lineWidth=4;
-  rr(c, qx, qy, qrSize+100, qrSize+100, 36); c.stroke();
-
-  c.drawImage(qr, qx+50, qy+50, qrSize, qrSize);
-
-  // "oder" divider
-  c.fillStyle='rgba(255,255,255,.25)';
-  c.font='36px Inter,sans-serif';
-  c.fillText('oder direkt öffnen:', W/2, 1580);
+  rr(c,qx,qy,qrS+100,qrS+100,36); c.stroke();
+  c.drawImage(qr, qx+50, qy+50, qrS, qrS);
 
   // URL pill
-  c.fillStyle='rgba(232,101,26,.15)';
-  rr(c, W/2-320, 1600, 640, 64, 32); c.fill();
+  c.fillStyle='rgba(232,101,26,.14)';
+  rr(c,W/2-310,1568,620,64,32); c.fill();
   c.strokeStyle='rgba(232,101,26,.4)'; c.lineWidth=2;
-  rr(c, W/2-320, 1600, 640, 64, 32); c.stroke();
+  rr(c,W/2-310,1568,620,64,32); c.stroke();
   c.fillStyle=OR;
-  c.font='500 30px Inter,sans-serif';
-  c.fillText('fess.jobs/tutorial', W/2, 1641);
+  c.font='500 28px Inter,sans-serif';
+  c.fillText('fess.jobs/tutorial', W/2, 1608);
 
-  // CTA button
+  // CTA
   const bg=c.createLinearGradient(W/2-220,0,W/2+220,0);
   bg.addColorStop(0,OR); bg.addColorStop(1,OR2);
-  c.fillStyle=bg;
-  rr(c, W/2-220, 1700, 440, 88, 44); c.fill();
+  c.fillStyle=bg; rr(c,W/2-220,1690,440,86,43); c.fill();
   c.fillStyle='#fff';
-  c.font='bold 38px Inter,sans-serif';
-  c.fillText('▶  Jetzt starten', W/2, 1752);
+  c.font='bold 36px Inter,sans-serif';
+  c.fillText('▶  Jetzt starten', W/2, 1741);
 
-  // Bottom
+  // Footer
   c.fillStyle='rgba(255,255,255,.15)';
-  c.font='26px Inter,sans-serif';
-  c.fillText('fess.jobs · Dein Weg zu Top-Jobs', W/2, 1860);
-
-  // Bottom bar
-  c.fillStyle=OR; c.fillRect(0,H-8,W,8);
+  c.font='25px Inter,sans-serif';
+  c.fillText('fess.jobs · Dein Weg zu Top-Jobs', W/2, 1852);
+  c.fillStyle=OR; c.fillRect(0,H-9,W,9);
 }
 
-// ── APPLE WALLET ────────────────────────────────────────
+// ── APPLE WALLET 1024×648 ─────────────────────────────
 async function drawWallet() {
-  const W=1024, H=648;
+  const W=1024,H=648;
   const cv=document.getElementById('c-wallet');
   cv.width=W; cv.height=H;
   const c=cv.getContext('2d');
+  const qr=await loadQR(310,'ffffff','242428');
 
   // Dark base
   c.fillStyle=DARK; c.fillRect(0,0,W,H);
+  c.fillStyle='rgba(255,255,255,.022)';
+  for(let x=0;x<W;x+=26) for(let y=0;y<H;y+=26){ c.beginPath(); c.arc(x,y,1,0,Math.PI*2); c.fill(); }
 
-  // Subtle dot grid
-  for(let x=0;x<W;x+=28) for(let y=0;y<H;y+=28){
-    c.fillStyle='rgba(255,255,255,.025)';
-    c.beginPath(); c.arc(x,y,1,0,Math.PI*2); c.fill();
-  }
-
-  // Orange left panel with curve
-  const og=c.createLinearGradient(0,0,380,H);
+  // Orange left panel with curved right edge
+  const og=c.createLinearGradient(0,0,370,H);
   og.addColorStop(0,OR); og.addColorStop(1,OR2);
   c.fillStyle=og;
   c.beginPath();
-  c.moveTo(0,0); c.lineTo(360,0);
-  c.bezierCurveTo(400,H*0.3, 400,H*0.7, 360,H);
+  c.moveTo(0,0); c.lineTo(355,0);
+  c.bezierCurveTo(400,H*.28,400,H*.72,355,H);
   c.lineTo(0,H); c.closePath(); c.fill();
 
-  // Top "pass type" label on orange
+  // Pass label top-left
   c.fillStyle='rgba(255,255,255,.5)';
-  c.font='700 16px Inter,sans-serif';
+  c.font='700 15px Inter,sans-serif';
   c.textAlign='left';
-  c.fillText('MITARBEITER-PORTAL', 36, 60);
+  c.fillText('MITARBEITER-PORTAL', 34, 58);
   c.fillStyle='rgba(255,255,255,.3)';
-  c.font='13px Inter,sans-serif';
-  c.fillText('fess.jobs', 36, 80);
+  c.font='12px Inter,sans-serif';
+  c.fillText('fess.jobs', 34, 78);
 
-  // fess.jobs main
+  // fess.jobs main text
   c.fillStyle='#fff';
-  c.font='bold 86px Bitter,serif';
+  c.font='bold 84px Bitter,serif';
   c.textAlign='center';
-  c.fillText('fess.jobs', 175, 220);
+  c.fillText('fess.jobs', 170, 216);
 
-  // Line
+  // Divider
   c.strokeStyle='rgba(255,255,255,.25)'; c.lineWidth=1;
-  c.beginPath(); c.moveTo(36,248); c.lineTo(314,248); c.stroke();
+  c.beginPath(); c.moveTo(34,244); c.lineTo(306,244); c.stroke();
 
   c.fillStyle='rgba(255,255,255,.75)';
-  c.font='500 22px Inter,sans-serif';
-  c.fillText('Personaldienstleistungen', 175, 278);
+  c.font='500 21px Inter,sans-serif';
+  c.fillText('Personaldienstleistungen', 170, 272);
 
   c.fillStyle='rgba(255,255,255,.5)';
-  c.font='500 19px Inter,sans-serif';
-  c.fillText('Scann für Tutorial ↓', 175, 340);
+  c.font='500 18px Inter,sans-serif';
+  c.fillText('Scann für Tutorial →', 170, 336);
 
-  // Small QR on orange panel
-  const smallQR=await makeQR(160,'#fff','rgba(0,0,0,0)');
-  c.fillStyle='rgba(0,0,0,.12)';
-  rr(c,95,370,170,170,10); c.fill();
-  c.drawImage(smallQR, 95, 370, 160, 160);
-
-  // Right side - large QR
-  const qrSize=310;
-  const qr=await makeQR(qrSize,'#ffffff','#242428');
-  const qx=460+(W-460-qrSize-40)/2, qy=(H-qrSize-60)/2;
-
-  // Glow
-  c.shadowColor=OR; c.shadowBlur=40;
-  c.fillStyle='#28282e';
-  rr(c, qx-18, qy-18, qrSize+36, qrSize+36, 18); c.fill();
+  // QR on right
+  const qrS=310, qx=452+(W-452-qrS)/2, qy=(H-qrS-56)/2;
+  c.shadowColor=OR; c.shadowBlur=36;
+  c.fillStyle='#28282e'; rr(c,qx-18,qy-18,qrS+36,qrS+36,18); c.fill();
   c.shadowBlur=0;
-
   c.strokeStyle=OR; c.lineWidth=3;
-  rr(c, qx-18, qy-18, qrSize+36, qrSize+36, 18); c.stroke();
+  rr(c,qx-18,qy-18,qrS+36,qrS+36,18); c.stroke();
+  c.drawImage(qr, qx, qy, qrS, qrS);
 
-  c.drawImage(qr, qx, qy, qrSize, qrSize);
+  c.fillStyle='rgba(255,255,255,.38)';
+  c.font='600 17px Inter,sans-serif';
+  c.fillText('Tutorial starten', qx+qrS/2, qy+qrS+32);
 
-  // Label below QR
-  c.fillStyle='rgba(255,255,255,.4)';
-  c.font='600 18px Inter,sans-serif';
-  c.textAlign='center';
-  c.fillText('Tutorial starten', qx+qrSize/2, qy+qrSize+34);
-
-  // Bottom strip
-  const sg=c.createLinearGradient(0,H-52,0,H);
-  sg.addColorStop(0,'rgba(28,28,30,0)'); sg.addColorStop(1,'rgba(28,28,30,.8)');
-  c.fillStyle=sg; c.fillRect(0,H-52,W,52);
+  // Footer strip
+  const sg=c.createLinearGradient(0,H-50,0,H);
+  sg.addColorStop(0,'rgba(28,28,30,0)'); sg.addColorStop(1,'rgba(28,28,30,.85)');
+  c.fillStyle=sg; c.fillRect(0,H-50,W,50);
   c.fillStyle=OR; c.fillRect(0,H-4,W,4);
-
   c.fillStyle='rgba(255,255,255,.2)';
-  c.font='14px Inter,sans-serif';
+  c.font='13px Inter,sans-serif';
   c.textAlign='center';
-  c.fillText('fess.jobs · Personaldienstleistungen · fessjobs.github.io/fess.jobs/tutorial.html', W/2, H-14);
+  c.fillText('fess.jobs · fessjobs.github.io/fess.jobs/tutorial.html', W/2, H-12);
 }
 
 function dl(id, name) {
-  const a=document.createElement('a');
-  a.download=name;
-  a.href=document.getElementById(id).toDataURL('image/png');
-  a.click();
+  try {
+    const a=document.createElement('a');
+    a.download=name;
+    a.href=document.getElementById(id).toDataURL('image/png');
+    a.click();
+  } catch(e) {
+    alert('Download nicht möglich (CORS). Bitte Screenshot verwenden oder im Desktop-Browser öffnen.');
+  }
 }
 
 async function init() {
   try {
-    // Don't wait for fonts — use timeout fallback
-    await Promise.race([
-      document.fonts.ready,
-      new Promise(r => setTimeout(r, 2000))
-    ]);
-    if (typeof QRCode === 'undefined') {
-      document.getElementById('loading').textContent = '⚠️ QR-Bibliothek konnte nicht geladen werden. Bitte Internetverbindung prüfen und neu laden.';
-      return;
-    }
+    await Promise.race([document.fonts.ready, new Promise(r=>setTimeout(r,2500))]);
     await Promise.all([drawPost(), drawStory(), drawWallet()]);
     document.getElementById('loading').style.display='none';
     document.getElementById('grid').style.display='grid';
   } catch(e) {
-    document.getElementById('loading').textContent='Fehler: '+e.message;
-    console.error(e);
+    document.getElementById('loading').innerHTML =
+      `<div style="color:#dc2626;font-weight:700">⚠️ Fehler</div><div style="margin-top:8px;font-size:13px">${e.message}</div>
+       <div style="margin-top:12px;font-size:12px;color:#6b7280">Bitte Internetverbindung prüfen und Seite neu laden.</div>`;
   }
 }
 
