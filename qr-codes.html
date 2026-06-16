@@ -369,13 +369,21 @@ function dl(id, name) {
 
 async function init() {
   try {
-    // Load fonts first
-    await document.fonts.ready;
+    // Don't wait for fonts — use timeout fallback
+    await Promise.race([
+      document.fonts.ready,
+      new Promise(r => setTimeout(r, 2000))
+    ]);
+    if (typeof QRCode === 'undefined') {
+      document.getElementById('loading').textContent = '⚠️ QR-Bibliothek konnte nicht geladen werden. Bitte Internetverbindung prüfen und neu laden.';
+      return;
+    }
     await Promise.all([drawPost(), drawStory(), drawWallet()]);
     document.getElementById('loading').style.display='none';
     document.getElementById('grid').style.display='grid';
   } catch(e) {
     document.getElementById('loading').textContent='Fehler: '+e.message;
+    console.error(e);
   }
 }
 
