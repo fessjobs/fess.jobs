@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Janke Solutions – Bau, Vermietung &amp; Handwerk aus einer Hand</title>
+<meta name="description" content="Janke Solutions entwickelt Immobilien für Kurz- und Langzeitvermietung, vermittelt geprüfte Handwerker, übernimmt Einrichtung, Homestaging und Entsorgungsmanagement.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Sora:wght@600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container">
+    <a href="#top" class="brand" id="brand-logo"></a>
+    <nav class="main-nav" id="main-nav"></nav>
+    <button class="nav-toggle" id="nav-toggle" aria-label="Menü öffnen">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</header>
+
+<main id="top">
+
+  <section class="hero">
+    <div class="container hero-grid">
+      <div>
+        <span class="eyebrow" id="hero-eyebrow"></span>
+        <h1 id="hero-title"></h1>
+        <p class="lead" id="hero-subtitle"></p>
+        <div class="hero-cta" id="hero-cta"></div>
+        <div class="hero-stats" id="hero-stats"></div>
+      </div>
+      <div class="hero-visual">
+        <div class="hero-visual-graphic">
+          <span class="hero-visual-tag">Bau · Einrichtung · Vermietung</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="leistungen">
+    <div class="container">
+      <div class="section-head">
+        <span class="eyebrow">Leistungen</span>
+        <h2>Alles für dein Vermietobjekt – aus einer Hand</h2>
+        <p>Von der ersten Idee bis zum einzugsfertigen Objekt: Wir übernehmen die Bausteine, die dein Projekt erfolgreich machen.</p>
+      </div>
+      <div class="services-grid" id="services-grid"></div>
+    </div>
+  </section>
+
+  <section class="section section-alt" id="unterkuenfte">
+    <div class="container">
+      <div class="section-head">
+        <span class="eyebrow">Eigene Unterkünfte</span>
+        <h2>Wir vermieten auch selbst</h2>
+        <p id="accommodations-intro"></p>
+      </div>
+      <div id="accommodations-list"></div>
+    </div>
+  </section>
+
+  <section class="section" id="handwerker">
+    <div class="container">
+      <div class="section-head">
+        <span class="eyebrow">Handwerker-Netzwerk</span>
+        <h2>Geprüfte Handwerker, direkt buchbar</h2>
+        <p id="craftsmen-intro"></p>
+      </div>
+      <div class="craftsmen-grid" id="craftsmen-grid"></div>
+      <p class="craftsmen-note" id="craftsmen-note"></p>
+    </div>
+  </section>
+
+  <section class="section section-alt" id="ablauf">
+    <div class="container">
+      <div class="section-head">
+        <span class="eyebrow">So läuft's</span>
+        <h2>Vom Erstgespräch zum vermieteten Objekt</h2>
+      </div>
+      <div class="process-grid" id="process-grid"></div>
+    </div>
+  </section>
+
+  <section class="section" id="ueber-uns">
+    <div class="container about-grid">
+      <div class="about-visual">
+        <div id="testimonials-list"></div>
+      </div>
+      <div>
+        <span class="eyebrow">Über uns</span>
+        <h2 id="about-title"></h2>
+        <p id="about-text"></p>
+        <div class="about-stats" id="about-stats"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section section-alt" id="kontakt">
+    <div class="container contact-grid">
+      <div>
+        <span class="eyebrow">Kontakt</span>
+        <h2 id="contact-heading"></h2>
+        <p id="contact-text"></p>
+        <div id="contact-info"></div>
+      </div>
+      <form class="contact-form" id="contact-form">
+        <div class="form-row">
+          <label for="name">Name</label>
+          <input type="text" id="name" name="name" required>
+        </div>
+        <div class="form-row">
+          <label for="email">E-Mail</label>
+          <input type="email" id="email" name="email" required>
+        </div>
+        <div class="form-row">
+          <label for="message">Nachricht</label>
+          <textarea id="message" name="message" rows="5" required></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary btn-block">Nachricht senden</button>
+      </form>
+    </div>
+  </section>
+
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-brand" id="footer-brand"></div>
+      <div class="footer-links" id="footer-links"></div>
+    </div>
+    <p class="footer-bottom" id="footer-copy"></p>
+  </div>
+</footer>
+
+<script src="js/content.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>
